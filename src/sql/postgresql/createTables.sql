@@ -20,51 +20,33 @@
 
 CREATE TABLE mana_accounts
 (
-   id           SERIAL      PRIMARY KEY,
-   username     TEXT        NOT NULL UNIQUE,
-   password     TEXT        NOT NULL,
-   email        TEXT        NOT NULL,
-   level        SMALLINT    NOT NULL,
-   banned       SMALLINT    NOT NULL,
-   registration INTEGER     NOT NULL,
-   lastlogin    INTEGER     NOT NULL
+    "id"              SERIAL      PRIMARY KEY,
+    "username"        TEXT        NOT NULL UNIQUE,
+    "password"        TEXT        NOT NULL,
+    "email"           TEXT        NOT NULL,
+    "level"           SMALLINT    NOT NULL,
+    "banned"          INTEGER     NOT NULL,
+    "registration"    INTEGER     NOT NULL,
+    "lastlogin"       INTEGER     NOT NULL,
+    "authorization"   TEXT        DEFAULT NULL,
+    "expiration"      INTEGER     DEFAULT NULL
 );
-
-CREATE INDEX mana_accounts_username ON mana_accounts ( username );
-
 
 CREATE TABLE mana_characters
 (
-   id           SERIAL      PRIMARY KEY,
-   user_id      INTEGER     NOT NULL,
-   name         TEXT        NOT NULL UNIQUE,
-   gender       SMALLINT    NOT NULL,
-   hair_style   SMALLINT    NOT NULL,
-   hair_color   INTEGER     NOT NULL,
-   level        INTEGER     NOT NULL,
-   char_pts     INTEGER     NOT NULL,
-   correct_pts  INTEGER     NOT NULL,
-   money        INTEGER     NOT NULL,
-   x            SMALLINT    NOT NULL,
-   y            SMALLINT    NOT NULL,
-   map_id       SMALLINT    NOT NULL,
-   str          SMALLINT    NOT NULL,
-   agi          SMALLINT    NOT NULL,
-   dex          SMALLINT    NOT NULL,
-   vit          SMALLINT    NOT NULL,
-   int          SMALLINT    NOT NULL,
-   will         SMALLINT    NOT NULL,
-   unarmed_exp  INTEGER     NOT NULL,
-   knife_exp    INTEGER     NOT NULL,
-   sword_exp    INTEGER     NOT NULL,
-   polearm_exp  INTEGER     NOT NULL,
-   staff_exp    INTEGER     NOT NULL,
-   whip_exp     INTEGER     NOT NULL,
-   bow_exp      INTEGER     NOT NULL,
-   shoot_exp    INTEGER     NOT NULL,
-   mace_exp     INTEGER     NOT NULL,
-   axe_exp      INTEGER     NOT NULL,
-   thrown_exp   INTEGER     NOT NULL,
+   "id"           SERIAL      PRIMARY KEY,
+   "user_id"      INTEGER     NOT NULL,
+   "name"         TEXT        NOT NULL UNIQUE,
+   "gender"       SMALLINT    NOT NULL,
+   "hair_style"   SMALLINT    NOT NULL,
+   "hair_color"   SMALLINT    NOT NULL,
+   "level"        INTEGER     NOT NULL,
+   "char_pts"     INTEGER     NOT NULL,
+   "correct_pts"  INTEGER     NOT NULL,
+   "x"            SMALLINT    NOT NULL,
+   "y"            SMALLINT    NOT NULL,
+   "map_id"       SMALLINT    NOT NULL,
+    "slot"          SMALLINT    NOT NULL
    --
    FOREIGN KEY (user_id) REFERENCES mana_accounts(id)
 );
