@@ -340,7 +340,7 @@ static int npc_disable(lua_State *s)
 {
     Entity *npc = checkNpc(s, 1);
     npc->getComponent<NpcComponent>()->setEnabled(false);
-    GameState::remove(npc);
+    GameState::enqueueRemove(npc);
     return 0;
 }
 
