@@ -273,6 +273,18 @@ class BeingComponent : public Component
         { return mEmoteId; }
 
         /**
+         * Set Visibillity
+         */
+        void setVisibillity(bool value)
+        { mVisible = value; }
+
+        /**
+         * Get Visibillity
+         */
+        virtual bool isVisible() const
+        { return mVisible; }
+
+        /**
          * Update the being direction when moving so avoid directions desyncs
          * with other clients.
          */
@@ -291,6 +303,7 @@ class BeingComponent : public Component
         Point mOld;                 /**< Old coordinates. */
         Point mDst;                 /**< Target coordinates. */
         BeingGender mGender;        /**< Gender of the being. */
+        bool mVisible;              /**< Visibillity of being. */
 
     private:
         BeingComponent(const BeingComponent &rhs);

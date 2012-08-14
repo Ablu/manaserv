@@ -144,6 +144,9 @@ static void informPlayer(MapComposite *map, Entity *p)
     {
         Entity *o = *it;
 
+        if (!o->getComponent<BeingComponent>()->isVisible())
+            break;
+
         const Point &oold =
                 o->getComponent<BeingComponent>()->getOldPosition();
         const Point &opos = o->getComponent<ActorComponent>()->getPosition();

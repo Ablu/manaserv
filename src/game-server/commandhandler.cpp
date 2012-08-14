@@ -86,6 +86,7 @@ static void handleGiveSpecial(Entity*, std::string&);
 static void handleTakeSpecial(Entity*, std::string&);
 static void handleRechargeSpecial(Entity*, std::string&);
 static void handleListSpecials(Entity*, std::string&);
+static void handleVisible(Entity*, std::string&);
 
 static CmdRef const cmdRef[] =
 {
@@ -167,6 +168,8 @@ static CmdRef const cmdRef[] =
         "<setname>_<specialname>", &handleRechargeSpecial},
     {"listspecials", "<character>",
         "Lists the specials of the character.", &handleListSpecials},
+    {"invisible", "",
+        "Makes you invisible", &handleVisible },
     {nullptr, nullptr, nullptr, nullptr}
 
 };
@@ -1776,6 +1779,17 @@ static void handleListSpecials(Entity *player, std::string &args)
             << info.specialInfo->name << " charge: " << info.currentMana;
         say(str.str(), player);
     }
+}
+
+static void handleVisible(Entity *player, std::string &args)
+{
+    if (!player->getComponent<BeingComponent>()->isVisible())
+    {
+        say("You are already invisible!", player);
+        return;
+    }
+    player->getComponent<BeingComponent>()->setVisibillity(false);
+    say("You are now invisible!", player);
 }
 
 void CommandHandler::handleCommand(Entity *player,

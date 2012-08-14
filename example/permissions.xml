@@ -29,6 +29,7 @@
     <allow>@takespecial</allow>
     <allow>@rechargespecial</allow>
     <allow>@listspecials</allow>
+    <allow>@invisible</allow>
   </class>
   <class level="4">
     <alias>gm</alias>

@@ -45,6 +45,7 @@ BeingComponent::BeingComponent(Entity &entity):
     mMoveTime(0),
     mAction(STAND),
     mGender(GENDER_UNSPECIFIED),
+    mVisible(true),
     mDirection(DOWN),
     mEmoteId(0)
 {
