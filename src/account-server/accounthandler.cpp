@@ -595,6 +595,7 @@ void AccountHandler::handleRequestRegisterInfoMessage(AccountClient &client,
 {
     LOG_INFO("AccountHandler::handleRequestRegisterInfoMessage");
     MessageOut reply(APMSG_REGISTER_INFO_RESPONSE);
+    reply.writeString(mDataUrl);
     if (!Configuration::getBoolValue("account_allowRegister", true))
     {
         reply.writeInt8(false);
@@ -958,11 +959,6 @@ void AccountHandler::handleCharacterDeleteMessage(AccountClient &client,
 void AccountHandler::addServerInfo(MessageOut *msg)
 {
     msg->writeString(mUpdateHost);
-    /*
-     * This is for developing/testing an experimental new resource manager that
-     * downloads only the files it needs on demand.
-     */
-    msg->writeString(mDataUrl);
     msg->writeInt8(mMaxCharacters);
 }
 
