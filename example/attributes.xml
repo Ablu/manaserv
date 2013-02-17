@@ -190,4 +190,9 @@
         modifiable="false"
         scope="monster"
         minimum="0" />
+    <attribute id="23" name="XP"
+        desc="The experience of this character."
+        modifiable="false"
+        scope="character"
+        minimum="0" />
 </attributes>

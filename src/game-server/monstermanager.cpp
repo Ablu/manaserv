@@ -244,12 +244,6 @@ void MonsterManager::readMonsterNode(xmlNodePtr node, const std::string &filenam
 
             monster->addAbility(info);
         }
-        else if (xmlStrEqual(subnode->name, BAD_CAST "exp"))
-        {
-            xmlChar *exp = subnode->xmlChildrenNode->content;
-            monster->setExp(atoi((const char*)exp));
-            monster->setOptimalLevel(XML::getProperty(subnode, "level", 0));
-        }
     }
 
     monster->setDrops(drops);
@@ -258,13 +252,6 @@ void MonsterManager::readMonsterNode(xmlNodePtr node, const std::string &filenam
         LOG_WARN(filename
                  << ": No attributes defined for monster Id:" << id
                  << " (" << name << ")");
-    }
-    if (monster->getExp() == -1)
-    {
-        LOG_WARN(filename
-                << ": No experience defined for monster Id:" << id
-                << " (" << name << ")");
-        monster->setExp(0);
     }
 }
 
