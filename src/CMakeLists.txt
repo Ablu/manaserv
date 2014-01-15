@@ -2,6 +2,8 @@ FIND_PACKAGE(LibXml2 REQUIRED)
 FIND_PACKAGE(PhysFS REQUIRED)
 FIND_PACKAGE(ZLIB REQUIRED)
 FIND_PACKAGE(SigC++ REQUIRED)
+FIND_PACKAGE(Qt4 REQUIRED)
+SET(QT_USE_QTSQL TRUE)
 
 IF (CMAKE_COMPILER_IS_GNUCXX)
     # Help getting compilation warnings
@@ -43,6 +45,10 @@ IF (MINGW)
       "<CMAKE_RC_COMPILER> <FLAGS> <DEFINES> -O coff -o <OBJECT> <SOURCE>")
 ENDIF()
 
+INCLUDE(${QT_USE_FILE})
+ADD_DEFINITIONS(${QT_DEFINITIONS})
+
+
 SET(FLAGS "${FLAGS} -DPACKAGE_VERSION=\\\"${VERSION}\\\"")
 SET(FLAGS "${FLAGS} -DPKG_DATADIR=\\\"${PKG_DATADIR}/\\\"")
 SET(FLAGS "${FLAGS} -DLOCALEDIR=\\\"${LOCALEDIR}/\\\"")
@@ -52,30 +58,6 @@ SET(FLAGS "${FLAGS} -Woverloaded-virtual")
 
 # Prevent clashes with icu namespace
 SET(FLAGS "${FLAGS} -DU_USING_ICU_NAMESPACE=0")
-
-# If the Sqlite option is enabled...
-IF (WITH_SQLITE)
-    FIND_PACKAGE(Sqlite3 REQUIRED)
-    INCLUDE_DIRECTORIES(${SQLITE3_INCLUDE_DIR})
-    SET(FLAGS "${FLAGS} -DSQLITE_SUPPORT")
-    SET(OPTIONAL_LIBRARIES ${OPTIONAL_LIBRARIES} ${SQLITE3_LIBRARIES})
-ENDIF(WITH_SQLITE)
-
-# If the MySQL option is enabled...
-IF (WITH_MYSQL)
-    FIND_PACKAGE(MySQL REQUIRED)
-    INCLUDE_DIRECTORIES(${MYSQL_INCLUDE_DIR})
-    SET(FLAGS "${FLAGS} -DMYSQL_SUPPORT")
-    SET(OPTIONAL_LIBRARIES ${OPTIONAL_LIBRARIES} ${MYSQL_LIBRARIES})
-ENDIF()
-
-# If the postgreSQL option is enabled...
-IF (WITH_POSTGRESQL)
-    FIND_PACKAGE(PostgreSQL REQUIRED)
-    INCLUDE_DIRECTORIES(${POSTGRESQL_INCLUDE_DIR})
-    SET(FLAGS "${FLAGS} -DPOSTGRESQL_SUPPORT")
-    SET(OPTIONAL_LIBRARIES ${OPTIONAL_LIBRARIES} ${POSTGRESQL_LIBRARIES})
-ENDIF()
 
 # If the Lua scripting language support is enabled...
 IF (ENABLE_LUA)
@@ -187,13 +169,6 @@ SET(SRCS_MANASERVACCOUNT
     chat-server/partyhandler.cpp
     chat-server/post.cpp
     chat-server/post.h
-    dal/dalexcept.h
-    dal/dataprovider.h
-    dal/dataprovider.cpp
-    dal/dataproviderfactory.h
-    dal/dataproviderfactory.cpp
-    dal/recordset.h
-    dal/recordset.cpp
     utils/functors.h
     utils/sha256.h
     utils/sha256.cpp
@@ -294,24 +269,6 @@ IF (WIN32)
     SET(SRCS_MANASERVGAME ${SRCS_MANASERVGAME} manaserv-game.rc)
 ENDIF ()
 
-IF (WITH_MYSQL)
-    SET(SRCS_MANASERVACCOUNT ${SRCS_MANASERVACCOUNT}
-    dal/mysqldataprovider.h
-    dal/mysqldataprovider.cpp)
-ENDIF()
-
-IF (WITH_POSTGRESQL)
-    SET(SRCS_MANASERVACCOUNT ${SRCS_MANASERVACCOUNT}
-    dal/pqdataprovider.h
-    dal/pqdataprovider.cpp)
-ENDIF()
-
-IF (WITH_SQLITE)
-    SET(SRCS_MANASERVACCOUNT ${SRCS_MANASERVACCOUNT}
-    dal/sqlitedataprovider.h
-    dal/sqlitedataprovider.cpp)
-ENDIF()
-
 IF (ENABLE_LUA)
     SET(SRCS_MANASERVGAME ${SRCS_MANASERVGAME}
     scripting/lua.cpp
@@ -334,7 +291,8 @@ FOREACH(program ${PROGRAMS})
         ${ZLIB_LIBRARIES}
         ${SIGC++_LIBRARIES}
         ${OPTIONAL_LIBRARIES}
-        ${EXTRA_LIBRARIES})
+        ${EXTRA_LIBRARIES}
+        ${QT_LIBRARIES})
     INSTALL(TARGETS ${program} RUNTIME DESTINATION ${PKG_BINDIR})
 ENDFOREACH(program)
 
