@@ -33,7 +33,8 @@
 Script::Ref LuaScript::mDeathNotificationCallback;
 Script::Ref LuaScript::mRemoveNotificationCallback;
 
-const char LuaScript::registryKey = 0;
+const char LuaScript::scriptObjectRegistryKey = 0;
+const char LuaScript::functionTableRegistryKey = 0;
 
 LuaScript::~LuaScript()
 {
@@ -242,6 +243,47 @@ void LuaScript::load(const char *prog, const char *name,
         lua_pop(mRootState, 1);
     }
     else if (lua_pcall(mRootState, 0, 0, 1))
+    {
+        LOG_ERROR("Failure while initializing Lua script: "
+                  << lua_tostring(mRootState, -1));
+        lua_pop(mRootState, 1);
+    }
+    mContext = previousContext;
+}
+
+void LuaScript::loadSandboxed(const char *prog, const char *name,
+                              const Context &context)
+{
+    const Context *previousContext = mContext;
+    mContext = &context;
+    int res = luaL_loadbuffer(mRootState, prog, std::strlen(prog), name);
+    if (res)
+    {
+        switch (res) {
+        case LUA_ERRSYNTAX:
+            LOG_ERROR("Syntax error while loading Lua script: "
+                      << lua_tostring(mRootState, -1));
+            break;
+        case LUA_ERRMEM:
+            LOG_ERROR("Memory allocation error while loading Lua script");
+            break;
+        }
+
+        lua_pop(mRootState, 1);
+        return;
+    }
+
+    // Stack: compiled chunk
+
+    lua_newtable(mRootState);                   // Stack: compiled chunk, _ENV
+    lua_newtable(mRootState);                   // Stack: compiled chunk, _ENV, metatable
+    lua_pushglobaltable(mRootState);            // Stack: compiled chunk, _ENV, metatable, _G
+    lua_setfield(mRootState, -2, "__index");    // Stack: compiled chunk, _ENV, metatable
+    lua_setmetatable(mRootState, -2);           // Stack: compiled chunk, _ENV
+    lua_setupvalue(mRootState, -2, 1);          // Stack: compiled chunk
+
+
+    if (lua_pcall(mRootState, 0, 0, 1))
     {
         LOG_ERROR("Failure while initializing Lua script: "
                   << lua_tostring(mRootState, -1));

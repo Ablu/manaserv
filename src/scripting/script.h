@@ -125,6 +125,9 @@ class Script : public sigc::trackable
         virtual void load(const char *prog,
                           const char *name,
                           const Context &context = Context()) = 0;
+        virtual void loadSandboxed(const char *prog,
+                                   const char *name,
+                                   const Context &context = Context()) = 0;
 
         /**
          * Loads a text file into script context and executes its global

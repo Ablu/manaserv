@@ -57,6 +57,8 @@ Script *currentState();
 
 bool performCraft(Entity *crafter, const std::list<InventoryItem> &recipe);
 
+void executeSandboxedScript(const std::string &code);
+
 void setCraftCallback(Script *script);
 void setAbilityCallback(Script *script);
 void setGetAbilityRechargeCostCallback(Script *script);

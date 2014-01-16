@@ -64,5 +64,10 @@ bool ScriptManager::performCraft(Entity *crafter,
     return true;
 }
 
+void ScriptManager::executeSandboxedScript(const std::string &code)
+{
+    _currentState->loadSandboxed(code.c_str(), "<console>");
+}
+
 void ScriptManager::setCraftCallback(Script *script)
 { script->assignCallback(_craftCallback); }

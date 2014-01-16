@@ -3454,8 +3454,15 @@ LuaScript::LuaScript():
     lua_pushvalue(mRootState, LUA_GLOBALSINDEX);
     luaL_register(mRootState, nullptr, callbacks);
 #else
-    lua_pushglobaltable(mRootState);
-    luaL_setfuncs(mRootState, callbacks, 0);
+
+    lua_pushglobaltable(mRootState);            // Stack: global table
+    lua_pushstring(L, "ManaFunctions");         // Stack: global table, key
+    lua_newtable(L);                            // Stack: global table, key, Mana function table
+    luaL_setfuncs(mRootState, callbacks, 0);    // Stack: global table, key, Mana function table
+    // TODO: set __index of _G's metatable to table on top of stack
+    lua_rawset(mRootState, -3);                 // Stack: global table
+
+    lua_pushglobaltable(mRootState);            // Stack: global table
 #endif
     lua_pop(mRootState, 1);                     // pop the globals table
 
@@ -3579,7 +3586,7 @@ LuaScript::LuaScript():
     LuaAttributeInfo::registerType(mRootState, "AttributeInfo", members_AttributeInfo);
 
     // Make script object available to callback functions.
-    lua_pushlightuserdata(mRootState, const_cast<char *>(&registryKey));
+    lua_pushlightuserdata(mRootState, const_cast<char *>(&scriptObjectRegistryKey));
     lua_pushlightuserdata(mRootState, this);
     lua_rawset(mRootState, LUA_REGISTRYINDEX);
 

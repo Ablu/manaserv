@@ -46,6 +46,8 @@ class LuaScript : public Script
 
         void load(const char *prog, const char *name,
                   const Context &context = Context());
+        void loadSandboxed(const char *prog, const char *name,
+                           const Context &context = Context());
 
         Thread *newThread();
 
@@ -87,7 +89,8 @@ class LuaScript : public Script
         static void setRemoveNotificationCallback(Script *script)
         { script->assignCallback(mRemoveNotificationCallback); }
 
-        static const char registryKey;
+        static const char scriptObjectRegistryKey;
+        static const char functionTableRegistryKey;
 
     private:
         class LuaThread : public Thread

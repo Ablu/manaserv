@@ -167,7 +167,7 @@ Entity *LuaUserData<Entity>::check(lua_State *L, int narg)
 
 Script *getScript(lua_State *s)
 {
-    lua_pushlightuserdata(s, (void *)&LuaScript::registryKey);
+    lua_pushlightuserdata(s, (void *)&LuaScript::scriptObjectRegistryKey);
     lua_gettable(s, LUA_REGISTRYINDEX);
     Script *script = static_cast<Script *>(lua_touserdata(s, -1));
     lua_pop(s, 1);

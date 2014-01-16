@@ -87,6 +87,7 @@ static void handleRechargeAbility(Entity*, std::string&);
 static void handleListAbility(Entity*, std::string&);
 static void handleSetAttributePoints(Entity*, std::string&);
 static void handleSetCorrectionPoints(Entity*, std::string&);
+static void handleExecuteCode(Entity*, std::string&);
 
 static CmdRef const cmdRef[] =
 {
@@ -170,6 +171,8 @@ static CmdRef const cmdRef[] =
         "Sets the attribute points of a character.", &handleSetAttributePoints},
     {"setcorrectionpoints", "<character> <amount>",
         "Sets the correction points of a character.", &handleSetCorrectionPoints},
+    {"execute", "<code>",
+        "Executes the code", &handleExecuteCode},
     {nullptr, nullptr, nullptr, nullptr}
 
 };
@@ -1796,6 +1799,11 @@ static void handleSetCorrectionPoints(Entity *player, std::string &args)
     auto *characterComponent = other->getComponent<CharacterComponent>();
 
     characterComponent->setCorrectionPoints(utils::stringToInt(correctionPoints));
+}
+
+static void handleExecuteCode(Entity *player, std::string &args)
+{
+    ScriptManager::executeSandboxedScript(args);
 }
 
 void CommandHandler::handleCommand(Entity *player,
