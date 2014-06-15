@@ -1157,7 +1157,7 @@ std::map<std::string, std::string> Storage::getAllWorldStateVars(int mapId)
     if (mapId < 0)
     {
         LOG_ERROR("getAllWorldStateVars was called with a negative map Id: "
-                  + mapId);
+                  << mapId);
         return variables;
     }
 
