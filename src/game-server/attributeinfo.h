@@ -23,6 +23,7 @@
 
 #include <limits>
 #include <vector>
+#include <string>
 
 /**
  * Stackable types.
