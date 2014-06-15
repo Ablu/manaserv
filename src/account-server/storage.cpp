@@ -42,8 +42,6 @@
 #include <QSqlQuery>
 #include <QSqlResult>
 
-static const char *DEFAULT_ITEM_FILE = "items.xml";
-
 // Defines the supported db version
 static const char *DB_VERSION_PARAMETER = "database_version";
 
