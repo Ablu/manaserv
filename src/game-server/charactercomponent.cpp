@@ -370,6 +370,8 @@ void CharacterComponent::sendAbilityCooldownUpdate(Entity &entity)
 
 void CharacterComponent::sendAttributePointsStatus(Entity &entity)
 {
+    Q_UNUSED(entity);
+
     MessageOut msg(GPMSG_ATTRIBUTE_POINTS_STATUS);
     msg.writeInt16(mAttributePoints);
     msg.writeInt16(mCorrectionPoints);

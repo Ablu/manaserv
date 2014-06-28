@@ -114,6 +114,8 @@ void MonsterComponent::update(Entity &entity)
 
 void MonsterComponent::monsterDied(Entity *monster)
 {
+    Q_UNUSED(monster);
+
     mDecayTimeout.set(DECAY_TIME);
 }
 

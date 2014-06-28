@@ -410,6 +410,7 @@ inline int CharacterComponent::getCorrectionPoints() const
 
 inline void CharacterComponent::update(Entity &entity)
 {
+    Q_UNUSED(entity);
 }
 
 #endif // CHARACTER_H

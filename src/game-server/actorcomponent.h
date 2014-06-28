@@ -57,7 +57,9 @@ class ActorComponent : public Component
         ActorComponent(Entity &entity);
 
         void update(Entity &entity)
-        {}
+        {
+            Q_UNUSED(entity);
+        }
 
         /**
          * Sets the coordinates. Also updates the walkmap of the map the actor
