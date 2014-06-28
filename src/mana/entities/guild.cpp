@@ -51,20 +51,6 @@ void Guild::addMember(int playerId, int permissions)
 
 void Guild::removeMember(int playerId)
 {
-    if (getOwner() == playerId)
-    {
-        // if the leader is leaving, assign next member as leader
-        for (std::list<GuildMember*>::iterator it = mMembers.begin(),
-             it_end = mMembers.end(); it != it_end; ++it)
-        {
-            GuildMember *member = *it;
-            if (member->mId != playerId)
-            {
-                setOwner(member->mId);
-                break;
-            }
-        }
-    }
     GuildMember *member = getMember(playerId);
     if (member)
         mMembers.remove(member);
@@ -83,11 +69,6 @@ int Guild::getOwner() const
     }
 
     return 0;
-}
-
-void Guild::setOwner(int playerId)
-{
-    guildManager->setUserRights(this, playerId, GAL_OWNER);
 }
 
 bool Guild::checkInvited(int playerId) const

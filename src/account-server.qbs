@@ -10,18 +10,20 @@ CppApplication {
         ]
     }
 
+    Depends {
+        name: "ManaEntities"
+    }
+
     Group {
         name: "Account server sources"
         prefix: "account-server/"
         files: [
             "accountclient.cpp",
             "accountclient.h",
-            "account.cpp",
-            "account.h",
             "accounthandler.cpp",
             "accounthandler.h",
-            "character.cpp",
-            "character.h",
+            "characterdatautils.cpp",
+            "characterdatautils.h",
             "flooritem.h",
             "main-account.cpp",
             "mapmanager.cpp",
@@ -118,16 +120,14 @@ CppApplication {
             "chatclient.h",
             "chathandler.cpp",
             "chathandler.h",
-            "guild.cpp",
-            "guild.h",
             "guildhandler.cpp",
             "guildmanager.cpp",
             "guildmanager.h",
             "party.cpp",
             "party.h",
             "partyhandler.cpp",
-            "post.cpp",
-            "post.h",
+            "postmanager.cpp",
+            "postmanager.h",
         ]
     }
 

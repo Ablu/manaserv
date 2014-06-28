@@ -23,12 +23,13 @@
 
 #include "account-server/storage.h"
 
-#include "account-server/account.h"
-#include "account-server/character.h"
+#include "mana/entities/account.h"
+#include "mana/entities/character.h"
+#include "mana/entities/guild.h"
+#include "mana/entities/post.h"
+
 #include "account-server/flooritem.h"
 #include "chat-server/chatchannel.h"
-#include "chat-server/guild.h"
-#include "chat-server/post.h"
 #include "common/configuration.h"
 #include "common/manaserv_protocol.h"
 #include "utils/functors.h"
@@ -459,7 +460,7 @@ CharacterData *Storage::getCharacterBySQL(QSqlQuery &sqlQuery, Account *owner)
             quest.state = query.value(1).toUInt();
             quest.title = query.value(2).toString().toStdString();
             quest.description = query.value(3).toString().toStdString();
-            character->mQuests.push_back(quest);
+            character->addQuest(quest);
             query.next();
         }
     }
@@ -588,10 +589,11 @@ void Storage::updateCharacter(CharacterData *character)
 
     // Character attributes.
     {
-        for (AttributeMap::const_iterator it = character->mAttributes.begin(),
-             it_end = character->mAttributes.end(); it != it_end; ++it)
-            updateAttribute(character->getDatabaseID(), it->first,
-                            it->second.base, it->second.modified);
+        for (auto &it : character->getAttributes())
+        {
+            updateAttribute(character->getDatabaseID(), it.first,
+                            it.second.base, it.second.modified);
+        }
     }
 
     // Character's kill count
@@ -635,7 +637,7 @@ void Storage::updateCharacter(CharacterData *character)
         QSqlQuery query(mDb);
         tryExecuteSql(query, sql);
 
-        for (QuestInfo &quest : character->mQuests)
+        for (const QuestInfo &quest : character->getQuests())
         {
             QString insertSql = "INSERT INTO " + QUESTLOG_TBL_NAME
                     + " (char_id, quest_id, quest_state, "
@@ -800,14 +802,11 @@ void Storage::flush(Account *account)
             character->setDatabaseID(query.lastInsertId().toInt());
 
             // Update all attributes.
-            AttributeMap::const_iterator attr_it, attr_end;
-            for (attr_it =  character->mAttributes.begin(),
-                 attr_end = character->mAttributes.end();
-                 attr_it != attr_end; ++attr_it)
+            for (auto attrPair : character->getAttributes())
             {
-                updateAttribute(character->getDatabaseID(), attr_it->first,
-                                attr_it->second.base,
-                                attr_it->second.modified);
+                updateAttribute(character->getDatabaseID(), attrPair.first,
+                                attrPair.second.base,
+                                attrPair.second.modified);
             }
         }
     }

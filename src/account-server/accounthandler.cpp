@@ -20,9 +20,10 @@
 
 #include "account-server/accounthandler.h"
 
-#include "account-server/account.h"
+#include "mana/entities/account.h"
+#include "mana/entities/character.h"
+
 #include "account-server/accountclient.h"
-#include "account-server/character.h"
 #include "account-server/storage.h"
 #include "account-server/serverhandler.h"
 #include "chat-server/chathandler.h"

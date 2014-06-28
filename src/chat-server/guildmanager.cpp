@@ -19,7 +19,9 @@
  */
 
 #include "guildmanager.h"
-#include "guild.h"
+
+#include "mana/entities/guild.h"
+
 #include "common/defines.h"
 #include "common/manaserv_protocol.h"
 #include "account-server/storage.h"
@@ -58,7 +60,7 @@ Guild* GuildManager::createGuild(const std::string &name, int playerId)
     // Set and save the member rights
     storage->setMemberRights(guild->getId(), playerId, GAL_OWNER);
 
-    guild->setOwner(playerId);
+    setUserRights(guild, playerId, GAL_OWNER);
 
     return guild;
 }
@@ -82,6 +84,19 @@ void GuildManager::removeGuildMember(Guild *guild, int playerId,
 {
     // remove the user from the guild
     storage->removeGuildMember(guild->getId(), playerId);
+
+    // if the leader is leaving, assign next member as leader
+    if (guild->getOwner() == playerId)
+    {
+        for (GuildMember *member : guild->getMembers())
+        {
+            if (member->mId != playerId)
+            {
+                setUserRights(guild, member->mId, GAL_OWNER);
+            }
+        }
+    }
+
     guild->removeMember(playerId);
 
     chatHandler->sendGuildListUpdate(guild, characterName,

@@ -24,14 +24,17 @@
 
 #include "account-server/serverhandler.h"
 
+#include "mana/entities/character.h"
+#include "mana/entities/post.h"
+
 #include "account-server/accountclient.h"
 #include "account-server/accounthandler.h"
-#include "account-server/character.h"
+#include "account-server/characterdatautils.h"
 #include "account-server/flooritem.h"
 #include "account-server/mapmanager.h"
 #include "account-server/storage.h"
 #include "chat-server/chathandler.h"
-#include "chat-server/post.h"
+#include "chat-server/postmanager.h"
 #include "common/configuration.h"
 #include "common/defines.h"
 #include "common/manaserv_protocol.h"
@@ -161,7 +164,7 @@ static void registerGameClient(GameServer *s, const std::string &token,
     msg.writeString(token, MAGIC_TOKEN_LENGTH);
     msg.writeInt32(ptr->getDatabaseID());
     msg.writeString(ptr->getName());
-    ptr->serialize(msg);
+    CharacterDataUtils::serialize(*ptr, msg);
     s->send(msg);
 }
 
@@ -290,7 +293,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
             int id = msg.readInt32();
             if (CharacterData *ptr = storage->getCharacter(id, nullptr))
             {
-                ptr->deserialize(msg);
+                CharacterDataUtils::deserialize(*ptr, msg);
                 storage->updateCharacter(ptr);
                 delete ptr;
             }
@@ -539,7 +542,13 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
                 InventoryItem item;
                 item.itemId = items[i].first;
                 item.amount = items[i].second;
-                letter->addAttachment(item);
+
+                unsigned maximumNumberOfAttachments =
+                        Configuration::getValue("mail_maxAttachments", 3);
+                if (letter->getAttachments().size() < maximumNumberOfAttachments)
+                {
+                    letter->addAttachment(item);
+                }
             }
             postalManager->addLetter(letter);
 

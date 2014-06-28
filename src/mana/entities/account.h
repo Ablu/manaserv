@@ -25,7 +25,7 @@
 #include <vector>
 #include <time.h>
 
-#include "account-server/character.h"
+#include "character.h"
 
 /**
  * A player's account. Stores the account information as well as the

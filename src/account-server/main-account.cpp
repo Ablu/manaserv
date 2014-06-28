@@ -27,13 +27,15 @@
 #include "common/winver.h"
 #endif
 
+#include "mana/entities/post.h"
+
 #include "account-server/accounthandler.h"
 #include "account-server/serverhandler.h"
 #include "account-server/storage.h"
 #include "chat-server/chatchannelmanager.h"
 #include "chat-server/chathandler.h"
 #include "chat-server/guildmanager.h"
-#include "chat-server/post.h"
+#include "chat-server/postmanager.h"
 #include "common/configuration.h"
 #include "common/defines.h"
 #include "common/manaserv_protocol.h"

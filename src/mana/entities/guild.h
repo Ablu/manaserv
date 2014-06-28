@@ -62,11 +62,6 @@ class Guild
         int getOwner() const;
 
         /**
-         * Set player as owner of the guild.
-         */
-        void setOwner(int playerId);
-
-        /**
          * Set the ID of the guild.
          */
         void setId(int id)

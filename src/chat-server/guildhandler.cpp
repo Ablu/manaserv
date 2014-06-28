@@ -18,14 +18,15 @@
  *  along with The Mana Server.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "mana/entities/guild.h"
+#include "mana/entities/character.h"
+
 #include "chathandler.h"
 #include "chatchannel.h"
 #include "chatchannelmanager.h"
 #include "chatclient.h"
-#include "guild.h"
 #include "guildmanager.h"
 
-#include "account-server/character.h"
 #include "account-server/storage.h"
 
 #include "net/messagein.h"

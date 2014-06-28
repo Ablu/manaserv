@@ -20,11 +20,14 @@
 
 #include "post.h"
 
-#include "../account-server/character.h"
-#include "../common/configuration.h"
+#include "character.h"
 
 Letter::Letter(unsigned type, CharacterData *sender, CharacterData *receiver)
- : mId(0), mType(type), mExpiry(0), mSender(sender), mReceiver(receiver)
+    : mId(0)
+    , mType(type)
+    , mExpiry(0)
+    , mSender(sender)
+    , mReceiver(receiver)
 {
 }
 
@@ -57,17 +60,9 @@ std::string Letter::getContents() const
     return mContents;
 }
 
-bool Letter::addAttachment(InventoryItem item)
+void Letter::addAttachment(InventoryItem item)
 {
-    unsigned max = Configuration::getValue("mail_maxAttachments", 3);
-    if (mAttachments.size() > max)
-    {
-        return false;
-    }
-
     mAttachments.push_back(item);
-
-    return true;
 }
 
 CharacterData *Letter::getReceiver() const
@@ -98,17 +93,9 @@ Post::~Post()
     mLetters.clear();
 }
 
-bool Post::addLetter(Letter *letter)
+void Post::addLetter(Letter *letter)
 {
-    unsigned max = Configuration::getValue("mail_maxLetters", 10);
-    if (mLetters.size() > max)
-    {
-        return false;
-    }
-
     mLetters.push_back(letter);
-
-    return true;
 }
 
 Letter* Post::getLetter(int letter) const
@@ -123,39 +110,4 @@ Letter* Post::getLetter(int letter) const
 unsigned Post::getNumberOfLetters() const
 {
     return mLetters.size();
-}
-
-void PostManager::addLetter(Letter *letter)
-{
-    std::map<CharacterData*, Post*>::iterator itr =
-        mPostBox.find(letter->getReceiver());
-    if (itr != mPostBox.end())
-    {
-        itr->second->addLetter(letter);
-    }
-    else
-    {
-        Post *post = new Post();
-        post->addLetter(letter);
-        mPostBox.insert(
-            std::pair<CharacterData*, Post*>(letter->getReceiver(), post)
-            );
-    }
-}
-
-Post *PostManager::getPost(CharacterData *player) const
-{
-    std::map<CharacterData*, Post*>::const_iterator itr = mPostBox.find(player);
-    return (itr == mPostBox.end()) ? nullptr : itr->second;
-}
-
-void PostManager::clearPost(CharacterData *player)
-{
-    std::map<CharacterData*, Post*>::iterator itr =
-        mPostBox.find(player);
-    if (itr != mPostBox.end())
-    {
-        delete itr->second;
-        mPostBox.erase(itr);
-    }
 }

@@ -25,7 +25,7 @@
 #include <string>
 #include <vector>
 
-#include "../common/inventorydata.h"
+#include "common/inventorydata.h"
 
 class CharacterData;
 
@@ -41,7 +41,9 @@ public:
      * @param sender Pointer to character that sent the letter
      * @param receiver Pointer to character that will receive the letter
      */
-    Letter(unsigned type, CharacterData *sender, CharacterData *receiver);
+    Letter(unsigned type,
+           CharacterData *sender,
+           CharacterData *receiver);
 
     ~Letter();
 
@@ -92,7 +94,7 @@ public:
      * @param item The attachment to add to the letter
      * @return Returns true if the letter doesnt have too many attachments
      */
-    bool addAttachment(InventoryItem item);
+    void addAttachment(InventoryItem item);
 
     /**
      * Get the character receiving the letter
@@ -131,7 +133,7 @@ public:
      * @param letter Letter to add
      * @return Returns true if post isnt full
      */
-    bool addLetter(Letter *letter);
+    void addLetter(Letter *letter);
 
     /**
      * Return next letter
@@ -147,32 +149,5 @@ public:
 private:
     std::vector<Letter*> mLetters;
 };
-
-class PostManager
-{
-public:
-    /**
-     * Add letter to post box
-     * @param letter Letter to add
-     */
-    void addLetter(Letter *letter);
-
-    /**
-     * Get post for character
-     * @param player Character that is getting post
-     * @return Returns the post for that character
-     */
-    Post *getPost(CharacterData *player) const;
-
-    /**
-     * Remove the post for character
-     */
-    void clearPost(CharacterData *player);
-
-private:
-    std::map<CharacterData*, Post*> mPostBox;
-};
-
-extern PostManager *postalManager;
 
 #endif

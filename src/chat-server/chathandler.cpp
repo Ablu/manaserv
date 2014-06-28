@@ -23,7 +23,8 @@
 #include <string>
 #include <sstream>
 
-#include "account-server/character.h"
+#include "mana/entities/character.h"
+
 #include "account-server/storage.h"
 #include "chat-server/guildmanager.h"
 #include "chat-server/chatchannelmanager.h"

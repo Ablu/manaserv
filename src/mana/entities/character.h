@@ -82,9 +82,6 @@ class CharacterData
     public:
         CharacterData(const std::string &name, int id = -1);
 
-        void serialize(MessageOut &msg);
-        void deserialize(MessageIn &msg);
-
         /**
          * Gets the database id of the character.
          */
@@ -239,7 +236,11 @@ class CharacterData
         int getCorrectionPoints() const
         { return mCorrectionPoints; }
 
-    private:
+        const std::vector<QuestInfo> &getQuests() const;
+
+        void addQuest(const QuestInfo &quest);
+        void clearQuests();
+private:
         CharacterData(const CharacterData &) = delete;
         CharacterData &operator=(const CharacterData &) = delete;
 
@@ -272,8 +273,23 @@ class CharacterData
         std::vector<QuestInfo> mQuests;
 
         friend class AccountHandler;
-        friend class Storage;
 };
+
+
+inline const std::vector<QuestInfo> &CharacterData::getQuests() const
+{
+    return mQuests;
+}
+
+inline void CharacterData::addQuest(const QuestInfo &quest)
+{
+    mQuests.push_back(quest);
+}
+
+inline void CharacterData::clearQuests()
+{
+    mQuests.clear();
+}
 
 /**
  * Type definition for a list of Characters.

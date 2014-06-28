@@ -1,6 +1,6 @@
 /*
  *  The Mana Server
- *  Copyright (C) 2007-2010  The Mana World Development Team
+ *  Copyright (C) 2014-2014  The Mana Developers
  *
  *  This file is part of The Mana Server.
  *
@@ -18,41 +18,20 @@
  *  along with The Mana Server.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "account-server/character.h"
+#include "characterdatautils.h"
 
-#include "account-server/account.h"
-
-#include "net/messagein.h"
-#include "net/messageout.h"
-
-CharacterData::CharacterData(const std::string &name, int id):
-    mName(name),
-    mDatabaseID(id),
-    mCharacterSlot(0),
-    mAccountID(-1),
-    mAccount(nullptr),
-    mMapId(0),
-    mGender(0),
-    mHairStyle(0),
-    mHairColor(0),
-    mAttributePoints(0),
-    mCorrectionPoints(0),
-    mAccountLevel(0)
-{
-}
-
-void CharacterData::serialize(MessageOut &msg)
+void CharacterDataUtils::serialize(CharacterData &data, MessageOut &msg)
 {
     // general character properties
-    msg.writeInt8(getAccountLevel());
-    msg.writeInt8(getGender());
-    msg.writeInt8(getHairStyle());
-    msg.writeInt8(getHairColor());
-    msg.writeInt16(getAttributePoints());
-    msg.writeInt16(getCorrectionPoints());
+    msg.writeInt8(data.getAccountLevel());
+    msg.writeInt8(data.getGender());
+    msg.writeInt8(data.getHairStyle());
+    msg.writeInt8(data.getHairColor());
+    msg.writeInt16(data.getAttributePoints());
+    msg.writeInt16(data.getCorrectionPoints());
 
 
-    const AttributeMap &attributes = getAttributes();
+    const AttributeMap &attributes = data.getAttributes();
     msg.writeInt16(attributes.size());
     for (auto attributeIt : attributes)
     {
@@ -61,31 +40,31 @@ void CharacterData::serialize(MessageOut &msg)
     }
 
     // status effects currently affecting the character
-    msg.writeInt16(getStatusEffectSize());
+    msg.writeInt16(data.getStatusEffectSize());
     std::map<int, Status>::const_iterator status_it;
-    for (status_it = getStatusEffectBegin(); status_it != getStatusEffectEnd(); status_it++)
+    for (status_it = data.getStatusEffectBegin(); status_it != data.getStatusEffectEnd(); status_it++)
     {
         msg.writeInt16(status_it->first);
         msg.writeInt16(status_it->second.time);
     }
 
     // location
-    msg.writeInt16(getMapId());
-    const Point &pos = getPosition();
+    msg.writeInt16(data.getMapId());
+    const Point &pos = data.getPosition();
     msg.writeInt16(pos.x);
     msg.writeInt16(pos.y);
 
     // kill count
-    msg.writeInt16(getKillCountSize());
+    msg.writeInt16(data.getKillCountSize());
     std::map<int, int>::const_iterator kills_it;
-    for (kills_it = getKillCountBegin(); kills_it != getKillCountEnd(); kills_it++)
+    for (kills_it = data.getKillCountBegin(); kills_it != data.getKillCountEnd(); kills_it++)
     {
         msg.writeInt16(kills_it->first);
         msg.writeInt32(kills_it->second);
     }
 
     // character abilities
-    const std::set<int> &abilities = getAbilities();
+    const std::set<int> &abilities = data.getAbilities();
     msg.writeInt16(abilities.size());
     for (auto &abilityId : abilities) {
         msg.writeInt32(abilityId);
@@ -93,8 +72,9 @@ void CharacterData::serialize(MessageOut &msg)
 
 
     // questlog
-    msg.writeInt16(mQuests.size());
-    for (QuestInfo &quest : mQuests) {
+    const auto &quests = data.getQuests();
+    msg.writeInt16(quests.size());
+    for (const QuestInfo &quest : quests) {
         msg.writeInt16(quest.id);
         msg.writeInt8(quest.state);
         msg.writeString(quest.title);
@@ -102,7 +82,7 @@ void CharacterData::serialize(MessageOut &msg)
     }
 
     // inventory - must be last because size isn't transmitted
-    const Possessions &poss = getPossessions();
+    const Possessions &poss = data.getPossessions();
     const EquipData &equipData = poss.getEquipment();
 
     const InventoryData &inventoryData = poss.getInventory();
@@ -119,15 +99,16 @@ void CharacterData::serialize(MessageOut &msg)
             msg.writeInt8(0); // not equipped
     }
 }
-void CharacterData::deserialize(MessageIn &msg)
+
+void CharacterDataUtils::deserialize(CharacterData &data, MessageIn &msg)
 {
     // general character properties
-    setAccountLevel(msg.readInt8());
-    setGender(ManaServ::getGender(msg.readInt8()));
-    setHairStyle(msg.readInt8());
-    setHairColor(msg.readInt8());
-    setAttributePoints(msg.readInt16());
-    setCorrectionPoints(msg.readInt16());
+    data.setAccountLevel(msg.readInt8());
+    data.setGender(ManaServ::getGender(msg.readInt8()));
+    data.setHairStyle(msg.readInt8());
+    data.setHairColor(msg.readInt8());
+    data.setAttributePoints(msg.readInt16());
+    data.setCorrectionPoints(msg.readInt16());
 
     // character attributes
     unsigned attrSize = msg.readInt16();
@@ -136,8 +117,8 @@ void CharacterData::deserialize(MessageIn &msg)
         unsigned id = msg.readInt16();
         double base = msg.readDouble(),
                mod  = msg.readDouble();
-        setAttribute(id, base);
-        setModAttribute(id, mod);
+        data.setAttribute(id, base);
+        data.setModAttribute(id, mod);
     }
 
     // status effects currently affecting the character
@@ -147,16 +128,16 @@ void CharacterData::deserialize(MessageIn &msg)
     {
         int status = msg.readInt16();
         int time = msg.readInt16();
-        applyStatusEffect(status, time);
+        data.applyStatusEffect(status, time);
     }
 
     // location
-    setMapId(msg.readInt16());
+    data.setMapId(msg.readInt16());
 
     Point temporaryPoint;
     temporaryPoint.x = msg.readInt16();
     temporaryPoint.y = msg.readInt16();
-    setPosition(temporaryPoint);
+    data.setPosition(temporaryPoint);
 
     // kill count
     int killSize = msg.readInt16();
@@ -164,32 +145,32 @@ void CharacterData::deserialize(MessageIn &msg)
     {
         int monsterId = msg.readInt16();
         int kills = msg.readInt32();
-        setKillCount(monsterId, kills);
+        data.setKillCount(monsterId, kills);
     }
 
     // character abilities
     int abilitiesSize = msg.readInt16();
-    clearAbilities();
+    data.clearAbilities();
     for (int i = 0; i < abilitiesSize; i++)
     {
         const int id = msg.readInt32();
-        giveAbility(id);
+        data.giveAbility(id);
     }
 
     // questlog
     int questlogSize = msg.readInt16();
-    mQuests.clear();
+    data.clearQuests();
     for (int i = 0; i < questlogSize; ++i) {
         QuestInfo quest;
         quest.id = msg.readInt16();
         quest.state = msg.readInt8();
         quest.title = msg.readString();
         quest.description = msg.readString();
-        mQuests.push_back(quest);
+        data.addQuest(quest);
     }
 
     // inventory - must be last because size isn't transmitted
-    Possessions &poss = getPossessions();
+    Possessions &poss = data.getPossessions();
 
     InventoryData inventoryData;
     EquipData equipmentData;
@@ -206,16 +187,4 @@ void CharacterData::deserialize(MessageIn &msg)
     }
     poss.setInventory(inventoryData);
     poss.setEquipment(equipmentData);
-}
-
-void CharacterData::setAccount(Account *acc)
-{
-    mAccount = acc;
-    mAccountID = acc->getID();
-    mAccountLevel = acc->getLevel();
-}
-
-void CharacterData::giveAbility(int id)
-{
-    mAbilities.insert(id);
 }

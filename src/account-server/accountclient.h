@@ -23,7 +23,7 @@
 
 #include <enet/enet.h>
 
-#include "account-server/account.h"
+#include "mana/entities/account.h"
 #include "net/netcomputer.h"
 
 #include <memory>

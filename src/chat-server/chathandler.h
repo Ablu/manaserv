@@ -25,7 +25,7 @@
 #include <map>
 #include <string>
 
-#include "chat-server/guild.h"
+#include "mana/entities/guild.h"
 
 #include "net/connectionhandler.h"
 
