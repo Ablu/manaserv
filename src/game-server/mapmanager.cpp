@@ -34,14 +34,16 @@
  */
 static MapManager::Maps maps;
 
+static IConfiguration *mConfiguration;
+
 const MapManager::Maps &MapManager::getMaps()
 {
     return maps;
 }
 
-void MapManager::initialize()
+void MapManager::initialize(IConfiguration *configuration)
 {
-
+    mConfiguration = configuration;
 }
 
 /**
@@ -98,7 +100,7 @@ void MapManager::readMapNode(xmlNodePtr node)
 
         if (mapFileExists)
         {
-            maps[id] = new MapComposite(id, name);
+            maps[id] = new MapComposite(id, name, mConfiguration);
             if (!maps[id]->readMap())
                 LOG_FATAL("Failed to load map \"" << name << "\"!");
         }

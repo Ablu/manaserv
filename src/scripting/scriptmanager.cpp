@@ -20,16 +20,20 @@
 
 #include "scriptmanager.h"
 
-#include "common/configuration.h"
+#include "mana/configuration/interfaces/iconfiguration.h"
+
 #include "scripting/script.h"
 
 static Script *_currentState;
 
 static Script::Ref _craftCallback;
 
-void ScriptManager::initialize()
+static IConfiguration *mConfiguration; // TODO: make this a class and hide it
+
+void ScriptManager::initialize(IConfiguration *configuration)
 {
-    const std::string engine = Configuration::getValue("script_engine", "lua");
+    mConfiguration = configuration;
+    const std::string engine = mConfiguration->getValue("script_engine", "lua");
     _currentState = Script::create(engine);
 }
 

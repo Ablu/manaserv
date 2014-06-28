@@ -131,7 +131,9 @@ struct ActorIterator
 class MapComposite
 {
     public:
-        MapComposite(int id, const std::string &name);
+        MapComposite(int id,
+                     const std::string &name,
+                     IConfiguration *configuration);
         MapComposite(const MapComposite &) = delete;
         ~MapComposite();
 
@@ -276,6 +278,7 @@ class MapComposite
         void callMapVariableCallback(const std::string &key,
                                      const std::string &value);
 
+        IConfiguration *mConfiguration;
         bool mActive;         /**< Status of map. */
         Map *mMap;            /**< Actual map. */
         MapContent *mContent; /**< Entities on the map. */

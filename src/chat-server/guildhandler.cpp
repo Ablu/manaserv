@@ -29,10 +29,11 @@
 
 #include "account-server/storage.h"
 
+#include "mana/configuration/interfaces/iconfiguration.h"
+
 #include "net/messagein.h"
 #include "net/messageout.h"
 
-#include "common/configuration.h"
 #include "common/manaserv_protocol.h"
 
 using namespace ManaServ;
@@ -146,7 +147,7 @@ void ChatHandler::handleGuildCreate(ChatClient &client, MessageIn &msg)
     if (!guildManager->doesExist(guildName))
     {
         if ((int)client.guilds.size() >=
-                Configuration::getValue("account_maxGuildsPerCharacter", 1))
+                mConfiguration->getValue("account_maxGuildsPerCharacter", 1))
         {
             reply.writeInt8(ERRMSG_LIMIT_REACHED);
         }
@@ -196,7 +197,7 @@ void ChatHandler::handleGuildInvite(ChatClient &client, MessageIn &msg)
             guild->checkInGuild(client.characterId))
         {
             if ((int)invitedClient->guilds.size() >=
-                    Configuration::getValue("account_maxGuildsPerCharacter", 1))
+                    mConfiguration->getValue("account_maxGuildsPerCharacter", 1))
             {
                 reply.writeInt8(ERRMSG_LIMIT_REACHED);
             }

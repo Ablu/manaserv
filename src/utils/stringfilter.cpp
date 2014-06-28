@@ -22,13 +22,15 @@
 
 #include "utils/stringfilter.h"
 
-#include "common/configuration.h"
+#include "mana/configuration/interfaces/iconfiguration.h"
+
 #include "utils/logger.h"
 
 namespace utils
 {
 
-StringFilter::StringFilter():
+StringFilter::StringFilter(IConfiguration *configuration):
+    mConfiguration(configuration),
     mInitialized(false)
 {
     loadSlangFilterList();
@@ -43,8 +45,8 @@ bool StringFilter::loadSlangFilterList()
 {
     mInitialized = false;
 
-    const std::string slangsList = Configuration::getValue("SlangsList",
-                                                           std::string());
+    const std::string slangsList = mConfiguration->getValue("SlangsList",
+                                                            std::string());
     if (!slangsList.empty()) {
         std::istringstream iss(slangsList);
         std::string tmp;
@@ -100,8 +102,8 @@ bool StringFilter::filterContent(const std::string &text) const
 
 bool StringFilter::isEmailValid(const std::string &email) const
 {
-    unsigned min = Configuration::getValue("account_minEmailLength", 7);
-    unsigned max = Configuration::getValue("account_maxEmailLength", 128);
+    unsigned min = mConfiguration->getValue("account_minEmailLength", 7);
+    unsigned max = mConfiguration->getValue("account_maxEmailLength", 128);
 
     // Testing email validity
     if (email.length() < min || email.length() > max)

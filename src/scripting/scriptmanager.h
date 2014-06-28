@@ -38,7 +38,7 @@ namespace ScriptManager {
 /**
  * Initializes the script manager by creating the script state.
  */
-void initialize();
+void initialize(IConfiguration *configuration);
 
 /**
  * Deinitializes the script manager by deleting the script state.

@@ -24,6 +24,8 @@
 
 #include "account-server/serverhandler.h"
 
+#include "mana/configuration/interfaces/iconfiguration.h"
+
 #include "mana/entities/character.h"
 #include "mana/entities/post.h"
 
@@ -35,7 +37,6 @@
 #include "account-server/storage.h"
 #include "chat-server/chathandler.h"
 #include "chat-server/postmanager.h"
-#include "common/configuration.h"
 #include "common/defines.h"
 #include "common/manaserv_protocol.h"
 #include "common/transaction.h"
@@ -80,6 +81,12 @@ class ServerHandler: public ConnectionHandler
     friend GameServer *getGameServerFromMap(int);
     friend void GameServerHandler::dumpStatistics(std::ostream &);
 
+    public:
+        ServerHandler(IConfiguration *configuration)
+            : ConnectionHandler(configuration)
+            , mConfiguration(configuration)
+        {}
+
     protected:
         /**
          * Processes server messages.
@@ -96,14 +103,19 @@ class ServerHandler: public ConnectionHandler
          * Called when a game server disconnects.
          */
         void computerDisconnected(NetComputer *comp);
+
+    private:
+        IConfiguration *mConfiguration;
 };
 
 static ServerHandler *serverHandler;
 
-bool GameServerHandler::initialize(int port, const std::string &host)
+bool GameServerHandler::initialize(int port,
+                                   const std::string &host,
+                                   IConfiguration *configuration)
 {
     MapManager::initialize(DEFAULT_MAPSDB_FILE);
-    serverHandler = new ServerHandler;
+    serverHandler = new ServerHandler(configuration);
     LOG_INFO("Game server handler started:");
     return serverHandler->startListen(port, host);
 }
@@ -208,7 +220,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
                 LOG_DEBUG("Item database of game server has a wrong version");
                 outMsg.writeInt16(DATA_VERSION_OUTDATED);
             }
-            if (password == Configuration::getValue("net_password", "changeMe"))
+            if (password == mConfiguration->getValue("net_password", "changeMe"))
             {
                 outMsg.writeInt16(PASSWORD_OK);
 
@@ -544,7 +556,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
                 item.amount = items[i].second;
 
                 unsigned maximumNumberOfAttachments =
-                        Configuration::getValue("mail_maxAttachments", 3);
+                        mConfiguration->getValue("mail_maxAttachments", 3);
                 if (letter->getAttachments().size() < maximumNumberOfAttachments)
                 {
                     letter->addAttachment(item);

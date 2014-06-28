@@ -37,7 +37,8 @@
 
 #include "scripting/scriptmanager.h"
 
-#include "common/configuration.h"
+#include "mana/configuration/interfaces/iconfiguration.h"
+
 #include "common/permissionmanager.h"
 #include "common/transaction.h"
 
@@ -173,6 +174,8 @@ static CmdRef const cmdRef[] =
     {nullptr, nullptr, nullptr, nullptr}
 
 };
+
+static IConfiguration *mConfiguration;
 
 static void say(const std::string &message, Entity *player)
 {
@@ -1233,14 +1236,14 @@ static void handleMute(Entity *player, std::string &args)
 
     // Turn the length back to an integer.
     if (valuestr.empty())
-        length = Configuration::getValue("command_defaultMuteLength", 60);
+        length = mConfiguration->getValue("command_defaultMuteLength", 60);
     else
         length = utils::stringToInt(valuestr);
 
     if (length < 0)
     {
         say("Invalid length, using default", player);
-        length = Configuration::getValue("command_defaultMuteLength", 60);
+        length = mConfiguration->getValue("command_defaultMuteLength", 60);
     }
 
     // Mute the player.
@@ -1830,4 +1833,10 @@ void CommandHandler::handleCommand(Entity *player,
         say("Command not implemented.", player);
         break;
     }
+}
+
+
+void CommandHandler::initalize(IConfiguration *configuration)
+{
+    mConfiguration = configuration;
 }

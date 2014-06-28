@@ -20,7 +20,9 @@
  */
 
 #include "logger.h"
-#include "common/configuration.h"
+
+#include "mana/configuration/interfaces/iconfiguration.h"
+
 #include "common/resourcemanager.h"
 #include "utils/string.h"
 #include "utils/time.h"
@@ -36,6 +38,9 @@ namespace utils
 {
 /** Log file. */
 static std::ofstream mLogFile;
+
+IConfiguration *Logger::mConfiguration;
+
 /** current log filename */
 std::string Logger::mFilename;
 /** Timestamp flag. */
@@ -79,18 +84,20 @@ static bool getDayChanged()
     return false;
 }
 
-void Logger::initialize(const std::string &logFile)
+void Logger::initialize(const std::string &logFile, IConfiguration *configuration)
 {
+    mConfiguration = configuration;
+
     setLogFile(logFile, true);
 
     // Write the messages to both the screen and the log file.
-    setTeeMode(Configuration::getBoolValue("log_toStandardOutput", true));
+    setTeeMode(mConfiguration->getBoolValue("log_toStandardOutput", true));
     LOG_INFO("Using log file: " << logFile);
 
     // Set up the options related to log rotation.
-    setLogRotation(Configuration::getBoolValue("log_enableRotation", false));
-    setMaxLogfileSize(Configuration::getValue("log_maxFileSize", 1024));
-    setSwitchLogEachDay(Configuration::getBoolValue("log_perDay", false));
+    setLogRotation(mConfiguration->getBoolValue("log_enableRotation", false));
+    setMaxLogfileSize(mConfiguration->getValue("log_maxFileSize", 1024));
+    setSwitchLogEachDay(mConfiguration->getBoolValue("log_perDay", false));
 }
 
 void Logger::output(std::ostream &os, const std::string &msg, const char *prefix)

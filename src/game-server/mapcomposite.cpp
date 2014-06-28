@@ -22,8 +22,9 @@
 #include <algorithm>
 #include <cassert>
 
+#include "mana/configuration/interfaces/iconfiguration.h"
+
 #include "accountconnection.h"
-#include "common/configuration.h"
 #include "common/resourcemanager.h"
 #include "game-server/charactercomponent.h"
 #include "game-server/mapcomposite.h"
@@ -594,7 +595,10 @@ void ActorIterator::operator++()
 Script::Ref MapComposite::mInitializeCallback;
 Script::Ref MapComposite::mUpdateCallback;
 
-MapComposite::MapComposite(int id, const std::string &name):
+MapComposite::MapComposite(int id,
+                           const std::string &name,
+                           IConfiguration *configuration):
+    mConfiguration(configuration),
     mActive(false),
     mMap(0),
     mContent(0),
@@ -629,7 +633,7 @@ bool MapComposite::activate()
 
     std::string sPvP = mMap->getProperty("pvp");
     if (sPvP.empty())
-        sPvP = Configuration::getValue("game_defaultPvp", std::string());
+        sPvP = mConfiguration->getValue("game_defaultPvp", std::string());
 
     if (sPvP == "free")
         mPvPRules = PVP_FREE;

@@ -256,7 +256,9 @@ class ItemComponent : public Component
     public:
         static const ComponentType type = CT_Item;
 
-        ItemComponent(ItemClass *type, int amount);
+        ItemComponent(ItemClass *type,
+                      int amount,
+                      IConfiguration *configuration);
 
         ItemClass *getItemClass() const
         { return mType; }
@@ -267,6 +269,7 @@ class ItemComponent : public Component
         void update(Entity &entity);
 
     private:
+        IConfiguration *mConfiguration;
         ItemClass *mType;
         unsigned char mAmount;
         int mLifetime;
@@ -288,6 +291,8 @@ namespace Item {
  * @return the created item
  */
 Entity *create(MapComposite *map, Point pos, ItemClass *itemClass, int amount);
+
+void initialize(IConfiguration *configuration);
 
 } // namespace Item
 

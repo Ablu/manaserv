@@ -20,7 +20,8 @@
 
 #include "game-server/charactercomponent.h"
 
-#include "common/configuration.h"
+#include "mana/configuration/interfaces/iconfiguration.h"
+
 #include "game-server/accountconnection.h"
 #include "game-server/attributemanager.h"
 #include "game-server/buysell.h"
@@ -61,7 +62,7 @@ static bool executeCallback(Script::Ref function, Entity &entity)
 }
 
 
-CharacterComponent::CharacterComponent(Entity &entity, MessageIn &msg):
+CharacterComponent::CharacterComponent(Entity &entity, MessageIn &msg, IConfiguration *configuration):
     mClient(nullptr),
     mConnected(true),
     mTransactionHandler(nullptr),
@@ -76,7 +77,8 @@ CharacterComponent::CharacterComponent(Entity &entity, MessageIn &msg):
     mTransaction(TRANS_NONE),
     mTalkNpcId(0),
     mNpcThread(0),
-    mBaseEntity(&entity)
+    mBaseEntity(&entity),
+    mConfiguration(configuration)
 {
     auto *beingComponent = entity.getComponent<BeingComponent>();
 
@@ -320,9 +322,9 @@ void CharacterComponent::respawn(Entity &entity)
                                  attributeManager->getAttributeInfo(ATTR_HP),
                                  maxHp);
     // Warp back to spawn point.
-    int spawnMap = Configuration::getValue("char_respawnMap", 1);
-    int spawnX = Configuration::getValue("char_respawnX", 1024);
-    int spawnY = Configuration::getValue("char_respawnY", 1024);
+    int spawnMap = mConfiguration->getValue("char_respawnMap", 1);
+    int spawnX = mConfiguration->getValue("char_respawnX", 1024);
+    int spawnY = mConfiguration->getValue("char_respawnY", 1024);
 
     GameState::enqueueWarp(&entity, MapManager::getMap(spawnMap),
                            Point(spawnX, spawnY));

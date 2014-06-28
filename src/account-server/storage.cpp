@@ -28,9 +28,10 @@
 #include "mana/entities/guild.h"
 #include "mana/entities/post.h"
 
+#include "mana/configuration/interfaces/iconfiguration.h"
+
 #include "account-server/flooritem.h"
 #include "chat-server/chatchannel.h"
-#include "common/configuration.h"
 #include "common/manaserv_protocol.h"
 #include "utils/functors.h"
 #include "utils/point.h"
@@ -76,10 +77,11 @@ static QString databaseToDriver(const QString &name)
     return QString();
 }
 
-Storage::Storage()
+Storage::Storage(IConfiguration *configuration)
     : mItemDbVersion(0)
+    , mConfiguration(configuration)
 {
-    const std::string &dbBackend = Configuration::getValue("db_backend", std::string());
+    const std::string &dbBackend = mConfiguration->getValue("db_backend", std::string());
     const QString &dbDriver = databaseToDriver(QString::fromStdString(dbBackend));
 
     if (dbDriver.isEmpty())
@@ -91,15 +93,15 @@ Storage::Storage()
 
     if (dbBackend == "sqlite")
     {
-        mDb.setDatabaseName(QString::fromStdString(Configuration::getValue("sqlite_database", std::string())));
+        mDb.setDatabaseName(QString::fromStdString(mConfiguration->getValue("sqlite_database", std::string())));
     }
     else if (dbBackend == "mysql")
     {
-        mDb.setHostName(QString::fromStdString(Configuration::getValue("mysql_hostname", std::string())));
-        mDb.setPort(Configuration::getValue("mysql_port", 3306));
-        mDb.setDatabaseName(QString::fromStdString(Configuration::getValue("mysql_database", std::string())));
-        mDb.setUserName(QString::fromStdString(Configuration::getValue("mysql_username", std::string())));
-        mDb.setPassword(QString::fromStdString(Configuration::getValue("mysql_password", std::string())));
+        mDb.setHostName(QString::fromStdString(mConfiguration->getValue("mysql_hostname", std::string())));
+        mDb.setPort(mConfiguration->getValue("mysql_port", 3306));
+        mDb.setDatabaseName(QString::fromStdString(mConfiguration->getValue("mysql_database", std::string())));
+        mDb.setUserName(QString::fromStdString(mConfiguration->getValue("mysql_username", std::string())));
+        mDb.setPassword(QString::fromStdString(mConfiguration->getValue("mysql_password", std::string())));
     }
 
     if (!mDb.open())
@@ -170,7 +172,7 @@ void Storage::open()
 
     // In case where the server shouldn't keep floor item in database,
     // we remove remnants at startup
-    if (Configuration::getValue("game_floorItemDecayTime", 0) > 0)
+    if (mConfiguration->getValue("game_floorItemDecayTime", 0) > 0)
     {
         mDb.exec("DELETE FROM " + FLOOR_ITEMS_TBL_NAME);
     }
@@ -362,7 +364,7 @@ CharacterData *Storage::getCharacterBySQL(QSqlQuery &sqlQuery, Account *owner)
     {
         // Set character to default map and one of the default location
         // Default map is to be 1, as not found return value will be 0.
-        character->setMapId(Configuration::getValue("char_defaultMap", 1));
+        character->setMapId(mConfiguration->getValue("char_defaultMap", 1));
     }
 
     character->setCharacterSlot(sqlQuery.value(11).toInt());

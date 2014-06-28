@@ -23,6 +23,8 @@
 
 #include "utils/logger.h"
 
+#include <QDebug>
+
 namespace utils
 {
     /**
@@ -32,7 +34,7 @@ namespace utils
     */
     static void throwError(const std::string &errmsg)
     {
-        LOG_ERROR(errmsg);
+        qWarning() << errmsg.c_str();
         throw errmsg;
     }
 

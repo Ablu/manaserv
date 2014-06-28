@@ -52,7 +52,9 @@ void registerChatClient(const std::string &token,
     chatHandler->mTokenCollector.addPendingConnect(token, p);
 }
 
-ChatHandler::ChatHandler():
+ChatHandler::ChatHandler(IConfiguration *configuration):
+    ConnectionHandler(configuration),
+    mConfiguration(configuration),
     mTokenCollector(this)
 {
 }

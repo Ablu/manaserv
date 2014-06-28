@@ -20,7 +20,7 @@
 
 #include "common/resourcemanager.h"
 
-#include "common/configuration.h"
+#include "mana/configuration/interfaces/iconfiguration.h"
 
 #include "utils/logger.h"
 
@@ -43,12 +43,17 @@
 #define PKG_DATADIR "."
 #endif
 
-void ResourceManager::initialize()
+
+IConfiguration *mConfiguration; // TODO: make this a class and hide it
+
+void ResourceManager::initialize(IConfiguration *configuration)
 {
+    mConfiguration = configuration;
+
     PHYSFS_permitSymbolicLinks(1);
 
     const std::string worldDataPath =
-            Configuration::getValue("worldDataPath", "example");
+            mConfiguration->getValue("worldDataPath", "example");
 
     // world first to allow overriding of server's libraries
     PHYSFS_addToSearchPath(worldDataPath.c_str(), 1);

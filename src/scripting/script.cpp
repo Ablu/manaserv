@@ -20,7 +20,8 @@
 
 #include "scripting/script.h"
 
-#include "common/configuration.h"
+#include "mana/configuration/interfaces/iconfiguration.h"
+
 #include "common/resourcemanager.h"
 #include "game-server/being.h"
 #include "utils/logger.h"

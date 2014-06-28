@@ -23,6 +23,7 @@
 
 #include <map>
 
+class IConfiguration;
 class Letter;
 class Post;
 
@@ -31,6 +32,10 @@ class CharacterData;
 class PostManager
 {
 public:
+    PostManager(IConfiguration *configuration)
+        : mConfiguration(configuration)
+    {}
+
     /**
      * Add letter to post box
      * @param letter Letter to add
@@ -51,6 +56,7 @@ public:
 
 private:
     std::map<CharacterData*, Post*> mPostBox;
+    IConfiguration *mConfiguration;
 };
 
 extern PostManager *postalManager;

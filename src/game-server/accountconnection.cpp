@@ -20,7 +20,8 @@
 
 #include "game-server/accountconnection.h"
 
-#include "common/configuration.h"
+#include "mana/configuration/interfaces/iconfiguration.h"
+
 #include "game-server/charactercomponent.h"
 #include "game-server/gamehandler.h"
 #include "game-server/map.h"
@@ -42,9 +43,10 @@ const unsigned SYNC_BUFFER_SIZE = 1024;
 /** Maximum number of messages in sync buffer. */
 const int SYNC_BUFFER_LIMIT = 20;
 
-AccountConnection::AccountConnection():
+AccountConnection::AccountConnection(IConfiguration *configuration):
     mSyncBuffer(0),
-    mSyncMessages(0)
+    mSyncMessages(0),
+    mConfiguration(configuration)
 {
 }
 
@@ -56,17 +58,17 @@ AccountConnection::~AccountConnection()
 bool AccountConnection::start(int gameServerPort)
 {
     const std::string accountServerAddress =
-        Configuration::getValue("net_accountHost", "localhost");
+        mConfiguration->getValue("net_accountHost", "localhost");
 
     // When the accountListenToGamePort is set, we use it.
     // Otherwise, we use the accountListenToClientPort + 1 if the option is set.
     // If neither, the DEFAULT_SERVER_PORT + 1 is used.
     int alternativePort =
-        Configuration::getValue("net_accountListenToClientPort", 0) + 1;
+        mConfiguration->getValue("net_accountListenToClientPort", 0) + 1;
     if (alternativePort == 1)
         alternativePort = DEFAULT_SERVER_PORT + 1;
     const int accountServerPort =
-        Configuration::getValue("net_accountListenToGamePort", alternativePort);
+        mConfiguration->getValue("net_accountListenToGamePort", alternativePort);
 
     if (!Connection::start(accountServerAddress, accountServerPort))
     {
@@ -77,13 +79,13 @@ bool AccountConnection::start(int gameServerPort)
     LOG_INFO("Connection established to the account server.");
 
     const std::string gameServerName =
-        Configuration::getValue("net_gameServerName", std::string());
+        mConfiguration->getValue("net_gameServerName", std::string());
     const std::string gameServerAddress =
-        Configuration::getValue("net_publicGameHost",
-                                Configuration::getValue("net_gameHost",
+        mConfiguration->getValue("net_publicGameHost",
+                                mConfiguration->getValue("net_gameHost",
                                                         "localhost"));
     const std::string password =
-        Configuration::getValue("net_password", "changeMe");
+        mConfiguration->getValue("net_password", "changeMe");
 
     // Register with the account server
     MessageOut msg(GAMSG_REGISTER);
@@ -157,7 +159,7 @@ void AccountConnection::processMessage(MessageIn &msg)
             Entity *character = new Entity(OBJECT_CHARACTER);
             character->addComponent(new ActorComponent(*character));
             character->addComponent(new BeingComponent(*character));
-            character->addComponent(new CharacterComponent(*character, msg));
+            character->addComponent(new CharacterComponent(*character, msg, mConfiguration));
             gameHandler->addPendingCharacter(token, character);
         } break;
 

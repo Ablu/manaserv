@@ -11,6 +11,14 @@ CppApplication {
     }
 
     Depends {
+        name: "ManaConfigurationInterfaces"
+    }
+
+    Depends {
+        name: "ManaConfigurationXmlConfiguration"
+    }
+
+    Depends {
         name: "ManaEntities"
     }
 
@@ -39,8 +47,6 @@ CppApplication {
         name: "Common sources"
         prefix: "common/"
         files: [
-            "configuration.cpp",
-            "configuration.h",
             "defines.h",
             "inventorydata.h",
             "manaserv_protocol.h",

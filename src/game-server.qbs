@@ -10,6 +10,10 @@ CppApplication {
         ]
     }
 
+    Depends {
+        name: "ManaConfigurationXmlConfiguration"
+    }
+
     Group {
         name: "Game server sources"
         prefix: "game-server/"
@@ -95,8 +99,6 @@ CppApplication {
         name: "Common sources"
         prefix: "common/"
         files: [
-            "configuration.cpp",
-            "configuration.h",
             "defines.h",
             "inventorydata.h",
             "manaserv_protocol.h",

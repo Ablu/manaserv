@@ -23,13 +23,15 @@
 
 #include <string>
 
+class IConfiguration;
+
 namespace AccountClientHandler
 {
     /**
      * Creates a connection handler and starts listening on given port.
      */
     bool initialize(const std::string &configFile, int port,
-                    const std::string &host);
+                    const std::string &host, IConfiguration *configuration);
 
     /**
      * Stops listening to messages and destroys the connection handler.

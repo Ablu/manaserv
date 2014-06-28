@@ -22,7 +22,8 @@
 
 #include "net/connectionhandler.h"
 
-#include "common/configuration.h"
+#include "mana/configuration/interfaces/iconfiguration.h"
+
 #include "net/bandwidth.h"
 #include "net/messagein.h"
 #include "net/messageout.h"
@@ -49,14 +50,14 @@ bool ConnectionHandler::startListen(enet_uint16 port,
 #if defined(ENET_VERSION) && ENET_VERSION >= ENET_CUTOFF
     host = enet_host_create(
             &address    /* the address to bind the server host to */,
-            Configuration::getValue("net_maxClients", 1000) /* allowed connections */,
+            mConfiguration->getValue("net_maxClients", 1000) /* allowed connections */,
             0           /* unlimited channel count */,
             0           /* assume any amount of incoming bandwidth */,
             0           /* assume any amount of outgoing bandwidth */);
 #else
     host = enet_host_create(
             &address    /* the address to bind the server host to */,
-            Configuration::getValue("net_maxClients", 1000) /* allowed connections */,
+            mConfiguration->getValue("net_maxClients", 1000) /* allowed connections */,
             0           /* assume any amount of incoming bandwidth */,
             0           /* assume any amount of outgoing bandwidth */);
 #endif

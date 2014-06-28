@@ -27,13 +27,14 @@
 
 #include "utils/xml.h"
 
+class IConfiguration;
 class MapComposite;
 
 namespace MapManager
 {
     typedef std::map< int, MapComposite * > Maps;
 
-    void initialize();
+    void initialize(IConfiguration *configuration);
 
     void deinitialize();
 

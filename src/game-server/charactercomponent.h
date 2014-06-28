@@ -81,7 +81,9 @@ class CharacterComponent : public Component
          * Utility constructor for creating a Character from a received
          * characterdata message.
          */
-        CharacterComponent(Entity &entity, MessageIn &msg);
+        CharacterComponent(Entity &entity,
+                           MessageIn &msg,
+                           IConfiguration *configuration);
 
         ~CharacterComponent();
 
@@ -376,6 +378,7 @@ class CharacterComponent : public Component
                                          argument there). DO NOT USE THIS IF IT
                                          IS AVOIDABLE in order to allow
                                          refactoring this easier later! */
+        IConfiguration *mConfiguration;
 
         static Script::Ref mDeathCallback;
         static Script::Ref mDeathAcceptedCallback;

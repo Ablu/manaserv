@@ -25,6 +25,7 @@
 #include <string>
 #include <enet/enet.h>
 
+class IConfiguration;
 class MessageIn;
 class MessageOut;
 class NetComputer;
@@ -37,6 +38,10 @@ class NetComputer;
 class ConnectionHandler
 {
     public:
+        ConnectionHandler(IConfiguration *configuration)
+            : mConfiguration(configuration)
+        {}
+
         virtual ~ConnectionHandler() {}
 
         /**
@@ -84,6 +89,7 @@ class ConnectionHandler
     private:
         ENetAddress address;      /**< Includes the port to listen to. */
         ENetHost *host;           /**< The host that listen for connections. */
+        IConfiguration *mConfiguration;
 
     protected:
         /**

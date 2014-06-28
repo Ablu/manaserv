@@ -23,10 +23,12 @@
 #include "chat-server/chatchannelmanager.h"
 
 #include "account-server/storage.h"
+
+#include "mana/configuration/interfaces/iconfiguration.h"
+
 #include "chat-server/chatclient.h"
 #include "chat-server/chathandler.h"
 #include "chat-server/guildmanager.h"
-#include "common/configuration.h"
 #include "common/manaserv_protocol.h"
 #include "utils/stringfilter.h"
 
@@ -66,7 +68,7 @@ bool ChatChannelManager::tryNewPublicChannel(const std::string &name)
     }
 
     // Checking strings for length and double quotes
-    unsigned maxNameLength = Configuration::getValue("chat_maxChannelNameLength", 15);
+    unsigned maxNameLength = mConfiguration->getValue("chat_maxChannelNameLength", 15);
     if (name.empty() ||
         name.length() > maxNameLength ||
         stringFilter->findDoubleQuotes(name))

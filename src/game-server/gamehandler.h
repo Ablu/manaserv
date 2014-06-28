@@ -49,7 +49,7 @@ struct GameClient: NetComputer
 class GameHandler: public ConnectionHandler
 {
     public:
-        GameHandler();
+        GameHandler(IConfiguration *configuration);
 
         /**
          * Starts the handler
@@ -158,6 +158,8 @@ class GameHandler: public ConnectionHandler
 
         void sendNpcError(GameClient &client, int id,
                           const std::string &errorMsg);
+
+        IConfiguration *mConfiguration;
 
         /**
          * Container for pending clients and pending connections.

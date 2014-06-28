@@ -24,11 +24,13 @@
 #include <set>
 #include <libxml/xmlreader.h>
 
-#include "common/configuration.h"
+#include "xmlconfiguration.h"
 
-#include "utils/logger.h"
-#include "utils/xml.h"
 #include "utils/string.h"
+
+#include <QDebug>
+#include <QFile>
+#include <QXmlStreamReader>
 
 #define DEFAULT_CONFIG_FILE       "manaserv.xml"
 
@@ -36,74 +38,79 @@
 static std::map< std::string, std::string > options;
 /**< Location of config file. */
 static std::string configPath;
-static std::set<std::string> processedFiles;
+static std::set<QString> processedFiles;
 
-static bool readFile(const std::string &fileName)
+static bool readFile(const QString &fileName)
 {
     if (processedFiles.find(fileName) != processedFiles.end())
     {
-        LOG_WARN("Cycle include in configuration file '" <<
-                 fileName << "'.");
+        qDebug() << "Cycle include in configuration file '" <<
+                    fileName << "'.";
         return false;
     }
     else
         processedFiles.insert(fileName);
 
-    XML::Document doc(fileName, false);
-    xmlNodePtr node = doc.rootNode();
-
-    if (!node || !xmlStrEqual(node->name, BAD_CAST "configuration")) {
-        LOG_WARN("No configuration file '" << fileName.c_str() << "'.");
+    QFile file(fileName);
+    file.open(QFile::ReadOnly);
+    QXmlStreamReader reader(&file);
+    if (!reader.readNextStartElement() || reader.name() != "configuration")
+    {
+        qWarning() << "No configuration file '" << fileName << "'.";
+        file.close();
         return false;
     }
 
-    for (node = node->xmlChildrenNode; node != nullptr; node = node->next)
+    while (reader.readNextStartElement())
     {
-        if (xmlStrEqual(node->name, BAD_CAST "include"))
+        const QXmlStreamAttributes attributes = reader.attributes();
+        const QStringRef &nodeName = reader.name();
+        if (nodeName == "include")
         {
-            std::string file = XML::getProperty(node, "file", std::string());
-            if (!readFile(file))
+            QString fileName = attributes.value("file").toString();
+            if (!readFile(fileName))
             {
-                LOG_WARN("Error ocurred while parsing included " <<
-                         "configuration file '" << file << "'.");
+                qWarning() << "Error ocurred while parsing included " <<
+                              "configuration file '" << fileName << "'.";
+                file.close();
                 return false;
             }
-            continue;
         }
-        if (!xmlStrEqual(node->name, BAD_CAST "option"))
-            continue;
-        if (!XML::hasProperty(node, "name") || !XML::hasProperty(node, "value"))
-            continue;
-
-        std::string key = XML::getProperty(node, "name", std::string());
-        std::string value = XML::getProperty(node, "value", std::string());
-
-        if (!key.empty())
-            options[key] = value;
+        else if (nodeName == "option")
+        {
+            QString key = attributes.value("name").toString();
+            QString value = attributes.value("value").toString();
+            if (!key.isEmpty())
+            {
+                options[key.toStdString()] = value.toStdString();
+            }
+        }
     }
+
+    file.close();
     return true;
 }
 
-bool Configuration::initialize(const std::string &fileName)
+bool XmlConfiguration::initialize(const std::string &fileName)
 {
     if (fileName.empty())
         configPath = DEFAULT_CONFIG_FILE;
     else
         configPath = fileName;
 
-    const bool success = readFile(configPath);
+    const bool success = readFile(QString::fromStdString(configPath));
 
-    LOG_INFO("Using config file: " << configPath);
+    qDebug() << "Using config file: " << configPath.c_str();
 
     return success;
 }
 
-void Configuration::deinitialize()
+void XmlConfiguration::deinitialize()
 {
     processedFiles.clear();
 }
 
-std::string Configuration::getValue(const std::string &key,
+std::string XmlConfiguration::getValue(const std::string &key,
                                     const std::string &deflt)
 {
     std::map<std::string, std::string>::iterator iter = options.find(key);
@@ -112,7 +119,7 @@ std::string Configuration::getValue(const std::string &key,
     return iter->second;
 }
 
-int Configuration::getValue(const std::string &key, int deflt)
+int XmlConfiguration::getValue(const std::string &key, int deflt)
 {
     std::map<std::string, std::string>::iterator iter = options.find(key);
     if (iter == options.end())
@@ -120,7 +127,7 @@ int Configuration::getValue(const std::string &key, int deflt)
     return atoi(iter->second.c_str());
 }
 
-bool Configuration::getBoolValue(const std::string &key, bool deflt)
+bool XmlConfiguration::getBoolValue(const std::string &key, bool deflt)
 {
     std::map<std::string, std::string>::iterator iter = options.find(key);
     if (iter == options.end())

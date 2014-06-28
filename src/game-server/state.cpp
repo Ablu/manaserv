@@ -20,7 +20,8 @@
 
 #include "game-server/state.h"
 
-#include "common/configuration.h"
+#include "mana/configuration/interfaces/iconfiguration.h"
+
 #include "game-server/accountconnection.h"
 #include "game-server/effect.h"
 #include "game-server/gamehandler.h"
@@ -74,6 +75,8 @@ static DelayedEvents delayedEvents;
  * Cached persistent script variables
  */
 static std::map< std::string, std::string > mScriptVariables;
+
+static IConfiguration *mConfiguration;
 
 /**
  * Sets message fields describing character look.
@@ -132,7 +135,7 @@ static void informPlayer(MapComposite *map, Entity *p)
     const Point &pold = p->getComponent<BeingComponent>()->getOldPosition();
     const Point &ppos = p->getComponent<ActorComponent>()->getPosition();
     int pflags = p->getComponent<ActorComponent>()->getUpdateFlags();
-    int visualRange = Configuration::getValue("game_visualRange", 448);
+    int visualRange = mConfiguration->getValue("game_visualRange", 448);
 
     // Inform client about activities of other beings near its character
     for (BeingIterator it(map->getAroundBeingIterator(p, visualRange));
@@ -653,7 +656,7 @@ void GameState::remove(Entity *ptr)
 {
     assert(!dbgLockObjects);
     MapComposite *map = ptr->getMap();
-    int visualRange = Configuration::getValue("game_visualRange", 448);
+    int visualRange = mConfiguration->getValue("game_visualRange", 448);
 
     ptr->emitRemoved();
 
@@ -833,7 +836,7 @@ void GameState::enqueueWarp(Entity *ptr,
 void GameState::sayAround(Entity *entity, const std::string &text)
 {
     Point speakerPosition = entity->getComponent<ActorComponent>()->getPosition();
-    int visualRange = Configuration::getValue("game_visualRange", 448);
+    int visualRange = mConfiguration->getValue("game_visualRange", 448);
 
     for (CharacterIterator i(entity->getMap()->getAroundActorIterator(entity, visualRange)); i; ++i)
     {
@@ -919,4 +922,10 @@ void GameState::callVariableCallbacks(const std::string &key,
     {
         m->second->callWorldVariableCallback(key, value);
     }
+}
+
+
+void GameState::initialize(IConfiguration *configuration)
+{
+    mConfiguration = configuration;
 }

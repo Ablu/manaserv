@@ -69,12 +69,13 @@ class ChatHandler : public ConnectionHandler
             time_t mExpireTime;
         };
 
+        IConfiguration *mConfiguration;
         std::map<std::string, ChatClient*> mPlayerMap;
         std::deque<PartyInvite> mInvitations;
         std::map<std::string, int> mNumInvites;
 
     public:
-        ChatHandler();
+        ChatHandler(IConfiguration *configuration);
 
         /**
          * Start the handler.

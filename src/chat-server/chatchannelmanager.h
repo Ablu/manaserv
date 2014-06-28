@@ -27,6 +27,8 @@
 
 #include "chat-server/chatchannel.h"
 
+class IConfiguration;
+
 /**
  * The chat channel manager takes care of registering and removing public and
  * private chat channels. Every channel gets a unique channel ID.
@@ -124,6 +126,8 @@ class ChatChannelManager
         ChatChannels mChatChannels;
         int mNextChannelId;
         std::deque<int> mChannelsNoLongerUsed;
+
+        IConfiguration *mConfiguration;
 };
 
 extern ChatChannelManager *chatChannelManager;

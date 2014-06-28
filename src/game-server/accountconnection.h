@@ -25,6 +25,7 @@
 #include "net/connection.h"
 
 class Entity;
+class IConfiguration;
 class MapComposite;
 
 /**
@@ -33,7 +34,7 @@ class MapComposite;
 class AccountConnection : public Connection
 {
     public:
-        AccountConnection();
+        AccountConnection(IConfiguration *configuration);
         ~AccountConnection();
 
         /**
@@ -178,6 +179,8 @@ class AccountConnection : public Connection
     private:
         MessageOut* mSyncBuffer;     /**< Message buffer to store sync data. */
         int mSyncMessages;           /**< Number of messages in the sync buffer. */
+
+        IConfiguration *mConfiguration;
 };
 
 extern AccountConnection *accountHandler;

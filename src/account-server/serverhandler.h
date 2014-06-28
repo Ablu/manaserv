@@ -27,13 +27,14 @@
 #include "net/messagein.h"
 
 class CharacterData;
+class IConfiguration;
 
 namespace GameServerHandler
 {
     /**
      * Creates a connection handler and starts listening on given port.
      */
-    bool initialize(int port, const std::string &host);
+    bool initialize(int port, const std::string &host, IConfiguration *configuration);
 
     /**
      * Stops listening to messages and destroys the connection handler.

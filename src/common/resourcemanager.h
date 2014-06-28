@@ -23,6 +23,8 @@
 
 #include <string>
 
+class IConfiguration;
+
 namespace ResourceManager
 {
     // A structure retaining the path and file names separately.
@@ -35,7 +37,7 @@ namespace ResourceManager
     /**
      * Searches for zip files and adds them to PhysFS search path.
      */
-    void initialize();
+    void initialize(IConfiguration *configuration);
 
     /**
      * Checks whether the given file or directory exists in the search path

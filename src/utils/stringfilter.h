@@ -24,6 +24,8 @@
 #include <list>
 #include <string>
 
+class IConfiguration;
+
 namespace utils
 {
 
@@ -34,7 +36,7 @@ namespace utils
 class StringFilter
 {
     public:
-        StringFilter();
+        StringFilter(IConfiguration *configuration);
 
         ~StringFilter();
 
@@ -71,6 +73,8 @@ class StringFilter
         bool findDoubleQuotes(const std::string &text) const;
 
     private:
+        IConfiguration *mConfiguration;
+
         typedef std::list<std::string> Slangs;
         typedef Slangs::iterator SlangIterator;
         Slangs mSlangs;    /**< the formatted Slangs list */

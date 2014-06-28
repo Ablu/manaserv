@@ -25,6 +25,8 @@
 #include <list>
 #include <set>
 
+class IConfiguration;
+
 class SettingsManager
 {
     public:
@@ -32,7 +34,7 @@ class SettingsManager
 			mSettingsFile(settingsFile)
 		{}
 
-		void initialize();
+        void initialize(IConfiguration *configuration);
 
 		void reload();
 

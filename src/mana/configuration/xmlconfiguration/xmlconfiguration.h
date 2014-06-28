@@ -19,13 +19,16 @@
  *  along with The Mana Server.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CONFIGURATION_H
-#define CONFIGURATION_H
+#ifndef XMLCONFIGURATION_H
+#define XMLCONFIGURATION_H
 
 #include <string>
 
-namespace Configuration
+#include "mana/configuration/interfaces/iconfiguration.h"
+
+class XmlConfiguration : public IConfiguration
 {
+public:
     /**
      * Loads the configuration options into memory.
      *
@@ -57,10 +60,10 @@ namespace Configuration
      * @param deflt default value.
      */
     bool getBoolValue(const std::string &key, bool deflt);
-}
+};
 
 #ifndef DEFAULT_SERVER_PORT
 #define DEFAULT_SERVER_PORT 9601
 #endif
 
-#endif // CONFIGURATION_H
+#endif // XMLCONFIGURATION_H

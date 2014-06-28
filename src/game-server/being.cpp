@@ -22,7 +22,8 @@
 
 #include "game-server/being.h"
 
-#include "common/configuration.h"
+#include "mana/configuration/interfaces/iconfiguration.h"
+
 #include "common/defines.h"
 #include "game-server/attributemanager.h"
 #include "game-server/charactercomponent.h"

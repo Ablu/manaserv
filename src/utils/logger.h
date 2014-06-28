@@ -26,6 +26,8 @@
 #include <sstream>
 #include <iostream>
 
+class IConfiguration;
+
 namespace utils
 {
 
@@ -83,7 +85,7 @@ class Logger
             Debug
         };
 
-        static void initialize(const std::string &logFile);
+        static void initialize(const std::string &logFile, IConfiguration *configuration);
 
         /**
          * Sets the log file.
@@ -163,6 +165,8 @@ class Logger
 
         static Level mVerbosity;   /**< Verbosity level. */
     private:
+        static IConfiguration *mConfiguration;
+
         static bool mHasTimestamp; /**< Timestamp flag. */
         static bool mTeeMode;      /**< Tee mode flag. */
 

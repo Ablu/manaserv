@@ -23,7 +23,8 @@
 
 #include "game-server/gamehandler.h"
 
-#include "common/configuration.h"
+#include "mana/configuration/interfaces/iconfiguration.h"
+
 #include "common/transaction.h"
 #include "game-server/accountconnection.h"
 #include "game-server/buysell.h"
@@ -46,8 +47,10 @@
 
 const unsigned TILES_TO_BE_NEAR = 7;
 
-GameHandler::GameHandler():
-    mTokenCollector(this)
+GameHandler::GameHandler(IConfiguration *configuration)
+    : ConnectionHandler(configuration)
+    , mConfiguration(configuration)
+    , mTokenCollector(this)
 {
 }
 
@@ -503,7 +506,7 @@ void GameHandler::handlePickup(GameClient &client, MessageIn &message)
 
                     // We only do this when items are to be kept in memory
                     // between two server restart.
-                    if (!Configuration::getValue("game_floorItemDecayTime", 0))
+                    if (!mConfiguration->getValue("game_floorItemDecayTime", 0))
                     {
                         // Remove the floor item from map
                         accountHandler->removeFloorItems(map->getID(),
@@ -578,7 +581,7 @@ void GameHandler::handleDrop(GameClient &client, MessageIn &message)
 
         // We store the item in database only when the floor items are meant
         // to be persistent between two server restarts.
-        if (!Configuration::getValue("game_floorItemDecayTime", 0))
+        if (!mConfiguration->getValue("game_floorItemDecayTime", 0))
         {
             // Create the floor item on map
             accountHandler->createFloorItems(client.character->getMap()->getID(),
@@ -935,7 +938,7 @@ void GameHandler::handleNpcPostSend(GameClient &client, MessageIn &message)
 void GameHandler::handlePartyInvite(GameClient &client, MessageIn &message)
 {
     MapComposite *map = client.character->getMap();
-    const int visualRange = Configuration::getValue("game_visualRange", 448);
+    const int visualRange = mConfiguration->getValue("game_visualRange", 448);
     std::string invitee = message.readString();
 
     if (invitee == client.character->getComponent<BeingComponent>()->getName())

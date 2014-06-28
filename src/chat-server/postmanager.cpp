@@ -22,7 +22,7 @@
 
 #include "mana/entities/post.h"
 
-#include "common/configuration.h"
+#include "mana/configuration/interfaces/iconfiguration.h"
 
 void PostManager::addLetter(Letter *letter)
 {
@@ -31,7 +31,7 @@ void PostManager::addLetter(Letter *letter)
     if (itr != mPostBox.end())
     {
         unsigned maximumLetterCountPerMail =
-                Configuration::getValue("mail_maxLetters", 10);
+                mConfiguration->getValue("mail_maxLetters", 10);
 
         if (maximumLetterCountPerMail > itr->second->getNumberOfLetters())
         {

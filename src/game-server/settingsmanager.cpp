@@ -38,10 +38,10 @@
  *
  * Fatal errors will call exit()
  */
-void SettingsManager::initialize()
+void SettingsManager::initialize(IConfiguration *configuration)
 {
     // initialize all managers in correct order
-    MapManager::initialize();
+    MapManager::initialize(configuration);
     attributeManager->initialize();
     abilityManager->initialize();
     itemManager->initialize();

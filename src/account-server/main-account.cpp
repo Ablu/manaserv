@@ -29,6 +29,8 @@
 
 #include "mana/entities/post.h"
 
+#include "mana/configuration/xmlconfiguration/xmlconfiguration.h"
+
 #include "account-server/accounthandler.h"
 #include "account-server/serverhandler.h"
 #include "account-server/storage.h"
@@ -36,7 +38,6 @@
 #include "chat-server/chathandler.h"
 #include "chat-server/guildmanager.h"
 #include "chat-server/postmanager.h"
-#include "common/configuration.h"
 #include "common/defines.h"
 #include "common/manaserv_protocol.h"
 #include "common/resourcemanager.h"
@@ -73,6 +74,8 @@ static std::string statisticsFile = std::string();
 /** Database handler. */
 Storage *storage;
 
+XmlConfiguration *configuration;
+
 /** Communications (chat) message handler */
 ChatHandler *chatHandler;
 
@@ -99,26 +102,26 @@ static void initialize()
     signal(SIGINT, closeGracefully);
     signal(SIGTERM, closeGracefully);
 
-    std::string logFile = Configuration::getValue("log_accountServerFile",
+    std::string logFile = configuration->getValue("log_accountServerFile",
                                                   DEFAULT_LOG_FILE);
 
     // Initialize PhysicsFS
     PHYSFS_init("");
 
-    Logger::initialize(logFile);
+    Logger::initialize(logFile, configuration);
 
     // Indicate in which file the statistics are put.
-    statisticsFile = Configuration::getValue("log_statisticsFile",
+    statisticsFile = configuration->getValue("log_statisticsFile",
                                              DEFAULT_STATS_FILE);
 
     LOG_INFO("Using statistics file: " << statisticsFile);
 
-    ResourceManager::initialize();
+    ResourceManager::initialize(configuration);
 
     // Open database
     try
     {
-        storage = new Storage;
+        storage = new Storage(configuration);
         storage->open();
     }
     catch (std::string &error)
@@ -128,16 +131,16 @@ static void initialize()
     }
 
     // --- Initialize the managers
-    stringFilter = new utils::StringFilter;  // The slang's and double quotes filter.
+    stringFilter = new utils::StringFilter(configuration);  // The slang's and double quotes filter.
     chatChannelManager = new ChatChannelManager;
     guildManager = new GuildManager;
-    postalManager = new PostManager;
+    postalManager = new PostManager(configuration);
     gBandwidth = new BandwidthMonitor;
 
     // --- Initialize the global handlers
     // FIXME: Make the global handlers global vars or part of a bigger
     // singleton or a local variable in the event-loop
-    chatHandler = new ChatHandler;
+    chatHandler = new ChatHandler(configuration);
 
     // --- Initialize enet.
     if (enet_initialize() != 0)
@@ -160,7 +163,7 @@ static void initialize()
 static void deinitializeServer()
 {
     // Write configuration file
-    Configuration::deinitialize();
+    configuration->deinitialize();
 
     // Destroy message handlers.
     AccountClientHandler::deinitialize();
@@ -180,6 +183,8 @@ static void deinitializeServer()
 
     // Get rid of persistent data storage
     delete storage;
+
+    delete configuration;
 
     PHYSFS_deinit();
 }
@@ -299,14 +304,16 @@ int main(int argc, char *argv[])
     CommandLineOptions options;
     parseOptions(argc, argv, options);
 
-    if (!Configuration::initialize(options.configPath))
+    configuration = new XmlConfiguration();
+
+    if (!configuration->initialize(options.configPath))
     {
         LOG_FATAL("Refusing to run without configuration!");
         exit(EXIT_CONFIG_NOT_FOUND);
     }
 
     // Check inter-server password.
-    if (Configuration::getValue("net_password", std::string()).empty())
+    if (configuration->getValue("net_password", std::string()).empty())
     {
         LOG_FATAL("SECURITY WARNING: 'net_password' not set!");
         exit(EXIT_BAD_CONFIG_PARAMETER);
@@ -327,16 +334,16 @@ int main(int argc, char *argv[])
 
     if (!options.verbosityChanged)
         options.verbosity = static_cast<Logger::Level>(
-                            Configuration::getValue("log_accountServerLogLevel",
+                            configuration->getValue("log_accountServerLogLevel",
                                                     options.verbosity) );
     Logger::setVerbosity(options.verbosity);
 
-    std::string accountHost = Configuration::getValue("net_accountHost",
+    std::string accountHost = configuration->getValue("net_accountHost",
                                                       "localhost");
 
     // We separate the chat host as the chat server will be separated out
     // from the account server.
-    std::string chatHost = Configuration::getValue("net_chatHost",
+    std::string chatHost = configuration->getValue("net_chatHost",
                                                    "localhost");
 
     // Setting the listen ports
@@ -344,19 +351,21 @@ int main(int argc, char *argv[])
     // to accountToClient listen port when they're not set,
     // or to DEFAULT_SERVER_PORT otherwise.
     if (!options.portChanged)
-        options.port = Configuration::getValue("net_accountListenToClientPort",
+        options.port = configuration->getValue("net_accountListenToClientPort",
                                                options.port);
-    int accountGamePort = Configuration::getValue("net_accountListenToGamePort",
+    int accountGamePort = configuration->getValue("net_accountListenToGamePort",
                                                   options.port + 1);
-    int chatClientPort = Configuration::getValue("net_chatListenToClientPort",
+    int chatClientPort = configuration->getValue("net_chatListenToClientPort",
                                                  options.port + 2);
 
-    bool debugNetwork = Configuration::getBoolValue("net_debugMode", false);
+    bool debugNetwork = configuration->getBoolValue("net_debugMode", false);
     MessageOut::setDebugModeEnabled(debugNetwork);
 
     if (!AccountClientHandler::initialize(DEFAULT_ATTRIBUTEDB_FILE,
-                                          options.port, accountHost) ||
-        !GameServerHandler::initialize(accountGamePort, accountHost) ||
+                                          options.port, accountHost,
+                                          configuration) ||
+        !GameServerHandler::initialize(accountGamePort, accountHost,
+                                       configuration) ||
         !chatHandler->startListen(chatClientPort, chatHost))
     {
         LOG_FATAL("Unable to create an ENet server host.");

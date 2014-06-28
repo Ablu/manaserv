@@ -20,6 +20,8 @@
 
 #include "account-server/accounthandler.h"
 
+#include "mana/configuration/interfaces/iconfiguration.h"
+
 #include "mana/entities/account.h"
 #include "mana/entities/character.h"
 
@@ -27,7 +29,6 @@
 #include "account-server/storage.h"
 #include "account-server/serverhandler.h"
 #include "chat-server/chathandler.h"
-#include "common/configuration.h"
 #include "common/manaserv_protocol.h"
 #include "common/transaction.h"
 #include "net/connectionhandler.h"
@@ -49,7 +50,7 @@ using namespace ManaServ;
 class AccountHandler : public ConnectionHandler
 {
 public:
-    AccountHandler(const std::string &attributesFile);
+    AccountHandler(IConfiguration *configuration, const std::string &attributesFile);
 
     /**
      * Called by the token collector in order to associate a client to its
@@ -100,6 +101,8 @@ private:
 
     void addServerInfo(MessageOut *msg);
 
+    IConfiguration *mConfiguration;
+
     /** List of all accounts which requested a random seed, but are not logged
      *  yet. This list will be regularly remove (after timeout) old accounts
      */
@@ -135,20 +138,22 @@ private:
 
 static AccountHandler *accountHandler;
 
-AccountHandler::AccountHandler(const std::string &attributesFile):
+AccountHandler::AccountHandler(IConfiguration *configuration, const std::string &attributesFile):
+    ConnectionHandler(configuration),
     mTokenCollector(this),
+    mConfiguration(configuration),
     mStartingPoints(0),
     mAttributeMinimum(0),
     mAttributeMaximum(0),
-    mNumHairStyles(Configuration::getValue("char_numHairStyles", 17)),
-    mNumHairColors(Configuration::getValue("char_numHairColors", 11)),
-    mNumGenders(Configuration::getValue("char_numGenders", 2)),
-    mMinNameLength(Configuration::getValue("char_minNameLength", 4)),
-    mMaxNameLength(Configuration::getValue("char_maxNameLength", 25)),
-    mMaxCharacters(Configuration::getValue("account_maxCharacters", 3)),
-    mRegistrationAllowed(Configuration::getBoolValue("account_allowRegister", true)),
-    mUpdateHost(Configuration::getValue("net_defaultUpdateHost", std::string())),
-    mDataUrl(Configuration::getValue("net_clientDataUrl", std::string()))
+    mNumHairStyles(mConfiguration->getValue("char_numHairStyles", 17)),
+    mNumHairColors(mConfiguration->getValue("char_numHairColors", 11)),
+    mNumGenders(mConfiguration->getValue("char_numGenders", 2)),
+    mMinNameLength(mConfiguration->getValue("char_minNameLength", 4)),
+    mMaxNameLength(mConfiguration->getValue("char_maxNameLength", 25)),
+    mMaxCharacters(mConfiguration->getValue("account_maxCharacters", 3)),
+    mRegistrationAllowed(mConfiguration->getBoolValue("account_allowRegister", true)),
+    mUpdateHost(mConfiguration->getValue("net_defaultUpdateHost", std::string())),
+    mDataUrl(mConfiguration->getValue("net_clientDataUrl", std::string()))
 {
     XML::Document doc(attributesFile);
     xmlNodePtr node = doc.rootNode();
@@ -225,9 +230,10 @@ AccountHandler::AccountHandler(const std::string &attributesFile):
 }
 
 bool AccountClientHandler::initialize(const std::string &attributesFile, int port,
-                                      const std::string &host)
+                                      const std::string &host,
+                                      IConfiguration *configuration)
 {
-    accountHandler = new AccountHandler(attributesFile);
+    accountHandler = new AccountHandler(configuration, attributesFile);
     LOG_INFO("Account handler started:");
 
     return accountHandler->startListen(port, host);
@@ -380,7 +386,7 @@ void AccountHandler::handleLoginMessage(AccountClient &client, MessageIn &msg)
     }
 
     const unsigned maxClients =
-            (unsigned) Configuration::getValue("net_maxClients", 1000);
+            (unsigned) mConfiguration->getValue("net_maxClients", 1000);
 
     if (getClientCount() >= maxClients)
     {
@@ -606,10 +612,10 @@ void AccountHandler::handleRequestRegisterInfoMessage(AccountClient &client,
 {
     LOG_INFO("AccountHandler::handleRequestRegisterInfoMessage");
     MessageOut reply(APMSG_REGISTER_INFO_RESPONSE);
-    if (!Configuration::getBoolValue("account_allowRegister", true))
+    if (!mConfiguration->getBoolValue("account_allowRegister", true))
     {
         reply.writeInt8(false);
-        reply.writeString(Configuration::getValue(
+        reply.writeString(mConfiguration->getValue(
                               "account_denyRegisterReason", std::string()));
     }
     else
@@ -814,9 +820,9 @@ void AccountHandler::handleCharacterCreateMessage(AccountClient &client,
             newCharacter->setGender(gender);
             newCharacter->setHairStyle(hairStyle);
             newCharacter->setHairColor(hairColor);
-            newCharacter->setMapId(Configuration::getValue("char_startMap", 1));
-            Point startingPos(Configuration::getValue("char_startX", 1024),
-                              Configuration::getValue("char_startY", 1024));
+            newCharacter->setMapId(mConfiguration->getValue("char_startMap", 1));
+            Point startingPos(mConfiguration->getValue("char_startX", 1024),
+                              mConfiguration->getValue("char_startY", 1024));
             newCharacter->setPosition(startingPos);
             acc->addCharacter(newCharacter);
 
@@ -891,16 +897,16 @@ void AccountHandler::handleCharacterSelectMessage(AccountClient &client,
     reply.writeInt16(port);
 
     // Give address and port for the chat server
-    reply.writeString(Configuration::getValue("net_publicChatHost",
-                         Configuration::getValue("net_chatHost", "localhost")));
+    reply.writeString(mConfiguration->getValue("net_publicChatHost",
+                         mConfiguration->getValue("net_chatHost", "localhost")));
 
     // When the chatListenToClientPort is set, we use it.
     // Otherwise, we use the accountListenToClientPort + 2 if the option is set.
     // If neither, the DEFAULT_SERVER_PORT + 2 is used.
     const int alternativePort =
-        Configuration::getValue("net_accountListenToClientPort",
+        mConfiguration->getValue("net_accountListenToClientPort",
                                 DEFAULT_SERVER_PORT) + 2;
-    reply.writeInt16(Configuration::getValue("net_chatListenToClientPort",
+    reply.writeInt16(mConfiguration->getValue("net_chatListenToClientPort",
                                              alternativePort));
 
     GameServerHandler::registerClient(magic_token, selectedChar);

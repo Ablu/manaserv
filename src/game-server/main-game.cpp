@@ -19,14 +19,20 @@
  *  along with The Mana Server.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "common/configuration.h"
+#include "mana/configuration/interfaces/iconfiguration.h"
+
+#include "mana/configuration/xmlconfiguration/xmlconfiguration.h"
+
 #include "common/defines.h"
 #include "common/permissionmanager.h"
 #include "common/resourcemanager.h"
+
 #include "game-server/accountconnection.h"
 #include "game-server/attributemanager.h"
+#include "game-server/commandhandler.h"
 #include "game-server/gamehandler.h"
 #include "game-server/emotemanager.h"
+#include "game-server/item.h"
 #include "game-server/itemmanager.h"
 #include "game-server/mapmanager.h"
 #include "game-server/monstermanager.h"
@@ -35,6 +41,7 @@
 #include "game-server/postman.h"
 #include "game-server/state.h"
 #include "game-server/settingsmanager.h"
+
 #include "net/bandwidth.h"
 #include "net/connectionhandler.h"
 #include "net/messageout.h"
@@ -103,6 +110,8 @@ static void closeGracefully(int)
     running = false;
 }
 
+XmlConfiguration *configuration;
+
 static void initializeServer()
 {
     // Used to close via process signals
@@ -112,36 +121,41 @@ static void initializeServer()
     signal(SIGINT, closeGracefully);
     signal(SIGTERM, closeGracefully);
 
-    std::string logFile = Configuration::getValue("log_gameServerFile",
-                                                  DEFAULT_LOG_FILE);
+
+    std::string logFile = configuration->getValue("log_gameServerFile",
+                                                 DEFAULT_LOG_FILE);
+
+    Item::initialize(configuration);
+    CommandHandler::initalize(configuration);
+    GameState::initialize(configuration);
 
     // Initialize PhysicsFS
     PHYSFS_init("");
 
-    Logger::initialize(logFile);
+    Logger::initialize(logFile, configuration);
 
     // --- Initialize the managers
     // Initialize the slang's and double quotes filter.
-    stringFilter = new utils::StringFilter;
+    stringFilter = new utils::StringFilter(configuration);
 
-    ResourceManager::initialize();
-    ScriptManager::initialize();   // Depends on ResourceManager
+    ResourceManager::initialize(configuration);
+    ScriptManager::initialize(configuration);   // Depends on ResourceManager
 
     // load game settings files
-    settingsManager->initialize();
+    settingsManager->initialize(configuration);
 
     PermissionManager::initialize(DEFAULT_PERMISSION_FILE);
 
 
-    std::string mainScript = Configuration::getValue("script_mainFile",
+    std::string mainScript = configuration->getValue("script_mainFile",
                                                      DEFAULT_MAIN_SCRIPT_FILE);
     ScriptManager::loadMainScript(mainScript);
 
     // --- Initialize the global handlers
     // FIXME: Make the global handlers global vars or part of a bigger
     // singleton or a local variable in the event-loop
-    gameHandler = new GameHandler;
-    accountHandler = new AccountConnection;
+    gameHandler = new GameHandler(configuration);
+    accountHandler = new AccountConnection(configuration);
     postMan = new PostMan;
     gBandwidth = new BandwidthMonitor;
 
@@ -166,7 +180,7 @@ static void initializeServer()
 static void deinitializeServer()
 {
     // Write configuration file
-    Configuration::deinitialize();
+    configuration->deinitialize();
 
     // Stop world timer
     worldTimer.stop();
@@ -291,14 +305,16 @@ int main(int argc, char *argv[])
     CommandLineOptions options;
     parseOptions(argc, argv, options);
 
-    if (!Configuration::initialize(options.configPath))
+    configuration = new XmlConfiguration();
+
+    if (!configuration->initialize(options.configPath))
     {
         LOG_FATAL("Refusing to run without configuration!");
         exit(EXIT_CONFIG_NOT_FOUND);
     }
 
     // Check inter-server password.
-    if (Configuration::getValue("net_password", std::string()).empty())
+    if (configuration->getValue("net_password", std::string()).empty())
     {
         LOG_FATAL("SECURITY WARNING: 'net_password' not set!");
         exit(EXIT_BAD_CONFIG_PARAMETER);
@@ -306,7 +322,7 @@ int main(int argc, char *argv[])
 
     if (!options.verbosityChanged)
         options.verbosity = static_cast<Logger::Level>(
-                               Configuration::getValue("log_gameServerLogLevel",
+                               configuration->getValue("log_gameServerLogLevel",
                                                        options.verbosity) );
     Logger::setVerbosity(options.verbosity);
 
@@ -328,17 +344,17 @@ int main(int argc, char *argv[])
     if (!options.portChanged)
     {
         // Prepare the fallback value
-        options.port = Configuration::getValue("net_accountListenToClientPort",
+        options.port = configuration->getValue("net_accountListenToClientPort",
                                                0) + 3;
         if (options.port == 3)
             options.port = DEFAULT_SERVER_PORT + 3;
 
         // Set the actual value of options.port
-        options.port = Configuration::getValue("net_gameListenToClientPort",
+        options.port = configuration->getValue("net_gameListenToClientPort",
                                                options.port);
     }
 
-    bool debugNetwork = Configuration::getBoolValue("net_debugMode", false);
+    bool debugNetwork = configuration->getBoolValue("net_debugMode", false);
     MessageOut::setDebugModeEnabled(debugNetwork);
 
     // Make an initial attempt to connect to the account server

@@ -33,6 +33,7 @@ class CharacterData;
 class ChatChannel;
 class FloorItem;
 class Guild;
+class IConfiguration;
 class Letter;
 class Post;
 
@@ -43,7 +44,7 @@ class Post;
 class Storage
 {
     public:
-        Storage();
+        Storage(IConfiguration *configuration);
         ~Storage();
 
         /**
@@ -458,6 +459,8 @@ class Storage
          * @note Will be deprecated in the future at some point.
          */
         void fixCharactersSlot(int accountId);
+
+        IConfiguration *mConfiguration;
 
         QSqlDatabase mDb;
         unsigned mItemDbVersion;

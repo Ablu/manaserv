@@ -26,6 +26,7 @@
 #include <string>
 
 class Entity;
+class IConfiguration;
 class ItemClass;
 class MapComposite;
 
@@ -129,6 +130,8 @@ namespace GameState
      */
     void callVariableCallbacks(const std::string &key,
                                const std::string &value);
+
+    void initialize(IConfiguration *configuration);
 }
 
 #endif // STATE_H

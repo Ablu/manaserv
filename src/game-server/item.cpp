@@ -21,7 +21,8 @@
 
 #include "game-server/item.h"
 
-#include "common/configuration.h"
+#include "mana/configuration/interfaces/iconfiguration.h"
+
 #include "game-server/attributemanager.h"
 #include "game-server/being.h"
 #include "game-server/state.h"
@@ -131,11 +132,14 @@ bool ItemClass::useTrigger(Entity *itemUser, ItemTriggerType trigger)
     return ret;
 }
 
-ItemComponent::ItemComponent(ItemClass *type, int amount) :
-    mType(type),
-    mAmount(amount)
+ItemComponent::ItemComponent(ItemClass *type,
+                             int amount,
+                             IConfiguration *configuration)
+    : mConfiguration(configuration)
+    , mType(type)
+    , mAmount(amount)
 {
-    mLifetime = Configuration::getValue("game_floorItemDecayTime", 0) * 10;
+    mLifetime = mConfiguration->getValue("game_floorItemDecayTime", 0) * 10;
 }
 
 void ItemComponent::update(Entity &entity)
@@ -150,6 +154,8 @@ void ItemComponent::update(Entity &entity)
 
 namespace Item {
 
+static IConfiguration *mConfiguration;
+
 Entity *create(MapComposite *map,
               Point pos,
               ItemClass *itemClass,
@@ -158,10 +164,15 @@ Entity *create(MapComposite *map,
     Entity *itemActor = new Entity(OBJECT_ITEM);
     ActorComponent *actorComponent = new ActorComponent(*itemActor);
     itemActor->addComponent(actorComponent);
-    itemActor->addComponent(new ItemComponent(itemClass, amount));
+    itemActor->addComponent(new ItemComponent(itemClass, amount, mConfiguration));
     itemActor->setMap(map);
     actorComponent->setPosition(*itemActor, pos);
     return itemActor;
+}
+
+void initialize(IConfiguration *configuration)
+{
+    mConfiguration = configuration;
 }
 
 } // namespace Item

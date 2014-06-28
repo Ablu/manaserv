@@ -24,6 +24,7 @@
 #include <string>
 
 class Entity;
+class IConfiguration;
 
 namespace CommandHandler
 {
@@ -31,6 +32,8 @@ namespace CommandHandler
      * Parse and handle the given command.
      */
     void handleCommand(Entity *player, const std::string &command);
+
+    void initalize(IConfiguration *configuration);
 }
 
 #endif //SERVER_COMMANDHANDLER_H
