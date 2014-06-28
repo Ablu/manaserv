@@ -1,11 +1,7 @@
 import qbs 1.0
 
-DynamicLibrary {
+DynamicCppLibrary {
     name: "ManaConfigurationXmlConfiguration"
-
-    Depends {
-        name: "cpp"
-    }
 
     Depends {
         name: "Qt"
@@ -40,9 +36,5 @@ DynamicLibrary {
 
     cpp.dynamicLibraries: [
         "xml2",
-    ]
-
-    cpp.cxxFlags: [
-        "-std=c++0x",
     ]
 }
