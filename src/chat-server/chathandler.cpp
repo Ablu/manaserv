@@ -23,9 +23,10 @@
 #include <string>
 #include <sstream>
 
+#include "mana/persistence/interfaces/istorage.h"
+
 #include "mana/entities/character.h"
 
-#include "account-server/storage.h"
 #include "chat-server/guildmanager.h"
 #include "chat-server/chatchannelmanager.h"
 #include "chat-server/chatclient.h"
@@ -52,9 +53,10 @@ void registerChatClient(const std::string &token,
     chatHandler->mTokenCollector.addPendingConnect(token, p);
 }
 
-ChatHandler::ChatHandler(IConfiguration *configuration):
+ChatHandler::ChatHandler(IConfiguration *configuration, IStorage *storage):
     ConnectionHandler(configuration),
     mConfiguration(configuration),
+    mStorage(storage),
     mTokenCollector(this)
 {
 }
@@ -86,7 +88,7 @@ void ChatHandler::tokenMatched(ChatClient *client, Pending *p)
     client->characterName = p->character;
     client->accountLevel = p->level;
 
-    CharacterData *c = storage->getCharacter(p->character);
+    CharacterData *c = mStorage->getCharacter(p->character);
 
     if (!c)
     {
@@ -305,7 +307,7 @@ void ChatHandler::handleAnnounce(const std::string &message, int senderId,
     trans.mCharacterId = senderId;
     trans.mAction = TRANS_MSG_ANNOUNCE;
     trans.mMessage = senderName + " announced: " + message;
-    storage->addTransaction(trans);
+    mStorage->addTransaction(trans);
 
 }
 
@@ -398,7 +400,7 @@ void ChatHandler::handleEnterChannelMessage(ChatClient &client, MessageIn &msg)
             trans.mCharacterId = client.characterId;
             trans.mAction = TRANS_CHANNEL_JOIN;
             trans.mMessage = "User joined " + channelName;
-            storage->addTransaction(trans);
+            mStorage->addTransaction(trans);
         }
         else
         {
@@ -447,7 +449,7 @@ void ChatHandler::handleModeChangeMessage(ChatClient &client, MessageIn &msg)
     trans.mAction = TRANS_CHANNEL_MODE;
     trans.mMessage = "User mode ";
     trans.mMessage.append(utils::toString(mode) + " set on " + user);
-    storage->addTransaction(trans);
+    mStorage->addTransaction(trans);
 }
 
 void ChatHandler::handleKickUserMessage(ChatClient &client, MessageIn &msg)
@@ -484,7 +486,7 @@ void ChatHandler::handleKickUserMessage(ChatClient &client, MessageIn &msg)
     trans.mCharacterId = client.characterId;
     trans.mAction = TRANS_CHANNEL_KICK;
     trans.mMessage = "User kicked " + user;
-    storage->addTransaction(trans);
+    mStorage->addTransaction(trans);
 }
 
 void ChatHandler::handleQuitChannelMessage(ChatClient &client, MessageIn &msg)
@@ -518,7 +520,7 @@ void ChatHandler::handleQuitChannelMessage(ChatClient &client, MessageIn &msg)
         trans.mCharacterId = client.characterId;
         trans.mAction = TRANS_CHANNEL_QUIT;
         trans.mMessage = "User left " + channel->getName();
-        storage->addTransaction(trans);
+        mStorage->addTransaction(trans);
 
         if (channel->getUserList().empty())
         {
@@ -550,7 +552,7 @@ void ChatHandler::handleListChannelsMessage(ChatClient &client, MessageIn &)
     Transaction trans;
     trans.mCharacterId = client.characterId;
     trans.mAction = TRANS_CHANNEL_LIST;
-    storage->addTransaction(trans);
+    mStorage->addTransaction(trans);
 }
 
 void ChatHandler::handleListChannelUsersMessage(ChatClient &client,
@@ -581,7 +583,7 @@ void ChatHandler::handleListChannelUsersMessage(ChatClient &client,
     Transaction trans;
     trans.mCharacterId = client.characterId;
     trans.mAction = TRANS_CHANNEL_USERLIST;
-    storage->addTransaction(trans);
+    mStorage->addTransaction(trans);
 }
 
 void ChatHandler::handleTopicChange(ChatClient &client, MessageIn &msg)
@@ -605,7 +607,7 @@ void ChatHandler::handleTopicChange(ChatClient &client, MessageIn &msg)
     trans.mAction = TRANS_CHANNEL_TOPIC;
     trans.mMessage = "User changed topic to " + topic;
     trans.mMessage.append(" in " + channel->getName());
-    storage->addTransaction(trans);
+    mStorage->addTransaction(trans);
 }
 
 void ChatHandler::handleDisconnectMessage(ChatClient &client, MessageIn &)

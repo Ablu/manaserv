@@ -27,13 +27,14 @@
 #include "common/winver.h"
 #endif
 
-#include "mana/entities/post.h"
+#include "mana/persistence/interfaces/istorage.h"
+
+#include "mana/persistence/sql/sqlstorage.h"
 
 #include "mana/configuration/xmlconfiguration/xmlconfiguration.h"
 
 #include "account-server/accounthandler.h"
 #include "account-server/serverhandler.h"
-#include "account-server/storage.h"
 #include "chat-server/chatchannelmanager.h"
 #include "chat-server/chathandler.h"
 #include "chat-server/guildmanager.h"
@@ -72,7 +73,7 @@ utils::StringFilter *stringFilter; /**< Slang's Filter */
 static std::string statisticsFile = std::string();
 
 /** Database handler. */
-Storage *storage;
+SqlStorage *storage;
 
 XmlConfiguration *configuration;
 
@@ -121,7 +122,7 @@ static void initialize()
     // Open database
     try
     {
-        storage = new Storage(configuration);
+        storage = new SqlStorage(configuration);
         storage->open();
     }
     catch (std::string &error)
@@ -133,14 +134,14 @@ static void initialize()
     // --- Initialize the managers
     stringFilter = new utils::StringFilter(configuration);  // The slang's and double quotes filter.
     chatChannelManager = new ChatChannelManager;
-    guildManager = new GuildManager;
+    guildManager = new GuildManager(storage);
     postalManager = new PostManager(configuration);
     gBandwidth = new BandwidthMonitor;
 
     // --- Initialize the global handlers
     // FIXME: Make the global handlers global vars or part of a bigger
     // singleton or a local variable in the event-loop
-    chatHandler = new ChatHandler(configuration);
+    chatHandler = new ChatHandler(configuration, storage);
 
     // --- Initialize enet.
     if (enet_initialize() != 0)
@@ -363,9 +364,9 @@ int main(int argc, char *argv[])
 
     if (!AccountClientHandler::initialize(DEFAULT_ATTRIBUTEDB_FILE,
                                           options.port, accountHost,
-                                          configuration) ||
+                                          configuration, storage) ||
         !GameServerHandler::initialize(accountGamePort, accountHost,
-                                       configuration) ||
+                                       configuration, storage) ||
         !chatHandler->startListen(chatClientPort, chatHost))
     {
         LOG_FATAL("Unable to create an ENet server host.");
@@ -384,7 +385,7 @@ int main(int argc, char *argv[])
     std::stringstream timestamp;
     timestamp << time(nullptr);
     storage->setWorldStateVar("accountserver_startup", timestamp.str(),
-                              Storage::SystemMap);
+                              SqlStorage::SystemMap);
 
     while (running)
     {

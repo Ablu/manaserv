@@ -28,6 +28,7 @@
 
 class Guild;
 class ChatClient;
+class IStorage;
 
 /**
  * Guild manager takes care of creating, removing and modifying guilds.
@@ -35,7 +36,7 @@ class ChatClient;
 class GuildManager
 {
     public:
-        GuildManager();
+        GuildManager(IStorage *storage);
         ~GuildManager();
 
         /**
@@ -104,6 +105,7 @@ class GuildManager
         void setUserRights(Guild *guild, int playerId, int rights);
 
     private:
+        IStorage *mStorage;
         std::map<int, Guild*> mGuilds;
 };
 

@@ -22,9 +22,8 @@
 
 #include "chat-server/chatchannelmanager.h"
 
-#include "account-server/storage.h"
-
 #include "mana/configuration/interfaces/iconfiguration.h"
+#include "mana/persistence/interfaces/istorage.h"
 
 #include "chat-server/chatclient.h"
 #include "chat-server/chathandler.h"

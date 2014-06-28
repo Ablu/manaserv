@@ -28,13 +28,14 @@
 
 class CharacterData;
 class IConfiguration;
+class IStorage;
 
 namespace GameServerHandler
 {
     /**
      * Creates a connection handler and starts listening on given port.
      */
-    bool initialize(int port, const std::string &host, IConfiguration *configuration);
+    bool initialize(int port, const std::string &host, IConfiguration *configuration, IStorage *storage);
 
     /**
      * Stops listening to messages and destroys the connection handler.
@@ -72,6 +73,8 @@ namespace GameServerHandler
      * the database.
      */
     void syncDatabase(MessageIn &msg);
+
+    static IStorage *mStorage; // TODO: Turn this into a class member
 }
 
 #endif // SERVERHANDLER_H

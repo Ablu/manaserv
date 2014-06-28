@@ -22,7 +22,8 @@
 #include "chatclient.h"
 #include "party.h"
 
-#include "account-server/storage.h"
+#include "mana/persistence/interfaces/istorage.h"
+
 #include "account-server/serverhandler.h"
 
 #include "common/manaserv_protocol.h"
@@ -32,9 +33,9 @@
 
 using namespace ManaServ;
 
-void updateInfo(ChatClient *client, int partyId)
+void ChatHandler::updateInfo(ChatClient *client, int partyId)
 {
-    CharacterData *character = storage->getCharacter(client->characterName);
+    CharacterData *character = mStorage->getCharacter(client->characterName);
     GameServerHandler::sendPartyChange(character, partyId);
 }
 

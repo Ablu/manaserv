@@ -33,6 +33,7 @@
 
 class ChatChannel;
 class ChatClient;
+class IStorage;
 
 /**
  * Manages chat related things like private messaging, chat channel handling
@@ -70,12 +71,13 @@ class ChatHandler : public ConnectionHandler
         };
 
         IConfiguration *mConfiguration;
+        IStorage *mStorage;
         std::map<std::string, ChatClient*> mPlayerMap;
         std::deque<PartyInvite> mInvitations;
         std::map<std::string, int> mNumInvites;
 
     public:
-        ChatHandler(IConfiguration *configuration);
+        ChatHandler(IConfiguration *configuration, IStorage *storage);
 
         /**
          * Start the handler.
@@ -240,6 +242,8 @@ class ChatHandler : public ConnectionHandler
          */
         void guildChannelTopicChange(ChatChannel *channel, int playerId,
                                      const std::string &topic);
+
+        void updateInfo(ChatClient *client, int partyId);
 
         /**
          * Container for pending clients and pending connections.

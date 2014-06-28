@@ -20,19 +20,21 @@
 
 #include "guildmanager.h"
 
+#include "mana/persistence/interfaces/istorage.h"
+
 #include "mana/entities/guild.h"
 
 #include "common/defines.h"
 #include "common/manaserv_protocol.h"
-#include "account-server/storage.h"
 #include "chat-server/chatclient.h"
 #include "chat-server/chatchannelmanager.h"
 #include "chat-server/chathandler.h"
 
 using namespace ManaServ;
 
-GuildManager::GuildManager():
-        mGuilds(storage->getGuildList())
+GuildManager::GuildManager(IStorage *storage)
+    : mStorage(storage)
+    , mGuilds(mStorage->getGuildList())
 {
 }
 
@@ -49,7 +51,7 @@ Guild* GuildManager::createGuild(const std::string &name, int playerId)
 {
     Guild *guild = new Guild(name);
     // Add guild to db
-    storage->addGuild(guild);
+    mStorage->addGuild(guild);
 
     // Add guild
     mGuilds[guild->getId()] = guild;
@@ -58,7 +60,7 @@ Guild* GuildManager::createGuild(const std::string &name, int playerId)
     addGuildMember(guild, playerId);
 
     // Set and save the member rights
-    storage->setMemberRights(guild->getId(), playerId, GAL_OWNER);
+    mStorage->setMemberRights(guild->getId(), playerId, GAL_OWNER);
 
     setUserRights(guild, playerId, GAL_OWNER);
 
@@ -67,14 +69,14 @@ Guild* GuildManager::createGuild(const std::string &name, int playerId)
 
 void GuildManager::removeGuild(Guild *guild)
 {
-    storage->removeGuild(guild);
+    mStorage->removeGuild(guild);
     mGuilds.erase(guild->getId());
     delete guild;
 }
 
 void GuildManager::addGuildMember(Guild *guild, int playerId)
 {
-    storage->addGuildMember(guild->getId(), playerId);
+    mStorage->addGuildMember(guild->getId(), playerId);
     guild->addMember(playerId);
 }
 
@@ -83,7 +85,7 @@ void GuildManager::removeGuildMember(Guild *guild, int playerId,
                                      ChatClient *client)
 {
     // remove the user from the guild
-    storage->removeGuildMember(guild->getId(), playerId);
+    mStorage->removeGuildMember(guild->getId(), playerId);
 
     // if the leader is leaving, assign next member as leader
     if (guild->getOwner() == playerId)
@@ -194,7 +196,7 @@ int GuildManager::changeMemberLevel(ChatClient *player, Guild *guild,
 void GuildManager::setUserRights(Guild *guild, int playerId, int rights)
 {
     // Set and save the member rights
-    storage->setMemberRights(guild->getId(), playerId, rights);
+    mStorage->setMemberRights(guild->getId(), playerId, rights);
 
     // Set with guild
     guild->setUserPermissions(playerId, rights);

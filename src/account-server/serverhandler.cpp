@@ -26,6 +26,8 @@
 
 #include "mana/configuration/interfaces/iconfiguration.h"
 
+#include "mana/persistence/interfaces/istorage.h"
+
 #include "mana/entities/character.h"
 #include "mana/entities/post.h"
 
@@ -34,7 +36,6 @@
 #include "account-server/characterdatautils.h"
 #include "account-server/flooritem.h"
 #include "account-server/mapmanager.h"
-#include "account-server/storage.h"
 #include "chat-server/chathandler.h"
 #include "chat-server/postmanager.h"
 #include "common/defines.h"
@@ -82,9 +83,10 @@ class ServerHandler: public ConnectionHandler
     friend void GameServerHandler::dumpStatistics(std::ostream &);
 
     public:
-        ServerHandler(IConfiguration *configuration)
+        ServerHandler(IConfiguration *configuration, IStorage *storage)
             : ConnectionHandler(configuration)
             , mConfiguration(configuration)
+            , mStorage(storage)
         {}
 
     protected:
@@ -106,16 +108,20 @@ class ServerHandler: public ConnectionHandler
 
     private:
         IConfiguration *mConfiguration;
+        IStorage *mStorage;
 };
 
 static ServerHandler *serverHandler;
 
 bool GameServerHandler::initialize(int port,
                                    const std::string &host,
-                                   IConfiguration *configuration)
+                                   IConfiguration *configuration,
+                                   IStorage *storage)
 {
+    mStorage = storage;
+
     MapManager::initialize(DEFAULT_MAPSDB_FILE);
-    serverHandler = new ServerHandler(configuration);
+    serverHandler = new ServerHandler(configuration, storage);
     LOG_INFO("Game server handler started:");
     return serverHandler->startListen(port, host);
 }
@@ -209,7 +215,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
 
             LOG_DEBUG("AGMSG_REGISTER_RESPONSE");
             MessageOut outMsg(AGMSG_REGISTER_RESPONSE);
-            if (dbversion == storage->getItemDatabaseVersion())
+            if (dbversion == mStorage->getItemDatabaseVersion())
             {
                 LOG_DEBUG("Item databases between account server and "
                     "gameserver are in sync");
@@ -226,7 +232,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
 
                 // transmit global world state variables
                 std::map<std::string, std::string> variables;
-                variables = storage->getAllWorldStateVars(Storage::WorldMap);
+                variables = mStorage->getAllWorldStateVars(IStorage::WorldMap);
 
                 for (auto &variableIt : variables)
                 {
@@ -264,7 +270,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
                               << server->address << ":" << server->port << ") "
                               << "to enable map " << id);
                     std::map<std::string, std::string> variables;
-                    variables = storage->getAllWorldStateVars(id);
+                    variables = mStorage->getAllWorldStateVars(id);
 
                      // Map vars number
                     outMsg.writeInt16(variables.size());
@@ -277,7 +283,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
 
                     // Persistent Floor Items
                     std::list<FloorItem> items;
-                    items = storage->getFloorItemsFromMap(id);
+                    items = mStorage->getFloorItemsFromMap(id);
 
                     outMsg.writeInt16(items.size()); //number of floor items
 
@@ -303,10 +309,10 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
         {
             LOG_DEBUG("GAMSG_PLAYER_DATA");
             int id = msg.readInt32();
-            if (CharacterData *ptr = storage->getCharacter(id, nullptr))
+            if (CharacterData *ptr = mStorage->getCharacter(id, nullptr))
             {
                 CharacterDataUtils::deserialize(*ptr, msg);
-                storage->updateCharacter(ptr);
+                mStorage->updateCharacter(ptr);
                 delete ptr;
             }
             else
@@ -327,7 +333,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
             LOG_DEBUG("GAMSG_REDIRECT");
             int id = msg.readInt32();
             std::string magic_token(utils::getMagicToken());
-            if (CharacterData *ptr = storage->getCharacter(id, nullptr))
+            if (CharacterData *ptr = mStorage->getCharacter(id, nullptr))
             {
                 int mapId = ptr->getMapId();
                 if (GameServer *s = getGameServerFromMap(mapId))
@@ -360,7 +366,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
             int id = msg.readInt32();
             std::string magic_token = msg.readString(MAGIC_TOKEN_LENGTH);
 
-            if (CharacterData *ptr = storage->getCharacter(id, nullptr))
+            if (CharacterData *ptr = mStorage->getCharacter(id, nullptr))
             {
                 int accountID = ptr->getAccountID();
                 AccountClientHandler::prepareReconnect(magic_token, accountID);
@@ -377,7 +383,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
         {
             int id = msg.readInt32();
             std::string name = msg.readString();
-            std::string value = storage->getQuestVar(id, name);
+            std::string value = mStorage->getQuestVar(id, name);
             MessageOut result(AGMSG_GET_VAR_CHR_RESPONSE);
             result.writeInt32(id);
             result.writeString(name);
@@ -390,7 +396,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
             int id = msg.readInt32();
             std::string name = msg.readString();
             std::string value = msg.readString();
-            storage->setQuestVar(id, name, value);
+            mStorage->setQuestVar(id, name, value);
         } break;
 
         case GAMSG_SET_VAR_WORLD:
@@ -398,7 +404,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
             std::string name = msg.readString();
             std::string value = msg.readString();
             // save the new value to the database
-            storage->setWorldStateVar(name, value, Storage::WorldMap);
+            mStorage->setWorldStateVar(name, value, IStorage::WorldMap);
             // relay the new value to all gameservers
             for (NetComputer *netComputer : clients)
             {
@@ -414,14 +420,14 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
             int mapid = msg.readInt32();
             std::string name = msg.readString();
             std::string value = msg.readString();
-            storage->setWorldStateVar(name, value, mapid);
+            mStorage->setWorldStateVar(name, value, mapid);
         } break;
 
         case GAMSG_BAN_PLAYER:
         {
             int id = msg.readInt32();
             int duration = msg.readInt32();
-            storage->banCharacter(id, duration);
+            mStorage->banCharacter(id, duration);
         } break;
 
         case GAMSG_CHANGE_ACCOUNT_LEVEL:
@@ -430,10 +436,10 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
             int level = msg.readInt16();
 
             // get the character so we can get the account id
-            CharacterData *c = storage->getCharacter(id, nullptr);
+            CharacterData *c = mStorage->getCharacter(id, nullptr);
             if (c)
             {
-                storage->setAccountLevel(c->getAccountID(), level);
+                mStorage->setAccountLevel(c->getAccountID(), level);
             }
         } break;
 
@@ -476,7 +482,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
             result.writeInt32(characterId);
 
             // get the character based on the id
-            CharacterData *ptr = storage->getCharacter(characterId, nullptr);
+            CharacterData *ptr = mStorage->getCharacter(characterId, nullptr);
             if (!ptr)
             {
                 // Invalid character
@@ -526,8 +532,8 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
             result.writeInt32(senderId);
 
             // get their characters
-            CharacterData *sender = storage->getCharacter(senderId, nullptr);
-            CharacterData *receiver = storage->getCharacter(receiverName);
+            CharacterData *sender = mStorage->getCharacter(senderId, nullptr);
+            CharacterData *receiver = mStorage->getCharacter(receiverName);
             if (!sender || !receiver)
             {
                 // Invalid character
@@ -579,7 +585,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
             trans.mCharacterId = id;
             trans.mAction = action;
             trans.mMessage = message;
-            storage->addTransaction(trans);
+            mStorage->addTransaction(trans);
         } break;
 
         case GCMSG_PARTY_INVITE:
@@ -597,7 +603,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
             LOG_DEBUG("Gameserver create item " << itemId
                 << " on map " << mapId);
 
-            storage->addFloorItem(mapId, itemId, amount, posX, posY);
+            mStorage->addFloorItem(mapId, itemId, amount, posX, posY);
         } break;
 
         case GAMSG_REMOVE_ITEM_ON_MAP:
@@ -611,7 +617,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
             LOG_DEBUG("Gameserver removed item " << itemId
                 << " from map " << mapId);
 
-            storage->removeFloorItem(mapId, itemId, amount, posX, posY);
+            mStorage->removeFloorItem(mapId, itemId, amount, posX, posY);
         } break;
 
         case GAMSG_ANNOUNCE:
@@ -689,7 +695,7 @@ void GameServerHandler::syncDatabase(MessageIn &msg)
                 int charId = msg.readInt32();
                 int charPoints = msg.readInt32();
                 int corrPoints = msg.readInt32();
-                storage->updateCharacterPoints(charId, charPoints, corrPoints);
+                mStorage->updateCharacterPoints(charId, charPoints, corrPoints);
             } break;
 
             case SYNC_CHARACTER_ATTRIBUTE:
@@ -699,7 +705,7 @@ void GameServerHandler::syncDatabase(MessageIn &msg)
                 int    attrId = msg.readInt32();
                 double base   = msg.readDouble();
                 double mod    = msg.readDouble();
-                storage->updateAttribute(charId, attrId, base, mod);
+                mStorage->updateAttribute(charId, attrId, base, mod);
             } break;
 
             case SYNC_ONLINE_STATUS:
@@ -707,7 +713,7 @@ void GameServerHandler::syncDatabase(MessageIn &msg)
                 LOG_DEBUG("received SYNC_ONLINE_STATUS");
                 int charId = msg.readInt32();
                 bool online = (msg.readInt8() == 1);
-                storage->setOnlineStatus(charId, online);
+                mStorage->setOnlineStatus(charId, online);
             } break;
         }
     }

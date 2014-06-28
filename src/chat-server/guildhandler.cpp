@@ -27,9 +27,9 @@
 #include "chatclient.h"
 #include "guildmanager.h"
 
-#include "account-server/storage.h"
-
 #include "mana/configuration/interfaces/iconfiguration.h"
+
+#include "mana/persistence/interfaces/istorage.h"
 
 #include "net/messagein.h"
 #include "net/messageout.h"
@@ -129,7 +129,7 @@ void ChatHandler::sendGuildListUpdate(Guild *guild,
     for (std::list<GuildMember*>::const_iterator itr = members.begin();
          itr != members.end(); ++itr)
     {
-        CharacterData *c = storage->getCharacter((*itr)->mId, nullptr);
+        CharacterData *c = mStorage->getCharacter((*itr)->mId, nullptr);
         chr = mPlayerMap.find(c->getName());
         if (chr != mPlayerMap.end())
         {
@@ -295,7 +295,7 @@ void ChatHandler::handleGuildGetMembers(ChatClient &client, MessageIn &msg)
             for (std::list<GuildMember*>::iterator itr = memberList.begin();
                  itr != itr_end; ++itr)
             {
-                CharacterData *c = storage->getCharacter((*itr)->mId, nullptr);
+                CharacterData *c = mStorage->getCharacter((*itr)->mId, nullptr);
                 std::string memberName = c->getName();
                 reply.writeString(memberName);
                 reply.writeInt8(mPlayerMap.find(memberName) != mPlayerMap.end());
@@ -320,7 +320,7 @@ void ChatHandler::handleGuildMemberLevelChange(ChatClient &client,
     std::string user = msg.readString();
     short level = msg.readInt8();
     Guild *guild = guildManager->findById(guildId);
-    CharacterData *c = storage->getCharacter(user);
+    CharacterData *c = mStorage->getCharacter(user);
 
     if (guild && c)
     {
@@ -356,7 +356,7 @@ void ChatHandler::handleGuildKickMember(ChatClient &client, MessageIn &msg)
     if (otherClient)
         otherCharId = otherClient->characterId;
     else
-        otherCharId = storage->getCharacterId(otherCharName);
+        otherCharId = mStorage->getCharacterId(otherCharName);
 
     if (otherCharId == 0)
     {

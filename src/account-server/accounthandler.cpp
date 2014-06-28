@@ -22,11 +22,12 @@
 
 #include "mana/configuration/interfaces/iconfiguration.h"
 
+#include "mana/persistence/interfaces/istorage.h"
+
 #include "mana/entities/account.h"
 #include "mana/entities/character.h"
 
 #include "account-server/accountclient.h"
-#include "account-server/storage.h"
 #include "account-server/serverhandler.h"
 #include "chat-server/chathandler.h"
 #include "common/manaserv_protocol.h"
@@ -50,7 +51,9 @@ using namespace ManaServ;
 class AccountHandler : public ConnectionHandler
 {
 public:
-    AccountHandler(IConfiguration *configuration, const std::string &attributesFile);
+    AccountHandler(IConfiguration *configuration,
+                   IStorage *storage,
+                   const std::string &attributesFile);
 
     /**
      * Called by the token collector in order to associate a client to its
@@ -102,6 +105,7 @@ private:
     void addServerInfo(MessageOut *msg);
 
     IConfiguration *mConfiguration;
+    IStorage *mStorage;
 
     /** List of all accounts which requested a random seed, but are not logged
      *  yet. This list will be regularly remove (after timeout) old accounts
@@ -138,10 +142,13 @@ private:
 
 static AccountHandler *accountHandler;
 
-AccountHandler::AccountHandler(IConfiguration *configuration, const std::string &attributesFile):
+AccountHandler::AccountHandler(IConfiguration *configuration,
+                               IStorage *storage,
+                               const std::string &attributesFile):
     ConnectionHandler(configuration),
     mTokenCollector(this),
     mConfiguration(configuration),
+    mStorage(storage),
     mStartingPoints(0),
     mAttributeMinimum(0),
     mAttributeMaximum(0),
@@ -231,9 +238,10 @@ AccountHandler::AccountHandler(IConfiguration *configuration, const std::string 
 
 bool AccountClientHandler::initialize(const std::string &attributesFile, int port,
                                       const std::string &host,
-                                      IConfiguration *configuration)
+                                      IConfiguration *configuration,
+                                      IStorage *storage)
 {
-    accountHandler = new AccountHandler(configuration, attributesFile);
+    accountHandler = new AccountHandler(configuration, storage, attributesFile);
     LOG_INFO("Account handler started:");
 
     return accountHandler->startListen(port, host);
@@ -329,7 +337,7 @@ void AccountHandler::handleLoginRandTriggerMessage(AccountClient &client, Messag
     std::string salt = getRandomString(4);
     QString username = QString::fromStdString(msg.readString());
 
-    if (Account *acc = storage->getAccount(username))
+    if (Account *acc = mStorage->getAccount(username))
     {
         acc->setRandomSalt(salt);
         mPendingAccounts.push_back(acc);
@@ -424,7 +432,7 @@ void AccountHandler::handleLoginMessage(AccountClient &client, MessageIn &msg)
     time_t login;
     time(&login);
     acc->setLastLogin(login);
-    storage->updateLastLogin(acc);
+    mStorage->updateLastLogin(acc);
 
     // Associate account with connection.
     client.setAccount(acc);
@@ -522,11 +530,11 @@ void AccountHandler::handleRegisterMessage(AccountClient &client,
     {
         reply.writeInt8(ERRMSG_INVALID_ARGUMENT);
     }
-    else if (storage->doesUserNameExist(username))
+    else if (mStorage->doesUserNameExist(username))
     {
         reply.writeInt8(REGISTER_EXISTS_USERNAME);
     }
-    else if (storage->doesEmailAddressExist(sha256(email)))
+    else if (mStorage->doesEmailAddressExist(sha256(email)))
     {
         reply.writeInt8(REGISTER_EXISTS_EMAIL);
     }
@@ -551,7 +559,7 @@ void AccountHandler::handleRegisterMessage(AccountClient &client,
         acc->setRegistrationDate(regdate);
         acc->setLastLogin(regdate);
 
-        storage->addAccount(acc);
+        mStorage->addAccount(acc);
         reply.writeInt8(ERRMSG_OK);
         addServerInfo(&reply);
 
@@ -588,7 +596,7 @@ void AccountHandler::handleUnregisterMessage(AccountClient &client,
     }
 
     // See whether the account exists
-    Account *acc = storage->getAccount(username);
+    Account *acc = mStorage->getAccount(username);
 
     if (!acc || acc->getPassword() != sha256(password))
     {
@@ -601,7 +609,7 @@ void AccountHandler::handleUnregisterMessage(AccountClient &client,
     // Delete account and associated characters
     LOG_INFO("Unregistered \"" << username.toStdString()
              << "\", AccountID: " << acc->getID());
-    storage->delAccount(acc);
+    mStorage->delAccount(acc);
     reply.writeInt8(ERRMSG_OK);
 
     client.send(reply);
@@ -653,7 +661,7 @@ void AccountHandler::handleEmailChangeMessage(AccountClient &client,
     {
         reply.writeInt8(ERRMSG_INVALID_ARGUMENT);
     }
-    else if (storage->doesEmailAddressExist(emailHash))
+    else if (mStorage->doesEmailAddressExist(emailHash))
     {
         reply.writeInt8(ERRMSG_EMAIL_ALREADY_EXISTS);
     }
@@ -661,7 +669,7 @@ void AccountHandler::handleEmailChangeMessage(AccountClient &client,
     {
         acc->setEmail(emailHash);
         // Keep the database up to date otherwise we will go out of sync
-        storage->flush(acc);
+        mStorage->flush(acc);
         reply.writeInt8(ERRMSG_OK);
     }
     client.send(reply);
@@ -692,7 +700,7 @@ void AccountHandler::handlePasswordChangeMessage(AccountClient &client,
     {
         acc->setPassword(newPassword);
         // Keep the database up to date otherwise we will go out of sync
-        storage->flush(acc);
+        mStorage->flush(acc);
         reply.writeInt8(ERRMSG_OK);
     }
 
@@ -746,7 +754,7 @@ void AccountHandler::handleCharacterCreateMessage(AccountClient &client,
     }
     else
     {
-        if (storage->doesCharacterNameExist(name))
+        if (mStorage->doesCharacterNameExist(name))
         {
             reply.writeInt8(CREATE_EXISTS_NAME);
             client.send(reply);
@@ -829,7 +837,7 @@ void AccountHandler::handleCharacterCreateMessage(AccountClient &client,
             LOG_INFO("Character " << name << " was created for "
                      << acc->getName() << "'s account.");
 
-            storage->flush(acc); // flush changes
+            mStorage->flush(acc); // flush changes
 
             // log transaction
             Transaction trans;
@@ -837,7 +845,7 @@ void AccountHandler::handleCharacterCreateMessage(AccountClient &client,
             trans.mAction = TRANS_CHAR_CREATE;
             trans.mMessage = acc->getName() + " created character ";
             trans.mMessage.append("called " + name);
-            storage->addTransaction(trans);
+            mStorage->addTransaction(trans);
 
             reply.writeInt8(ERRMSG_OK);
 
@@ -918,7 +926,7 @@ void AccountHandler::handleCharacterSelectMessage(AccountClient &client,
     Transaction trans;
     trans.mCharacterId = selectedChar->getDatabaseID();
     trans.mAction = TRANS_CHAR_SELECTED;
-    storage->addTransaction(trans);
+    mStorage->addTransaction(trans);
 }
 
 void AccountHandler::handleCharacterDeleteMessage(AccountClient &client,
@@ -954,10 +962,10 @@ void AccountHandler::handleCharacterDeleteMessage(AccountClient &client,
     trans.mAction = TRANS_CHAR_DELETED;
     trans.mMessage = chars[slot]->getName() + " deleted by ";
     trans.mMessage.append(acc->getName());
-    storage->addTransaction(trans);
+    mStorage->addTransaction(trans);
 
     acc->delCharacter(slot);
-    storage->flush(acc);
+    mStorage->flush(acc);
 
     reply.writeInt8(ERRMSG_OK);
     client.send(reply);
@@ -983,7 +991,7 @@ void AccountHandler::tokenMatched(AccountClient *client, int accountID)
     MessageOut reply(APMSG_RECONNECT_RESPONSE);
 
     // Associate account with connection.
-    Account *acc = storage->getAccount(accountID);
+    Account *acc = mStorage->getAccount(accountID);
     client->setAccount(acc);
     client->status = CLIENT_CONNECTED;
 

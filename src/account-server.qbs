@@ -11,6 +11,14 @@ CppApplication {
     }
 
     Depends {
+        name: "ManaPersitenceInterfaces"
+    }
+
+    Depends {
+        name: "ManaPersitenceSql"
+    }
+
+    Depends {
         name: "ManaConfigurationInterfaces"
     }
 
@@ -38,8 +46,6 @@ CppApplication {
             "mapmanager.h",
             "serverhandler.cpp",
             "serverhandler.h",
-            "storage.cpp",
-            "storage.h",
         ]
     }
 

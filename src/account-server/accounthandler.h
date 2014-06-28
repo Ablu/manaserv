@@ -24,6 +24,7 @@
 #include <string>
 
 class IConfiguration;
+class IStorage;
 
 namespace AccountClientHandler
 {
@@ -31,7 +32,7 @@ namespace AccountClientHandler
      * Creates a connection handler and starts listening on given port.
      */
     bool initialize(const std::string &configFile, int port,
-                    const std::string &host, IConfiguration *configuration);
+                    const std::string &host, IConfiguration *configuration, IStorage *storage);
 
     /**
      * Stops listening to messages and destroys the connection handler.
