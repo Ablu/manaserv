@@ -360,16 +360,7 @@ CharacterData *SqlStorage::getCharacterBySQL(QSqlQuery &sqlQuery, Account *owner
     character->setPosition(pos);
 
     int mapId = sqlQuery.value(10).toInt();
-    if (mapId > 0)
-    {
-        character->setMapId(mapId);
-    }
-    else
-    {
-        // Set character to default map and one of the default location
-        // Default map is to be 1, as not found return value will be 0.
-        character->setMapId(mConfiguration->getValue("char_defaultMap", 1));
-    }
+    character->setMapId(mapId);
 
     character->setCharacterSlot(sqlQuery.value(11).toInt());
 

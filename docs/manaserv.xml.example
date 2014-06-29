@@ -232,9 +232,6 @@
  <option name="char_respawnX" value="1024"/>
  <option name="char_respawnY" value="1024"/>
 
- <!-- Default Map id at character loading -->
- <option name="char_defaultMap" value="1" />
-
 <!-- end of characters configuration ************************************** -->
 
 <!-- Game configuration *************************************************
