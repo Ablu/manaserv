@@ -1,4 +1,4 @@
-#include "tst_xmlconfiguration.h"
+#include "xmlconfiguration.h"
 
 #include <QDebug>
 #include <QDir>
