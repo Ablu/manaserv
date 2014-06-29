@@ -11,7 +11,13 @@ public:
 
 private slots:
     void initTestCase();
+
     void testSimpleConfig();
+    void testDefaultValues();
+    void testSimpleInclude();
+    void testCircleInclude();
+    void testHiddenCircleInclude();
+    void testValueOverride();
 };
 
 #endif // TST_XMLCONFIGURATION_H

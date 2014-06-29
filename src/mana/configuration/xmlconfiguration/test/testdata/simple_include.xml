@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<configuration>
+<include file="simple_config.xml" />
+</configuration>

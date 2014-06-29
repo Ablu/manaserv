@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<configuration>
+<option name="test" value="initial" />
+<include file="simple_config.xml" />
+<option name="test" value="overriden" />
+</configuration>
