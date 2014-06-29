@@ -173,13 +173,6 @@ void SqlStorage::open()
 
     // Clean list of online users, this should be empty after restart
     mDb.exec("DELETE FROM " + ONLINE_USERS_TBL_NAME);
-
-    // In case where the server shouldn't keep floor item in database,
-    // we remove remnants at startup
-    if (mConfiguration->getValue("game_floorItemDecayTime", 0) > 0)
-    {
-        mDb.exec("DELETE FROM " + FLOOR_ITEMS_TBL_NAME);
-    }
 }
 
 void SqlStorage::close()
