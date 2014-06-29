@@ -29,6 +29,7 @@
 #include "utils/string.h"
 
 #include <QDebug>
+#include <QDir>
 #include <QFile>
 #include <QXmlStreamReader>
 
@@ -67,11 +68,14 @@ static bool readFile(const QString &fileName)
         const QStringRef &nodeName = reader.name();
         if (nodeName == "include")
         {
-            QString fileName = attributes.value("file").toString();
-            if (!readFile(fileName))
+            QString includeFileName = attributes.value("file").toString();
+            QDir directory = QFileInfo(fileName).absoluteDir();
+            includeFileName = directory.absolutePath() + "/" + includeFileName;
+
+            if (!readFile(includeFileName))
             {
                 qWarning() << "Error ocurred while parsing included " <<
-                              "configuration file '" << fileName << "'.";
+                              "configuration file '" << includeFileName << "'.";
                 file.close();
                 return false;
             }
