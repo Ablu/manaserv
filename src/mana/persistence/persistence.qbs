@@ -4,5 +4,6 @@ Project {
     references: [
         "interfaces/interfaces.qbs",
         "sql/sql.qbs",
+        "sql/sqlitetest/test.qbs",
     ]
 }

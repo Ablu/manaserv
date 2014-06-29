@@ -2,10 +2,11 @@ import qbs 1.0
 
 CppApplication {
     property string testFor
+    property string suffix: ""
 
-    name: testFor + "Test"
+    name: testFor + suffix + "Test"
 
-    property string testInstallPrefix: "tests/" + testFor
+    property string testInstallPrefix: "tests/" + testFor + suffix
 
     Depends {
         name: "Qt"

@@ -1,0 +1,20 @@
+INSERT INTO mana_accounts
+(
+    username,
+    password,
+    email,
+    level,
+    banned,
+    registration,
+    lastlogin
+)
+VALUES
+(
+    'Testuser',
+    'a236dfd1aa0483a3d272b035eb028d04766bcb33ab6c8698e9160b52b0418444',
+    '7e6ea62ad413e64265919670246b2992f4d15ca38b994c27298b63a588dd8ba8',
+    1,
+    0,
+    1404033188,
+    1404033188
+);
