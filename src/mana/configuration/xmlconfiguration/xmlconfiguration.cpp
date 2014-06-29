@@ -89,6 +89,8 @@ static bool readFile(const QString &fileName)
                 options[key.toStdString()] = value.toStdString();
             }
         }
+
+        reader.skipCurrentElement();
     }
 
     file.close();
