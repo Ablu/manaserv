@@ -1,13 +1,7 @@
 import qbs 1.0
 
-DynamicLibrary {
+DynamicCppLibrary {
     name: "ManaEntities"
-
-
-
-    Depends {
-        name: "cpp"
-    }
 
     Group {
         name: "Sources"
@@ -25,9 +19,5 @@ DynamicLibrary {
 
     cpp.includePaths: [
         "../../",
-    ]
-
-    cpp.cxxFlags: [
-        "-std=c++0x",
     ]
 }
