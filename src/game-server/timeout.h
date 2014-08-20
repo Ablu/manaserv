@@ -32,45 +32,45 @@
  */
 class Timeout
 {
-    public:
-        /**
-         * @brief Constructs a timeout.
-         *
-         * By default, the timeout has expired when the server was started.
-         */
-        Timeout()
-            : mReference(0)
-        {}
+public:
+    /**
+     * @brief Constructs a timeout.
+     *
+     * By default, the timeout has expired when the server was started.
+     */
+    Timeout()
+        : mReference(0)
+    {}
 
-        /**
-         * Sets the timeout a given amount of \a ticks in the future.
-         */
-        void set(int ticks);
+    /**
+     * Sets the timeout a given amount of \a ticks in the future.
+     */
+    void set(int ticks);
 
-        /**
-         * Sets the timeout a given amount of \a ticks in the future, unless
-         * the timeout is already set to a higher value.
-         */
-        void setSoft(int ticks);
+    /**
+     * Sets the timeout a given amount of \a ticks in the future, unless
+     * the timeout is already set to a higher value.
+     */
+    void setSoft(int ticks);
 
-        /**
-         * Returns the number of ticks remaining to the next timeout. Negative
-         * when the timeout has already happened.
-         */
-        int remaining() const;
+    /**
+     * Returns the number of ticks remaining to the next timeout. Negative
+     * when the timeout has already happened.
+     */
+    int remaining() const;
 
-        /**
-         * Returns whether the timeout has expired.
-         */
-        bool expired() const { return remaining() <= 0; }
+    /**
+     * Returns whether the timeout has expired.
+     */
+    bool expired() const { return remaining() <= 0; }
 
-        /**
-         * Returns whether the timeout was reached in the current tick.
-         */
-        bool justFinished() const { return remaining() == 0; }
+    /**
+     * Returns whether the timeout was reached in the current tick.
+     */
+    bool justFinished() const { return remaining() == 0; }
 
-    private:
-        int mReference;
+private:
+    int mReference;
 };
 
 #endif // TIMEOUT_H

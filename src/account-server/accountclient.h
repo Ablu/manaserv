@@ -42,18 +42,18 @@ enum AccountClientStatus
  */
 class AccountClient : public NetComputer
 {
-    public:
-        AccountClient(ENetPeer *peer);
+public:
+    AccountClient(ENetPeer *peer);
 
-        void setAccount(Account *acc);
-        void unsetAccount();
-        Account *getAccount() const;
+    void setAccount(Account *acc);
+    void unsetAccount();
+    Account *getAccount() const;
 
-        AccountClientStatus status;
-        int version;
+    AccountClientStatus status;
+    int version;
 
-    private:
-        std::unique_ptr<Account> mAccount;
+private:
+    std::unique_ptr<Account> mAccount;
 };
 
 /**

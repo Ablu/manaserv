@@ -29,22 +29,22 @@ class IConfiguration;
 
 class SettingsManager
 {
-    public:
-        SettingsManager(const std::string &settingsFile):
-			mSettingsFile(settingsFile)
-		{}
+public:
+    SettingsManager(const std::string &settingsFile):
+        mSettingsFile(settingsFile)
+    {}
 
-        void initialize(IConfiguration *configuration);
+    void initialize(IConfiguration *configuration);
 
-		void reload();
+    void reload();
 
-	private:
-		std::string mSettingsFile;
-		std::set<std::string> mIncludedFiles;
+private:
+    std::string mSettingsFile;
+    std::set<std::string> mIncludedFiles;
 
-		void loadFile(const std::string &filename);
+    void loadFile(const std::string &filename);
 
-		void checkStatus();
+    void checkStatus();
 };
 
 

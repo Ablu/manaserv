@@ -32,54 +32,54 @@ class CharacterComponent;
  */
 class NpcComponent : public Component
 {
-    public:
-        static const ComponentType type = CT_Npc;
+public:
+    static const ComponentType type = CT_Npc;
 
-        NpcComponent(int npcId);
+    NpcComponent(int npcId);
 
-        ~NpcComponent();
+    ~NpcComponent();
 
-        /**
-         * Sets the function that should be called when this NPC is talked to.
-         */
-        void setTalkCallback(Script::Ref function);
+    /**
+     * Sets the function that should be called when this NPC is talked to.
+     */
+    void setTalkCallback(Script::Ref function);
 
-        Script::Ref getTalkCallback() const
-        { return mTalkCallback; }
+    Script::Ref getTalkCallback() const
+    { return mTalkCallback; }
 
-        /**
-         * Sets the function that should be called each update.
-         */
-        void setUpdateCallback(Script::Ref function);
+    /**
+     * Sets the function that should be called each update.
+     */
+    void setUpdateCallback(Script::Ref function);
 
-        /**
-         * Calls the update callback, if any.
-         */
-        void update(Entity &entity);
+    /**
+     * Calls the update callback, if any.
+     */
+    void update(Entity &entity);
 
-        /**
-         * Sets whether the NPC is enabled.
-         *
-         * When disabling an NPC, it does currently not cancel already started
-         * conversations with this NPC!
-         */
-        void setEnabled(bool enabled);
+    /**
+     * Sets whether the NPC is enabled.
+     *
+     * When disabling an NPC, it does currently not cancel already started
+     * conversations with this NPC!
+     */
+    void setEnabled(bool enabled);
 
-        bool isEnabled() const
-        { return mEnabled; }
+    bool isEnabled() const
+    { return mEnabled; }
 
-        /**
-         * Gets NPC ID.
-         */
-        int getNpcId() const
-        { return mNpcId; }
+    /**
+     * Gets NPC ID.
+     */
+    int getNpcId() const
+    { return mNpcId; }
 
-    private:
-        int mNpcId;
-        bool mEnabled;
+private:
+    int mNpcId;
+    bool mEnabled;
 
-        Script::Ref mTalkCallback;
-        Script::Ref mUpdateCallback;
+    Script::Ref mTalkCallback;
+    Script::Ref mUpdateCallback;
 };
 
 

@@ -36,54 +36,54 @@ namespace utils
  */
 class Timer
 {
-    public:
-        /**
-         * Constructor.
-         *
-         * @param ms           the interval in milliseconds
-         */
-        Timer(unsigned ms);
+public:
+    /**
+     * Constructor.
+     *
+     * @param ms           the interval in milliseconds
+     */
+    Timer(unsigned ms);
 
-        /**
-         * Returns the number of elapsed ticks since last call.
-         */
-        int poll();
+    /**
+     * Returns the number of elapsed ticks since last call.
+     */
+    int poll();
 
-        /**
-         * Sleeps till the next tick occurs.
-         */
-        void sleep();
+    /**
+     * Sleeps till the next tick occurs.
+     */
+    void sleep();
 
-        /**
-         * Activates the timer.
-         */
-        void start();
+    /**
+     * Activates the timer.
+     */
+    void start();
 
-        /**
-         * Deactivates the timer.
-         */
-        void stop();
+    /**
+     * Deactivates the timer.
+     */
+    void stop();
 
-        /**
-         * Changes the interval between two pulses.
-         */
-        void changeInterval(unsigned newinterval);
+    /**
+     * Changes the interval between two pulses.
+     */
+    void changeInterval(unsigned newinterval);
 
-    private:
-        /**
-         * Interval between two pulses.
-         */
-        unsigned interval;
+private:
+    /**
+     * Interval between two pulses.
+     */
+    unsigned interval;
 
-        /**
-         * The time the last pulse occured.
-         */
-        uint64_t lastpulse;
+    /**
+     * The time the last pulse occured.
+     */
+    uint64_t lastpulse;
 
-        /**
-         * Activity status of the timer.
-         */
-        bool active;
+    /**
+     * Activity status of the timer.
+     */
+    bool active;
 };
 
 } // ::utils

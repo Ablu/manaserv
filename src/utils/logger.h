@@ -75,126 +75,126 @@ namespace utils
  */
 class Logger
 {
-    public:
-        enum Level
-        {
-            Fatal = 0,
-            Error,
-            Warn,
-            Info,
-            Debug
-        };
+public:
+    enum Level
+    {
+        Fatal = 0,
+        Error,
+        Warn,
+        Info,
+        Debug
+    };
 
-        static void initialize(const std::string &logFile, IConfiguration *configuration);
+    static void initialize(const std::string &logFile, IConfiguration *configuration);
 
-        /**
-         * Sets the log file.
-         *
-         * This method will open the log file for writing, the former file
-         * contents are removed.
-         *
-         * @param logFile the log file name (may include path).
-         * @param append whether the file is cleaned up before logging in.
-         *
-         * @exception std::ios::failure if the log file could not be opened.
-         */
-        static void setLogFile(const std::string &logFile, bool append = false);
+    /**
+     * Sets the log file.
+     *
+     * This method will open the log file for writing, the former file
+     * contents are removed.
+     *
+     * @param logFile the log file name (may include path).
+     * @param append whether the file is cleaned up before logging in.
+     *
+     * @exception std::ios::failure if the log file could not be opened.
+     */
+    static void setLogFile(const std::string &logFile, bool append = false);
 
-        /**
-         * Add/removes the timestamp.
-         *
-         * @param flag if true, a log message will always be timestamped
-         *             (default = true).
-         */
-        static void setTimestamp(bool flag = true)
-        { mHasTimestamp = flag; }
+    /**
+     * Add/removes the timestamp.
+     *
+     * @param flag if true, a log message will always be timestamped
+     *             (default = true).
+     */
+    static void setTimestamp(bool flag = true)
+    { mHasTimestamp = flag; }
 
-        /**
-         * Sets tee mode.
-         *
-         * @param flag if true, write messages to both the standard (or error)
-         *        output and the log file (if set) (default = true).
-         */
-        static void setTeeMode(bool flag = true)
-        { mTeeMode = flag; }
+    /**
+     * Sets tee mode.
+     *
+     * @param flag if true, write messages to both the standard (or error)
+     *        output and the log file (if set) (default = true).
+     */
+    static void setTeeMode(bool flag = true)
+    { mTeeMode = flag; }
 
-        /**
-         * Sets the verbosity level of the logger.
-         *
-         * @param verbosity is the level of verbosity.
-         */
-        static void setVerbosity(Level verbosity)
-        { mVerbosity = verbosity; }
+    /**
+     * Sets the verbosity level of the logger.
+     *
+     * @param verbosity is the level of verbosity.
+     */
+    static void setVerbosity(Level verbosity)
+    { mVerbosity = verbosity; }
 
-        /**
-         * Enable logrotation based on the maximum filesize given in
-         * setMaxLogfileSize.
-         *
-         * @param enable Set to true to enable logrotation.
-         */
-        static void setLogRotation(bool enable)
-        { mLogRotation = enable; }
+    /**
+     * Enable logrotation based on the maximum filesize given in
+     * setMaxLogfileSize.
+     *
+     * @param enable Set to true to enable logrotation.
+     */
+    static void setLogRotation(bool enable)
+    { mLogRotation = enable; }
 
-        /**
-         * Sets the maximum size of a logfile before logrotation occurs.
-         *
-         * @param kiloBytes Maximum size of logfile in bytes. Defaults to 1MB.
-         */
-        static void setMaxLogfileSize(long kiloBytes = 1024)
-        { mMaxFileSize = kiloBytes; }
+    /**
+     * Sets the maximum size of a logfile before logrotation occurs.
+     *
+     * @param kiloBytes Maximum size of logfile in bytes. Defaults to 1MB.
+     */
+    static void setMaxLogfileSize(long kiloBytes = 1024)
+    { mMaxFileSize = kiloBytes; }
 
-        /**
-         * Sets whether the logfile switches when changing date.
-         *
-         * @param switchLogEachDay Keeps whether the parameter is activated.
-         */
-        static void setSwitchLogEachDay(bool switchLogEachDay)
-        { mSwitchLogEachDay = switchLogEachDay; }
+    /**
+     * Sets whether the logfile switches when changing date.
+     *
+     * @param switchLogEachDay Keeps whether the parameter is activated.
+     */
+    static void setSwitchLogEachDay(bool switchLogEachDay)
+    { mSwitchLogEachDay = switchLogEachDay; }
 
-        /**
-         * Logs a generic message.
-         *
-         * @param msg the message to log.
-         *
-         * @param atVerbosity the minimum verbosity level
-         *        to log this
-         *
-         * @exception std::ios::failure.
-         */
-        static void output(const std::string &msg, Level atVerbosity);
+    /**
+     * Logs a generic message.
+     *
+     * @param msg the message to log.
+     *
+     * @param atVerbosity the minimum verbosity level
+     *        to log this
+     *
+     * @exception std::ios::failure.
+     */
+    static void output(const std::string &msg, Level atVerbosity);
 
-        static Level mVerbosity;   /**< Verbosity level. */
-    private:
-        static IConfiguration *mConfiguration;
+    static Level mVerbosity;   /**< Verbosity level. */
+private:
+    static IConfiguration *mConfiguration;
 
-        static bool mHasTimestamp; /**< Timestamp flag. */
-        static bool mTeeMode;      /**< Tee mode flag. */
+    static bool mHasTimestamp; /**< Timestamp flag. */
+    static bool mTeeMode;      /**< Tee mode flag. */
 
-        static std::string mFilename; /**< Name of the current logfile. */
-        /** Enable rotation of logfiles by size. */
-        static bool mLogRotation;
-        /** Maximum size of current logfile in bytes */
-        static long mMaxFileSize;
-        /** Sets whether the logfile switches when changing date. */
-        static bool mSwitchLogEachDay;
+    static std::string mFilename; /**< Name of the current logfile. */
+    /** Enable rotation of logfiles by size. */
+    static bool mLogRotation;
+    /** Maximum size of current logfile in bytes */
+    static long mMaxFileSize;
+    /** Sets whether the logfile switches when changing date. */
+    static bool mSwitchLogEachDay;
 
-        /**
-         * Logs a generic message.
-         *
-         * @param os the output stream.
-         * @param msg the message to log.
-         * @param prefix the message prefix.
-         *
-         * @exception std::ios::failure.
-         */
-        static void output(std::ostream &os, const std::string &msg,
-                           const char *prefix);
+    /**
+     * Logs a generic message.
+     *
+     * @param os the output stream.
+     * @param msg the message to log.
+     * @param prefix the message prefix.
+     *
+     * @exception std::ios::failure.
+     */
+    static void output(std::ostream &os, const std::string &msg,
+                       const char *prefix);
 
-        /**
-         * Switch the log file based on a maximum size
-         * and/or and a date change.
-         */
-        static void switchLogs();
+    /**
+     * Switch the log file based on a maximum size
+     * and/or and a date change.
+     */
+    static void switchLogs();
 };
 
 /**

@@ -27,21 +27,21 @@ class Entity;
 
 class StatusEffect
 {
-    public:
-        StatusEffect(int id);
-        ~StatusEffect();
+public:
+    StatusEffect(int id);
+    ~StatusEffect();
 
-        void tick(Entity &target, int count);
+    void tick(Entity &target, int count);
 
-        int getId() const
-        { return mId; }
+    int getId() const
+    { return mId; }
 
-        void setTickCallback(Script *script)
-        { script->assignCallback(mTickCallback); }
+    void setTickCallback(Script *script)
+    { script->assignCallback(mTickCallback); }
 
-    private:
-        int mId;
-        Script::Ref mTickCallback;
+private:
+    int mId;
+    Script::Ref mTickCallback;
 };
 
 #endif

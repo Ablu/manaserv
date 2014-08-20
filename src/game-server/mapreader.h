@@ -34,36 +34,36 @@ class Map;
  */
 class MapReader
 {
-    public:
-        /**
-         * Read an XML map from a file.
-         * @return the map when successful, 0 otherwise.
-         */
-        static Map *readMap(const std::string &filename);
+public:
+    /**
+     * Read an XML map from a file.
+     * @return the map when successful, 0 otherwise.
+     */
+    static Map *readMap(const std::string &filename);
 
-    private:
-        /**
-         * Read an XML map from a parsed XML tree.
-         */
-        static Map *readMap(xmlNodePtr node);
+private:
+    /**
+     * Read an XML map from a parsed XML tree.
+     */
+    static Map *readMap(xmlNodePtr node);
 
-        /**
-         * Reads a map layer and adds it to the given map.
-         */
-        static void readLayer(xmlNodePtr node, Map *map);
+    /**
+     * Reads a map layer and adds it to the given map.
+     */
+    static void readLayer(xmlNodePtr node, Map *map);
 
-        /**
-         * Get the string value from the given object property node.
-         */
-        static std::string getObjectProperty(xmlNodePtr node,
-                                             const std::string &def);
+    /**
+     * Get the string value from the given object property node.
+     */
+    static std::string getObjectProperty(xmlNodePtr node,
+                                         const std::string &def);
 
-        /**
-         * Get the integer value from the given object property node.
-         */
-        static int getObjectProperty(xmlNodePtr node, int def);
+    /**
+     * Get the integer value from the given object property node.
+     */
+    static int getObjectProperty(xmlNodePtr node, int def);
 
-        static void setTileWithGid(Map *map, int x, int y, unsigned gid);
+    static void setTileWithGid(Map *map, int x, int y, unsigned gid);
 };
 
 #endif

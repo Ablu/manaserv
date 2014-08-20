@@ -33,50 +33,50 @@ typedef std::map< int, MonsterClass * > MonsterClasses;
 
 class MonsterManager
 {
-    public:
-        MonsterManager()
-        {}
+public:
+    MonsterManager()
+    {}
 
-        ~MonsterManager()
-        { deinitialize(); }
+    ~MonsterManager()
+    { deinitialize(); }
 
-        /**
-         * Loads monster reference file.
-         */
-        void initialize();
+    /**
+     * Loads monster reference file.
+     */
+    void initialize();
 
-        /**
-         * Reloads monster reference file.
-         */
-        void reload();
+    /**
+     * Reloads monster reference file.
+     */
+    void reload();
 
-        /**
-         * Destroy monster classes.
-         */
-        void deinitialize();
+    /**
+     * Destroy monster classes.
+     */
+    void deinitialize();
 
-        /**
-         * Gets the MonsterClass having the given ID.
-         */
-        MonsterClass *getMonster(int id) const;
+    /**
+     * Gets the MonsterClass having the given ID.
+     */
+    MonsterClass *getMonster(int id) const;
 
-        /**
-         * Gets the first monster type with a specific name.
-         * (comparison is case-insensitive).
-         * Returns null when there is no monster with such
-         * a name.
-         */
-        MonsterClass *getMonsterByName(const std::string &name) const;
+    /**
+     * Gets the first monster type with a specific name.
+     * (comparison is case-insensitive).
+     * Returns null when there is no monster with such
+     * a name.
+     */
+    MonsterClass *getMonsterByName(const std::string &name) const;
 
-        const MonsterClasses &getMonsterClasses() const;
+    const MonsterClasses &getMonsterClasses() const;
 
-        void readMonsterNode(xmlNodePtr node, const std::string &filename);
+    void readMonsterNode(xmlNodePtr node, const std::string &filename);
 
-        void checkStatus();
+    void checkStatus();
 
-    private:
-        MonsterClasses mMonsterClasses; /**< Monster reference */
-        utils::NameMap<MonsterClass*> mMonsterClassesByName;
+private:
+    MonsterClasses mMonsterClasses; /**< Monster reference */
+    utils::NameMap<MonsterClass*> mMonsterClassesByName;
 };
 
 inline const MonsterClasses &MonsterManager::getMonsterClasses() const

@@ -130,168 +130,168 @@ struct ActorIterator
  */
 class MapComposite
 {
-    public:
-        MapComposite(int id,
-                     const std::string &name,
-                     IConfiguration *configuration);
-        MapComposite(const MapComposite &) = delete;
-        ~MapComposite();
+public:
+    MapComposite(int id,
+                 const std::string &name,
+                 IConfiguration *configuration);
+    MapComposite(const MapComposite &) = delete;
+    ~MapComposite();
 
-        bool readMap();
+    bool readMap();
 
-        /**
-         * Loads the map and initializes the map content. Should only be called
-         * once!
-         *
-         * @return <code>true</code> when succesful, <code>false</code> when
-         *         an error occurred.
-         */
-        bool activate();
+    /**
+     * Loads the map and initializes the map content. Should only be called
+     * once!
+     *
+     * @return <code>true</code> when succesful, <code>false</code> when
+     *         an error occurred.
+     */
+    bool activate();
 
-        /**
-         * Gets the underlying pathfinding map.
-         */
-        Map *getMap() const
-        { return mMap; }
+    /**
+     * Gets the underlying pathfinding map.
+     */
+    Map *getMap() const
+    { return mMap; }
 
-        /**
-         * Returns whether the map is active on this server or not.
-         */
-        bool isActive() const
-        { return mActive; }
+    /**
+     * Returns whether the map is active on this server or not.
+     */
+    bool isActive() const
+    { return mActive; }
 
-        /**
-         * Gets the game ID of this map.
-         */
-        int getID() const
-        { return mID; }
+    /**
+     * Gets the game ID of this map.
+     */
+    int getID() const
+    { return mID; }
 
-        /**
-         * Gets the name of this map.
-         */
-        const std::string &getName() const
-        { return mName; }
+    /**
+     * Gets the name of this map.
+     */
+    const std::string &getName() const
+    { return mName; }
 
-        /**
-         * Inserts a thing on the map. Sets its public ID if relevant.
-         */
-        bool insert(Entity *);
+    /**
+     * Inserts a thing on the map. Sets its public ID if relevant.
+     */
+    bool insert(Entity *);
 
-        /**
-         * Removes a thing from the map.
-         */
-        void remove(Entity *);
+    /**
+     * Removes a thing from the map.
+     */
+    void remove(Entity *);
 
-        /**
-         * Returns the actor entity matching \a publicID, or null when no such
-         * entity exists.
-         */
-        Entity *findEntityById(int publicId) const;
+    /**
+     * Returns the actor entity matching \a publicID, or null when no such
+     * entity exists.
+     */
+    Entity *findEntityById(int publicId) const;
 
-        /**
-         * Updates zones of every moving beings.
-         */
-        void update();
+    /**
+     * Updates zones of every moving beings.
+     */
+    void update();
 
-        /**
-         * Gets the PvP rules on the map.
-         */
-        PvPRules getPvP() const { return mPvPRules; }
+    /**
+     * Gets the PvP rules on the map.
+     */
+    PvPRules getPvP() const { return mPvPRules; }
 
-        /**
-         * Gets an iterator on the objects of the whole map.
-         */
-        ZoneIterator getWholeMapIterator() const
-        { return ZoneIterator(MapRegion(), mContent); }
+    /**
+     * Gets an iterator on the objects of the whole map.
+     */
+    ZoneIterator getWholeMapIterator() const
+    { return ZoneIterator(MapRegion(), mContent); }
 
-        /**
-         * Gets an iterator on the objects inside a given rectangle.
-         */
-        ZoneIterator getInsideRectangleIterator(const Rectangle &) const;
+    /**
+     * Gets an iterator on the objects inside a given rectangle.
+     */
+    ZoneIterator getInsideRectangleIterator(const Rectangle &) const;
 
-        /**
-         * Gets an iterator on the objects around a given point.
-         */
-        ZoneIterator getAroundPointIterator(const Point &, int radius) const;
+    /**
+     * Gets an iterator on the objects around a given point.
+     */
+    ZoneIterator getAroundPointIterator(const Point &, int radius) const;
 
-        /**
-         * Gets an iterator on the objects around a given actor.
-         */
-        ZoneIterator getAroundActorIterator(Entity *, int radius) const;
+    /**
+     * Gets an iterator on the objects around a given actor.
+     */
+    ZoneIterator getAroundActorIterator(Entity *, int radius) const;
 
-        /**
-         * Gets an iterator on the objects around the old and new positions of
-         * a character (including the ones that were but are now elsewhere).
-         */
-        ZoneIterator getAroundBeingIterator(Entity *, int radius) const;
+    /**
+     * Gets an iterator on the objects around the old and new positions of
+     * a character (including the ones that were but are now elsewhere).
+     */
+    ZoneIterator getAroundBeingIterator(Entity *, int radius) const;
 
-        /**
-         * Gets everything related to the map.
-         */
-        const std::vector< Entity * > &getEverything() const;
+    /**
+     * Gets everything related to the map.
+     */
+    const std::vector< Entity * > &getEverything() const;
 
-        /**
-         * Gets the cached value of a map-bound script variable
-         */
-        std::string getVariable(const std::string &key) const;
+    /**
+     * Gets the cached value of a map-bound script variable
+     */
+    std::string getVariable(const std::string &key) const;
 
-        /**
-         * Changes a script variable and notifies the database server
-         * about the change
-         */
-        void setVariable(const std::string &key, const std::string &value);
+    /**
+     * Changes a script variable and notifies the database server
+     * about the change
+     */
+    void setVariable(const std::string &key, const std::string &value);
 
-        /**
-         * Changes a script variable without notifying the database server
-         * about the change
-         */
-        void setVariableFromDbserver(const std::string &key,
-                                     const std::string &value)
-        { mScriptVariables[key] = value; }
+    /**
+     * Changes a script variable without notifying the database server
+     * about the change
+     */
+    void setVariableFromDbserver(const std::string &key,
+                                 const std::string &value)
+    { mScriptVariables[key] = value; }
 
-        /**
-         * Sets callback for map variable
-         */
-        void setMapVariableCallback(const std::string &key, Script *script)
-        { script->assignCallback(mMapVariableCallbacks[key]); }
+    /**
+     * Sets callback for map variable
+     */
+    void setMapVariableCallback(const std::string &key, Script *script)
+    { script->assignCallback(mMapVariableCallbacks[key]); }
 
-        /**
-         * Sets callback for global variable
-         */
-        void setWorldVariableCallback(const std::string &key, Script *script)
-        { script->assignCallback(mWorldVariableCallbacks[key]); }
+    /**
+     * Sets callback for global variable
+     */
+    void setWorldVariableCallback(const std::string &key, Script *script)
+    { script->assignCallback(mWorldVariableCallbacks[key]); }
 
-        void callWorldVariableCallback(const std::string &key,
-                                       const std::string &value);
+    void callWorldVariableCallback(const std::string &key,
+                                   const std::string &value);
 
-        static void setInitializeCallback(Script *script)
-        { script->assignCallback(mInitializeCallback); }
+    static void setInitializeCallback(Script *script)
+    { script->assignCallback(mInitializeCallback); }
 
-        static void setUpdateCallback(Script *script)
-        { script->assignCallback(mUpdateCallback); }
+    static void setUpdateCallback(Script *script)
+    { script->assignCallback(mUpdateCallback); }
 
-        const MapObject *findMapObject(const std::string &name,
-                                       const std::string &type) const;
+    const MapObject *findMapObject(const std::string &name,
+                                   const std::string &type) const;
 
-    private:
-        void initializeContent();
-        void callMapVariableCallback(const std::string &key,
-                                     const std::string &value);
+private:
+    void initializeContent();
+    void callMapVariableCallback(const std::string &key,
+                                 const std::string &value);
 
-        IConfiguration *mConfiguration;
-        bool mActive;         /**< Status of map. */
-        Map *mMap;            /**< Actual map. */
-        MapContent *mContent; /**< Entities on the map. */
-        std::string mName;    /**< Name of the map. */
-        unsigned short mID;   /**< ID of the map. */
-        /** Cached persistent variables */
-        std::map<std::string, std::string> mScriptVariables;
-        PvPRules mPvPRules;
-        std::map<const std::string, Script::Ref> mMapVariableCallbacks;
-        std::map<const std::string, Script::Ref> mWorldVariableCallbacks;
+    IConfiguration *mConfiguration;
+    bool mActive;         /**< Status of map. */
+    Map *mMap;            /**< Actual map. */
+    MapContent *mContent; /**< Entities on the map. */
+    std::string mName;    /**< Name of the map. */
+    unsigned short mID;   /**< ID of the map. */
+    /** Cached persistent variables */
+    std::map<std::string, std::string> mScriptVariables;
+    PvPRules mPvPRules;
+    std::map<const std::string, Script::Ref> mMapVariableCallbacks;
+    std::map<const std::string, Script::Ref> mWorldVariableCallbacks;
 
-        static Script::Ref mInitializeCallback;
-        static Script::Ref mUpdateCallback;
+    static Script::Ref mInitializeCallback;
+    static Script::Ref mUpdateCallback;
 };
 
 #endif // MAPCOMPOSITE_H

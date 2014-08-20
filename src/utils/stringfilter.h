@@ -35,50 +35,50 @@ namespace utils
  */
 class StringFilter
 {
-    public:
-        StringFilter(IConfiguration *configuration);
+public:
+    StringFilter(IConfiguration *configuration);
 
-        ~StringFilter();
+    ~StringFilter();
 
-        /**
-         * Load slang list from the config file.
-         *
-         * @return true is the config is loaded succesfully
-         */
-        bool loadSlangFilterList();
+    /**
+     * Load slang list from the config file.
+     *
+     * @return true is the config is loaded succesfully
+     */
+    bool loadSlangFilterList();
 
-        /**
-         * Write slang list to the config file.
-         *
-         * @return true is the config is loaded succesfully
-         */
-        void writeSlangFilterList();
+    /**
+     * Write slang list to the config file.
+     *
+     * @return true is the config is loaded succesfully
+     */
+    void writeSlangFilterList();
 
-        /**
-        * Useful to filter slangs automatically, by instance.
-        * @return true if the sentence is slangs clear.
-        */
-        bool filterContent(const std::string &text) const;
+    /**
+    * Useful to filter slangs automatically, by instance.
+    * @return true if the sentence is slangs clear.
+    */
+    bool filterContent(const std::string &text) const;
 
-        /**
-         * Tells if an email is valid
-         */
-        bool isEmailValid(const std::string &email) const;
+    /**
+     * Tells if an email is valid
+     */
+    bool isEmailValid(const std::string &email) const;
 
-        /**
-         * find double quotes (") in strings.
-         * Very useful not to make SQL Queries based on names crash
-         * I placed it here cause where you've got " you can have slangs...
-         */
-        bool findDoubleQuotes(const std::string &text) const;
+    /**
+     * find double quotes (") in strings.
+     * Very useful not to make SQL Queries based on names crash
+     * I placed it here cause where you've got " you can have slangs...
+     */
+    bool findDoubleQuotes(const std::string &text) const;
 
-    private:
-        IConfiguration *mConfiguration;
+private:
+    IConfiguration *mConfiguration;
 
-        typedef std::list<std::string> Slangs;
-        typedef Slangs::iterator SlangIterator;
-        Slangs mSlangs;    /**< the formatted Slangs list */
-        bool mInitialized;                 /**< Set if the list is loaded */
+    typedef std::list<std::string> Slangs;
+    typedef Slangs::iterator SlangIterator;
+    Slangs mSlangs;    /**< the formatted Slangs list */
+    bool mInitialized;                 /**< Set if the list is loaded */
 };
 
 } // ::utils

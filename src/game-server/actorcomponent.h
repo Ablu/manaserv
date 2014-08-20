@@ -49,114 +49,114 @@ enum
  */
 class ActorComponent : public Component
 {
-    Q_OBJECT
+Q_OBJECT
 
-    public:
-        static const ComponentType type = CT_Actor;
+public:
+    static const ComponentType type = CT_Actor;
 
-        ActorComponent(Entity &entity);
+    ActorComponent(Entity &entity);
 
-        void update(Entity &entity)
-        {
-            Q_UNUSED(entity);
-        }
+    void update(Entity &entity)
+    {
+        Q_UNUSED(entity);
+    }
 
-        /**
-         * Sets the coordinates. Also updates the walkmap of the map the actor
-         * is on.
-         *
-         * @param p the coordinates.
-         */
-        void setPosition(Entity &entity, const Point &p);
+    /**
+     * Sets the coordinates. Also updates the walkmap of the map the actor
+     * is on.
+     *
+     * @param p the coordinates.
+     */
+    void setPosition(Entity &entity, const Point &p);
 
-        /**
-         * Gets the coordinates.
-         *
-         * @return the coordinates.
-         */
-        const Point &getPosition() const
-        { return mPos; }
+    /**
+     * Gets the coordinates.
+     *
+     * @return the coordinates.
+     */
+    const Point &getPosition() const
+    { return mPos; }
 
-        /**
-         * Gets what changed in the actor.
-         */
-        int getUpdateFlags() const
-        { return mUpdateFlags; }
+    /**
+     * Gets what changed in the actor.
+     */
+    int getUpdateFlags() const
+    { return mUpdateFlags; }
 
-        /**
-         * Sets some changes in the actor.
-         */
-        void raiseUpdateFlags(int n)
-        { mUpdateFlags |= n; }
+    /**
+     * Sets some changes in the actor.
+     */
+    void raiseUpdateFlags(int n)
+    { mUpdateFlags |= n; }
 
-        /**
-         * Clears changes in the actor.
-         */
-        void clearUpdateFlags()
-        { mUpdateFlags = 0; }
+    /**
+     * Clears changes in the actor.
+     */
+    void clearUpdateFlags()
+    { mUpdateFlags = 0; }
 
-        /**
-         * Sets actor bounding circle radius.
-         */
-        void setSize(int s) { mSize = s; }
-        int getSize() const { return mSize; }
+    /**
+     * Sets actor bounding circle radius.
+     */
+    void setSize(int s) { mSize = s; }
+    int getSize() const { return mSize; }
 
-        /**
-         * Get public ID.
-         *
-         * @return the public ID, 65535 if none yet.
-         */
-        int getPublicID() const
-        { return mPublicID; }
+    /**
+     * Get public ID.
+     *
+     * @return the public ID, 65535 if none yet.
+     */
+    int getPublicID() const
+    { return mPublicID; }
 
-        /**
-         * Set public ID. The actor shall not have any public ID yet.
-         */
-        void setPublicID(int id)
-        { mPublicID = id; }
+    /**
+     * Set public ID. The actor shall not have any public ID yet.
+     */
+    void setPublicID(int id)
+    { mPublicID = id; }
 
-        bool isPublicIdValid() const
-        { return (mPublicID > 0 && mPublicID != 65535); }
+    bool isPublicIdValid() const
+    { return (mPublicID > 0 && mPublicID != 65535); }
 
-        void setWalkMask(unsigned char mask)
-        { mWalkMask = mask; }
+    void setWalkMask(unsigned char mask)
+    { mWalkMask = mask; }
 
-        /**
-         * Gets the way the actor blocks pathfinding for other actors.
-         */
-        unsigned char getWalkMask() const
-        { return mWalkMask; }
+    /**
+     * Gets the way the actor blocks pathfinding for other actors.
+     */
+    unsigned char getWalkMask() const
+    { return mWalkMask; }
 
-        /**
-         * Gets the way the actor blocks pathfinding for other actors.
-         */
-        BlockType getBlockType() const
-        { return mBlockType; }
+    /**
+     * Gets the way the actor blocks pathfinding for other actors.
+     */
+    BlockType getBlockType() const
+    { return mBlockType; }
 
-        void setBlockType(BlockType blockType)
-        { mBlockType = blockType; }
+    void setBlockType(BlockType blockType)
+    { mBlockType = blockType; }
 
-    public slots:
-        void removed(Entity *entity);
+public slots:
+    void removed(Entity *entity);
 
-        void mapChanged(Entity *entity);
+    void mapChanged(Entity *entity);
 
-    protected:
+protected:
 
-        /** Delay until move to next tile in miliseconds. */
-        unsigned short mMoveTime;
+    /** Delay until move to next tile in miliseconds. */
+    unsigned short mMoveTime;
 
-    private:
-        int mUpdateFlags;           /**< Changes in actor status. */
+private:
+    int mUpdateFlags;           /**< Changes in actor status. */
 
-        /** Actor ID sent to clients (unique with respect to the map). */
-        unsigned short mPublicID;
+    /** Actor ID sent to clients (unique with respect to the map). */
+    unsigned short mPublicID;
 
-        Point mPos;                 /**< Coordinates. */
-        unsigned char mSize;        /**< Radius of bounding circle. */
+    Point mPos;                 /**< Coordinates. */
+    unsigned char mSize;        /**< Radius of bounding circle. */
 
-        unsigned char mWalkMask;
-        BlockType mBlockType;
+    unsigned char mWalkMask;
+    BlockType mBlockType;
 };
 
 #endif // ACTORCOMPONENT_H

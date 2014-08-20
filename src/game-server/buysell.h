@@ -29,61 +29,61 @@ class Entity;
 
 class BuySell
 {
-    public:
+public:
 
-        /**
-         * Sets up a trade between a character and an NPC.
-         */
-        BuySell(Entity *, bool sell);
+    /**
+     * Sets up a trade between a character and an NPC.
+     */
+    BuySell(Entity *, bool sell);
 
-        /**
-         * Cancels the trade.
-         */
-        void cancel();
+    /**
+     * Cancels the trade.
+     */
+    void cancel();
 
-        /**
-         * Registers an item and indicates how many the NPC is ready to trade
-         * and how much it will cost.
-         * @return true if at least one item was registered.
-         */
-        bool registerItem(unsigned id, int amount, int cost);
+    /**
+     * Registers an item and indicates how many the NPC is ready to trade
+     * and how much it will cost.
+     * @return true if at least one item was registered.
+     */
+    bool registerItem(unsigned id, int amount, int cost);
 
-        /**
-         * Registers every player's item at an average cost given by the ItemDB.
-         * @return the number of different soldable items.
-         */
-        int registerPlayerItems();
+    /**
+     * Registers every player's item at an average cost given by the ItemDB.
+     * @return the number of different soldable items.
+     */
+    int registerPlayerItems();
 
-        /**
-         * Sends the item list to player.
-         * @return true if at least one item was registered before start.
-         */
-        bool start(Entity *actor);
+    /**
+     * Sends the item list to player.
+     * @return true if at least one item was registered before start.
+     */
+    bool start(Entity *actor);
 
-        /**
-         * Performs the trade.
-         */
-        void perform(unsigned id, int amount);
+    /**
+     * Performs the trade.
+     */
+    void perform(unsigned id, int amount);
 
-    private:
+private:
 
-        ~BuySell();
+    ~BuySell();
 
-        struct TradedItem
-        {
-            unsigned itemId;
-            int amount;
-            int cost;
-        };
+    struct TradedItem
+    {
+        unsigned itemId;
+        int amount;
+        int cost;
+    };
 
-        typedef std::vector< TradedItem > TradedItems;
+    typedef std::vector< TradedItem > TradedItems;
 
-        /** The attribute ID of the currency to use. Hardcoded for now (FIXME) */
-        AttributeInfo *mCurrency;
+    /** The attribute ID of the currency to use. Hardcoded for now (FIXME) */
+    AttributeInfo *mCurrency;
 
-        Entity *mChar;      /**< Character involved. */
-        TradedItems mItems; /**< Traded items. */
-        bool mSell;         /**< Are items sold? */
+    Entity *mChar;      /**< Character involved. */
+    TradedItems mItems; /**< Traded items. */
+    bool mSell;         /**< Are items sold? */
 };
 
 #endif

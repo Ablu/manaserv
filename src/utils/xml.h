@@ -32,68 +32,68 @@
  */
 namespace XML
 {
+/**
+ * A helper class for parsing an XML document, which also cleans it up
+ * again (RAII).
+ */
+class Document
+{
+public:
     /**
-     * A helper class for parsing an XML document, which also cleans it up
-     * again (RAII).
+     * Attempts to load an XML document from the given file. Logs an
+     * error when something went wrong.
+     *
+     * @param fileName  the file name of the XML document
+     * @param useResman whether to resolve the full path to the file
+     *                  using the resource manager (true by default).
      */
-    class Document
-    {
-        public:
-            /**
-             * Attempts to load an XML document from the given file. Logs an
-             * error when something went wrong.
-             *
-             * @param fileName  the file name of the XML document
-             * @param useResman whether to resolve the full path to the file
-             *                  using the resource manager (true by default).
-             */
-            Document(const std::string &fileName, bool useResman = true);
-
-            /**
-             * Destructor. Frees the loaded XML file.
-             */
-            ~Document();
-
-            /**
-             * Returns the root node of the document (or nullptr if there was a
-             * load error).
-             */
-            xmlNodePtr rootNode();
-
-        private:
-            xmlDocPtr mDoc;
-    };
+    Document(const std::string &fileName, bool useResman = true);
 
     /**
-     * Tells if a property from an xmlNodePtr exists.
+     * Destructor. Frees the loaded XML file.
      */
-    bool hasProperty(xmlNodePtr node, const char *name);
+    ~Document();
 
     /**
-     * Gets a boolean property from an xmlNodePtr.
+     * Returns the root node of the document (or nullptr if there was a
+     * load error).
      */
-    bool getBoolProperty(xmlNodePtr node, const char *name, bool def);
+    xmlNodePtr rootNode();
 
-    /**
-     * Gets an integer property from an xmlNodePtr.
-     */
-    int getProperty(xmlNodePtr node, const char *name, int def);
+private:
+    xmlDocPtr mDoc;
+};
 
-    /**
-     * Gets an floating point property from an xmlNodePtr.
-     */
-    double getFloatProperty(xmlNodePtr node, const char *name, double def);
+/**
+ * Tells if a property from an xmlNodePtr exists.
+ */
+bool hasProperty(xmlNodePtr node, const char *name);
 
-    /**
-     * Gets a string property from an xmlNodePtr.
-     */
-    std::string getProperty(xmlNodePtr node, const char *name,
-                            const std::string &def);
+/**
+ * Gets a boolean property from an xmlNodePtr.
+ */
+bool getBoolProperty(xmlNodePtr node, const char *name, bool def);
 
-    /**
-     * Finds the first child node with the given name
-     */
-    xmlNodePtr findFirstChildByName(xmlNodePtr parent, const char *name);
+/**
+ * Gets an integer property from an xmlNodePtr.
+ */
+int getProperty(xmlNodePtr node, const char *name, int def);
+
+/**
+ * Gets an floating point property from an xmlNodePtr.
+ */
+double getFloatProperty(xmlNodePtr node, const char *name, double def);
+
+/**
+ * Gets a string property from an xmlNodePtr.
+ */
+std::string getProperty(xmlNodePtr node, const char *name,
+                        const std::string &def);
+
+/**
+ * Finds the first child node with the given name
+ */
+xmlNodePtr findFirstChildByName(xmlNodePtr parent, const char *name);
 }
 
 #define for_each_xml_child_node(var, parent) \

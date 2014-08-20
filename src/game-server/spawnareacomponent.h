@@ -34,29 +34,29 @@ class MonsterClass;
  */
 class SpawnAreaComponent : public Component
 {
-    Q_OBJECT
+Q_OBJECT
 
-    public:
-        static const ComponentType type = CT_SpawnArea;
+public:
+    static const ComponentType type = CT_SpawnArea;
 
-        SpawnAreaComponent(MonsterClass *,
-                           const Rectangle &zone,
-                           int maxBeings, int spawnRate);
+    SpawnAreaComponent(MonsterClass *,
+                       const Rectangle &zone,
+                       int maxBeings, int spawnRate);
 
-        void update(Entity &entity);
+    void update(Entity &entity);
 
-    private slots:
-        void beingRemoved(Entity*);
+private slots:
+    void beingRemoved(Entity*);
 
-    private:
-        MonsterClass *mSpecy; /**< Specy of monster that spawns in this area. */
-        Rectangle mZone;
-        int mMaxBeings;    /**< Maximum population of this area. */
-        int mSpawnRate;    /**< Number of beings spawning per minute. */
-        int mNumBeings;    /**< Current population of this area. */
-        int mNextSpawn;    /**< The time until next being spawn. */
+private:
+    MonsterClass *mSpecy; /**< Specy of monster that spawns in this area. */
+    Rectangle mZone;
+    int mMaxBeings;    /**< Maximum population of this area. */
+    int mSpawnRate;    /**< Number of beings spawning per minute. */
+    int mNumBeings;    /**< Current population of this area. */
+    int mNextSpawn;    /**< The time until next being spawn. */
 
-        friend struct SpawnAreaEventDispatch;
+    friend struct SpawnAreaEventDispatch;
 };
 
 #endif // SPAWNAREACOMPONENT_H

@@ -35,79 +35,79 @@ class CharacterComponent;
  */
 class LuaScript : public Script
 {
+public:
+    /**
+     * Constructor. Initializes a new Lua state, registers the native API
+     * and loads the libmana.lua file.
+     */
+    LuaScript();
+
+    ~LuaScript();
+
+    void load(const char *prog, const char *name,
+              const Context &context = Context());
+
+    Thread *newThread();
+
+    void prepare(Ref function);
+
+    void prepareResume(Thread *thread);
+
+    void push(int);
+    void push(const std::string &);
+    void push(Entity *);
+    void push(const std::list<InventoryItem> &itemList);
+    void push(AttributeInfo *);
+
+    int execute(const Context &context = Context());
+
+    bool resume();
+
+    void assignCallback(Ref &function);
+
+    void unref(Ref &ref);
+
+    static void getQuestCallback(Entity *,
+                                 const std::string &value,
+                                 Script *);
+
+    static void getPostCallback(Entity *,
+                                const std::string &sender,
+                                const std::string &letter,
+                                Script *);
+
+    void processDeathEvent(Entity *entity);
+
+    void processRemoveEvent(Entity *entity);
+
+
+    static void setDeathNotificationCallback(Script *script)
+    { script->assignCallback(mDeathNotificationCallback); }
+
+    static void setRemoveNotificationCallback(Script *script)
+    { script->assignCallback(mRemoveNotificationCallback); }
+
+    static const char registryKey;
+
+private:
+    class LuaThread : public Thread
+    {
     public:
-        /**
-         * Constructor. Initializes a new Lua state, registers the native API
-         * and loads the libmana.lua file.
-         */
-        LuaScript();
+        LuaThread(LuaScript *script);
+        ~LuaThread();
 
-        ~LuaScript();
+        lua_State *mState;
+        int mRef;
+    };
 
-        void load(const char *prog, const char *name,
-                  const Context &context = Context());
+    lua_State *mRootState;
+    lua_State *mCurrentState;
+    int nbArgs;
 
-        Thread *newThread();
+    static Ref mDeathNotificationCallback;
+    static Ref mRemoveNotificationCallback;
 
-        void prepare(Ref function);
-
-        void prepareResume(Thread *thread);
-
-        void push(int);
-        void push(const std::string &);
-        void push(Entity *);
-        void push(const std::list<InventoryItem> &itemList);
-        void push(AttributeInfo *);
-
-        int execute(const Context &context = Context());
-
-        bool resume();
-
-        void assignCallback(Ref &function);
-
-        void unref(Ref &ref);
-
-        static void getQuestCallback(Entity *,
-                                     const std::string &value,
-                                     Script *);
-
-        static void getPostCallback(Entity *,
-                                    const std::string &sender,
-                                    const std::string &letter,
-                                    Script *);
-
-        void processDeathEvent(Entity *entity);
-
-        void processRemoveEvent(Entity *entity);
-
-
-        static void setDeathNotificationCallback(Script *script)
-        { script->assignCallback(mDeathNotificationCallback); }
-
-        static void setRemoveNotificationCallback(Script *script)
-        { script->assignCallback(mRemoveNotificationCallback); }
-
-        static const char registryKey;
-
-    private:
-        class LuaThread : public Thread
-        {
-            public:
-                LuaThread(LuaScript *script);
-                ~LuaThread();
-
-                lua_State *mState;
-                int mRef;
-        };
-
-        lua_State *mRootState;
-        lua_State *mCurrentState;
-        int nbArgs;
-
-        static Ref mDeathNotificationCallback;
-        static Ref mRemoveNotificationCallback;
-
-        friend class LuaThread;
+    friend class LuaThread;
 };
 
 static Script *LuaFactory()

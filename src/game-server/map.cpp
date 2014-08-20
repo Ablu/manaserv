@@ -33,20 +33,20 @@
  */
 class PathInfo
 {
-    public:
-        PathInfo()
-            : Gcost(0)
-            , Hcost(0)
-            , whichList(0)
-            , parentX(0)
-            , parentY(0)
-        {}
+public:
+    PathInfo()
+        : Gcost(0)
+        , Hcost(0)
+        , whichList(0)
+        , parentX(0)
+        , parentY(0)
+    {}
 
-        int Gcost;              /**< Cost from start to this location */
-        int Hcost;              /**< Estimated cost to goal */
-        unsigned whichList;     /**< No list, open list or closed list */
-        int parentX;            /**< X coordinate of parent tile */
-        int parentY;            /**< Y coordinate of parent tile */
+    int Gcost;              /**< Cost from start to this location */
+    int Hcost;              /**< Estimated cost to goal */
+    unsigned whichList;     /**< No list, open list or closed list */
+    int parentX;            /**< X coordinate of parent tile */
+    int parentY;            /**< Y coordinate of parent tile */
 };
 
 /**
@@ -54,27 +54,27 @@ class PathInfo
  */
 class FindPath
 {
-    public:
-        FindPath() :
-            mWidth(0),
-            mOnClosedList(1),
-            mOnOpenList(2)
-        {}
+public:
+    FindPath() :
+        mWidth(0),
+        mOnClosedList(1),
+        mOnOpenList(2)
+    {}
 
-        Path operator() (int startX, int startY,
-                         int destX, int destY,
-                         unsigned char walkmask, int maxCost,
-                         const Map *map);
+    Path operator() (int startX, int startY,
+                     int destX, int destY,
+                     unsigned char walkmask, int maxCost,
+                     const Map *map);
 
-    private:
-        PathInfo *getInfo(int x, int y)
-        { return &mPathInfos.at(x + y * mWidth); }
+private:
+    PathInfo *getInfo(int x, int y)
+    { return &mPathInfos.at(x + y * mWidth); }
 
-        void prepare(const Map *map);
+    void prepare(const Map *map);
 
-        int mWidth;
-        std::vector<PathInfo> mPathInfos;
-        unsigned mOnClosedList, mOnOpenList;
+    int mWidth;
+    std::vector<PathInfo> mPathInfos;
+    unsigned mOnClosedList, mOnOpenList;
 };
 
 static FindPath findPath;
@@ -85,19 +85,19 @@ static FindPath findPath;
  */
 class Location
 {
-    public:
-        Location(int x, int y, int Fcost):
-            x(x), y(y), Fcost(Fcost)
-        {}
+public:
+    Location(int x, int y, int Fcost):
+        x(x), y(y), Fcost(Fcost)
+    {}
 
-        /**
-         * Comparison operator.
-         */
-        bool operator< (const Location &other) const
-        { return Fcost > other.Fcost; }
+    /**
+     * Comparison operator.
+     */
+    bool operator< (const Location &other) const
+    { return Fcost > other.Fcost; }
 
-        int x, y;
-        int Fcost;              /**< Estimation of total path cost */
+    int x, y;
+    int Fcost;              /**< Estimation of total path cost */
 };
 
 Map::Map(int width, int height, int tileWidth, int tileHeight):

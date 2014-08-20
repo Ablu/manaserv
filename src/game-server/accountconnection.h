@@ -33,154 +33,154 @@ class MapComposite;
  */
 class AccountConnection : public Connection
 {
-    public:
-        AccountConnection(IConfiguration *configuration);
-        ~AccountConnection();
+public:
+    AccountConnection(IConfiguration *configuration);
+    ~AccountConnection();
 
-        /**
-         * Initializes a connection to the account server described in the
-         * configuration file. Registers the maps known by MapManager.
-         */
-        bool start(int gameServerPort);
+    /**
+     * Initializes a connection to the account server described in the
+     * configuration file. Registers the maps known by MapManager.
+     */
+    bool start(int gameServerPort);
 
-        /**
-         * Sends data of a given character.
-         */
-        void sendCharacterData(Entity *);
+    /**
+     * Sends data of a given character.
+     */
+    void sendCharacterData(Entity *);
 
-        /**
-         * Prepares the account server for a reconnecting player
-         */
-        void playerReconnectAccount(int id, const std::string &magic_token);
+    /**
+     * Prepares the account server for a reconnecting player
+     */
+    void playerReconnectAccount(int id, const std::string &magic_token);
 
-        /**
-         * Requests the value of a character-bound variable from the database.
-         */
-        void requestCharacterVar(Entity *, const std::string &);
+    /**
+     * Requests the value of a character-bound variable from the database.
+     */
+    void requestCharacterVar(Entity *, const std::string &);
 
-        /**
-         * Pushes a new character-bound value to the database.
-         */
-        void updateCharacterVar(Entity *, const std::string &name,
-                                const std::string &value);
-
-        /**
-         * Pushes a new value of a map variable to the account server.
-         */
-        void updateMapVar(MapComposite *, const std::string &name,
-                          const std::string &value);
-
-        /**
-         * Pushes a new value of a world variable to the account server.
-         */
-        void updateWorldVar(const std::string &name,
+    /**
+     * Pushes a new character-bound value to the database.
+     */
+    void updateCharacterVar(Entity *, const std::string &name,
                             const std::string &value);
 
-        /**
-         * Sends ban message.
-         */
-        void banCharacter(Entity *, int);
+    /**
+     * Pushes a new value of a map variable to the account server.
+     */
+    void updateMapVar(MapComposite *, const std::string &name,
+                      const std::string &value);
 
-        /**
-         * Gathers statistics and sends them.
-         */
-        void sendStatistics();
+    /**
+     * Pushes a new value of a world variable to the account server.
+     */
+    void updateWorldVar(const std::string &name,
+                        const std::string &value);
 
-        /**
-         * Send letter
-         */
-        void sendPost(Entity *, MessageIn &);
+    /**
+     * Sends ban message.
+     */
+    void banCharacter(Entity *, int);
 
-        /**
-         * Get post
-         */
-        void getPost(Entity *);
+    /**
+     * Gathers statistics and sends them.
+     */
+    void sendStatistics();
 
-        /**
-         * Change Account Level
-         */
-        void changeAccountLevel(Entity *, int);
+    /**
+     * Send letter
+     */
+    void sendPost(Entity *, MessageIn &);
 
-        /**
-         * Sends all changed player data to the account server to minimize
-         * dataloss due to failure of one server component.
-         *
-         * The gameserver holds a buffer with all changes made by a character.
-         * The changes are added at the time they occur. When the buffer
-         * reaches one of the following limits, the buffer is sent to the
-         * account server and applied to the database.
-         *
-         * The sync buffer is sent when:
-         * - forced by any process (param force = true)
-         * - every 10 seconds
-         * - buffer reaches size of 1kb (SYNC_BUFFER_SIZE)
-         * - buffer holds more then 20 messages (SYNC_BUFFER_LIMIT)
-         *
-         * @param force Send changes even if buffer hasn't reached its size
-         *              or message limit. (used to send in timed schedules)
-         */
-        void syncChanges(bool force = false);
+    /**
+     * Get post
+     */
+    void getPost(Entity *);
 
-        /**
-         * Write a modification message about character points to the sync
-         * buffer.
-         *
-         * @param charId      ID of the character
-         * @param charPoints  character points left for the character
-         * @param corrPoints  correction points left for the character
-         */
-        void updateCharacterPoints(int charId, int charPoints,
-                                   int corrPoints);
+    /**
+     * Change Account Level
+     */
+    void changeAccountLevel(Entity *, int);
 
-        /**
-         * @param charId      ID of the character
-         * @param attribId    ID of the modified attribute
-         * @param attribValue New value of the modified attribute
-         */
+    /**
+     * Sends all changed player data to the account server to minimize
+     * dataloss due to failure of one server component.
+     *
+     * The gameserver holds a buffer with all changes made by a character.
+     * The changes are added at the time they occur. When the buffer
+     * reaches one of the following limits, the buffer is sent to the
+     * account server and applied to the database.
+     *
+     * The sync buffer is sent when:
+     * - forced by any process (param force = true)
+     * - every 10 seconds
+     * - buffer reaches size of 1kb (SYNC_BUFFER_SIZE)
+     * - buffer holds more then 20 messages (SYNC_BUFFER_LIMIT)
+     *
+     * @param force Send changes even if buffer hasn't reached its size
+     *              or message limit. (used to send in timed schedules)
+     */
+    void syncChanges(bool force = false);
 
-        void updateAttributes(int charId, int attrId, double base,
-                              double mod);
+    /**
+     * Write a modification message about character points to the sync
+     * buffer.
+     *
+     * @param charId      ID of the character
+     * @param charPoints  character points left for the character
+     * @param corrPoints  correction points left for the character
+     */
+    void updateCharacterPoints(int charId, int charPoints,
+                               int corrPoints);
 
-        /**
-         * Update the status of a character to online (true) or offline
-         * (false).
-         *
-         * @param charId Id of the character.
-         * @param online True to flag the character as being online.
-         */
-        void updateOnlineStatus(int charId, bool online);
+    /**
+     * @param charId      ID of the character
+     * @param attribId    ID of the modified attribute
+     * @param attribValue New value of the modified attribute
+     */
 
-        /**
-         * Adds floor items info on database.
-         *
-         * This is used to make them potentially persistent between two server
-         * restart.
-         */
-        void createFloorItems(int mapId, int itemId, int amount,
-                              int posX, int posY);
+    void updateAttributes(int charId, int attrId, double base,
+                          double mod);
 
-        /**
-         * Remove floor items from the database
-         */
-        void removeFloorItems(int mapId, int itemId, int amount,
-                              int posX, int posY);
+    /**
+     * Update the status of a character to online (true) or offline
+     * (false).
+     *
+     * @param charId Id of the character.
+     * @param online True to flag the character as being online.
+     */
+    void updateOnlineStatus(int charId, bool online);
 
-        /**
-         * Send transaction to account server
-         */
-        void sendTransaction(int id, int action, const std::string &message);
+    /**
+     * Adds floor items info on database.
+     *
+     * This is used to make them potentially persistent between two server
+     * restart.
+     */
+    void createFloorItems(int mapId, int itemId, int amount,
+                          int posX, int posY);
 
-    protected:
-        /**
-         * Processes server messages.
-         */
-        virtual void processMessage(MessageIn &);
+    /**
+     * Remove floor items from the database
+     */
+    void removeFloorItems(int mapId, int itemId, int amount,
+                          int posX, int posY);
 
-    private:
-        MessageOut* mSyncBuffer;     /**< Message buffer to store sync data. */
-        int mSyncMessages;           /**< Number of messages in the sync buffer. */
+    /**
+     * Send transaction to account server
+     */
+    void sendTransaction(int id, int action, const std::string &message);
 
-        IConfiguration *mConfiguration;
+protected:
+    /**
+     * Processes server messages.
+     */
+    virtual void processMessage(MessageIn &);
+
+private:
+    MessageOut* mSyncBuffer;     /**< Message buffer to store sync data. */
+    int mSyncMessages;           /**< Number of messages in the sync buffer. */
+
+    IConfiguration *mConfiguration;
 };
 
 extern AccountConnection *accountHandler;

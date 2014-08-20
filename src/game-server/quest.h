@@ -31,47 +31,47 @@ class Script;
 
 class QuestCallback
 {
-    public:
-        virtual ~QuestCallback()
-        { }
+public:
+    virtual ~QuestCallback()
+    { }
 
-        virtual void triggerCallback(Entity *ch,
-                                     const std::string &value) const = 0;
+    virtual void triggerCallback(Entity *ch,
+                                 const std::string &value) const = 0;
 };
 
 class QuestThreadCallback : public QuestCallback
 {
-    public:
-        typedef void (*Handler)(Entity *,
-                                const std::string &value,
-                                Script *mScript);
+public:
+    typedef void (*Handler)(Entity *,
+                            const std::string &value,
+                            Script *mScript);
 
-        QuestThreadCallback(Handler handler,
-                            Script *script) :
-            mHandler(handler),
-            mScript(script)
-        { }
+    QuestThreadCallback(Handler handler,
+                        Script *script) :
+        mHandler(handler),
+        mScript(script)
+    { }
 
-        void triggerCallback(Entity *ch, const std::string &value) const
-        { mHandler(ch, value, mScript); }
+    void triggerCallback(Entity *ch, const std::string &value) const
+    { mHandler(ch, value, mScript); }
 
-    private:
-        Handler mHandler;
-        Script *mScript;
+private:
+    Handler mHandler;
+    Script *mScript;
 };
 
 class QuestRefCallback : public QuestCallback
 {
-    public:
-        QuestRefCallback(Script *script, const std::string &questName) :
-            mQuestName(questName)
-        { script->assignCallback(mRef); }
+public:
+    QuestRefCallback(Script *script, const std::string &questName) :
+        mQuestName(questName)
+    { script->assignCallback(mRef); }
 
-        void triggerCallback(Entity *ch, const std::string &value) const;
+    void triggerCallback(Entity *ch, const std::string &value) const;
 
-    private:
-        Script::Ref mRef;
-        std::string mQuestName;
+private:
+    Script::Ref mRef;
+    std::string mQuestName;
 };
 
 /**

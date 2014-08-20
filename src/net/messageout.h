@@ -30,81 +30,81 @@
  */
 class MessageOut
 {
-    public:
-        /**
-         * Constructor.
-         *
-         * @param id the message ID
-         */
-        MessageOut(int id);
+public:
+    /**
+     * Constructor.
+     *
+     * @param id the message ID
+     */
+    MessageOut(int id);
 
-        ~MessageOut();
+    ~MessageOut();
 
-        /**
-         * Writes an 8-bit integer to the message.
-         */
-        void writeInt8(int value);
+    /**
+     * Writes an 8-bit integer to the message.
+     */
+    void writeInt8(int value);
 
-        /**
-         * Writes an 16-bit integer to the message.
-         */
-        void writeInt16(int value);
+    /**
+     * Writes an 16-bit integer to the message.
+     */
+    void writeInt16(int value);
 
-        /**
-         * Writes an 32-bit integer to the message.
-         */
-        void writeInt32(int value);
+    /**
+     * Writes an 32-bit integer to the message.
+     */
+    void writeInt32(int value);
 
-        /**
-         * Writes a double. HACKY and should *not* be used for client
-         * communication!
-         */
-        void writeDouble(double value);
+    /**
+     * Writes a double. HACKY and should *not* be used for client
+     * communication!
+     */
+    void writeDouble(double value);
 
-        /**
-         * Writes a string. If a fixed length is not given (-1), it is stored
-         * as a short at the start of the string.
-         */
-        void writeString(const std::string &string, int length = -1);
+    /**
+     * Writes a string. If a fixed length is not given (-1), it is stored
+     * as a short at the start of the string.
+     */
+    void writeString(const std::string &string, int length = -1);
 
-        /**
-         * Returns the content of the message.
-         */
-        char *getData() const { return mData; }
+    /**
+     * Returns the content of the message.
+     */
+    char *getData() const { return mData; }
 
-        /**
-         * Returns the length of the data.
-         */
-        unsigned getLength() const { return mPos; }
+    /**
+     * Returns the length of the data.
+     */
+    unsigned getLength() const { return mPos; }
 
-        /**
-         * Sets whether the debug mode is enabled. In debug mode, the internal
-         * data of the message is annotated so that the message contents can
-         * be printed.
-         *
-         * Debug mode is disabled by default.
-         */
-        static void setDebugModeEnabled(bool enabled);
+    /**
+     * Sets whether the debug mode is enabled. In debug mode, the internal
+     * data of the message is annotated so that the message contents can
+     * be printed.
+     *
+     * Debug mode is disabled by default.
+     */
+    static void setDebugModeEnabled(bool enabled);
 
-    private:
-        /**
-         * Ensures the capacity of the data buffer is large enough to hold the
-         * given amount of bytes.
-         */
-        void expand(size_t size);
+private:
+    /**
+     * Ensures the capacity of the data buffer is large enough to hold the
+     * given amount of bytes.
+     */
+    void expand(size_t size);
 
-        void writeValueType(ManaServ::ValueType type);
+    void writeValueType(ManaServ::ValueType type);
 
-        char *mData;                /**< Data building up. */
-        unsigned mPos;              /**< Position in the data. */
-        unsigned mDataSize;         /**< Allocated datasize. */
-        bool mDebugMode;            /**< Include debugging information. */
+    char *mData;                /**< Data building up. */
+    unsigned mPos;              /**< Position in the data. */
+    unsigned mDataSize;         /**< Allocated datasize. */
+    bool mDebugMode;            /**< Include debugging information. */
 
-        /**
-         * Streams message ID and length to the given output stream.
-         */
-        friend std::ostream& operator <<(std::ostream &os,
-                                         const MessageOut &msg);
+    /**
+     * Streams message ID and length to the given output stream.
+     */
+    friend std::ostream& operator <<(std::ostream &os,
+                                     const MessageOut &msg);
 };
 
 #endif // MESSAGEOUT_H

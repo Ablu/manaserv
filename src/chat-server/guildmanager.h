@@ -35,78 +35,78 @@ class IStorage;
  */
 class GuildManager
 {
-    public:
-        GuildManager(IStorage *storage);
-        ~GuildManager();
+public:
+    GuildManager(IStorage *storage);
+    ~GuildManager();
 
-        /**
-         * Creates a guild.
-         */
-        Guild *createGuild(const std::string &name, int playerId);
+    /**
+     * Creates a guild.
+     */
+    Guild *createGuild(const std::string &name, int playerId);
 
-        /**
-         * Removes a guild.
-         */
-        void removeGuild(Guild *guild);
+    /**
+     * Removes a guild.
+     */
+    void removeGuild(Guild *guild);
 
-        /**
-         * Adds a member to a guild.
-         */
-        void addGuildMember(Guild *guild, int playerId);
+    /**
+     * Adds a member to a guild.
+     */
+    void addGuildMember(Guild *guild, int playerId);
 
-        /**
-         * Removes a member from a guild.
-         */
-        void removeGuildMember(Guild *guild, int playerId,
-                               const std::string &characterName,
-                               ChatClient *client = 0);
+    /**
+     * Removes a member from a guild.
+     */
+    void removeGuildMember(Guild *guild, int playerId,
+                           const std::string &characterName,
+                           ChatClient *client = 0);
 
-        /**
-         * Returns the guild with the given id. O(n)
-         *
-         * @return the guild with the given id, or nullptr if it doesn't exist
-         */
-        Guild *findById(short id) const;
+    /**
+     * Returns the guild with the given id. O(n)
+     *
+     * @return the guild with the given id, or nullptr if it doesn't exist
+     */
+    Guild *findById(short id) const;
 
-        /**
-         * Returns the guild with the given name. O(n)
-         *
-         * @return the guild with the given name, or nullptr if it doesn't exist
-         */
-        Guild *findByName(const std::string &name) const;
+    /**
+     * Returns the guild with the given name. O(n)
+     *
+     * @return the guild with the given name, or nullptr if it doesn't exist
+     */
+    Guild *findByName(const std::string &name) const;
 
-        /**
-         * Returns whether a guild exists.
-         */
-        bool doesExist(const std::string &name) const;
+    /**
+     * Returns whether a guild exists.
+     */
+    bool doesExist(const std::string &name) const;
 
-        /**
-         * Return the guilds a character is in
-         */
-        std::vector<Guild *> getGuildsForPlayer(int playerId) const;
+    /**
+     * Return the guilds a character is in
+     */
+    std::vector<Guild *> getGuildsForPlayer(int playerId) const;
 
-        /**
-         * Inform guild members that a player has disconnected.
-         */
-        void disconnectPlayer(ChatClient* player);
+    /**
+     * Inform guild members that a player has disconnected.
+     */
+    void disconnectPlayer(ChatClient* player);
 
-        /**
-         * Promote a guild member to higher level or
-         * Demote a guild member to a lower level
-         *
-         * @return Returns 0 if successful, -1 otherwise
-         */
-        int changeMemberLevel(ChatClient *player, Guild *guild,
-                              int playerId, int level);
+    /**
+     * Promote a guild member to higher level or
+     * Demote a guild member to a lower level
+     *
+     * @return Returns 0 if successful, -1 otherwise
+     */
+    int changeMemberLevel(ChatClient *player, Guild *guild,
+                          int playerId, int level);
 
-        /**
-         * Set user rights
-         */
-        void setUserRights(Guild *guild, int playerId, int rights);
+    /**
+     * Set user rights
+     */
+    void setUserRights(Guild *guild, int playerId, int rights);
 
-    private:
-        IStorage *mStorage;
-        std::map<int, Guild*> mGuilds;
+private:
+    IStorage *mStorage;
+    std::map<int, Guild*> mGuilds;
 };
 
 extern GuildManager *guildManager;

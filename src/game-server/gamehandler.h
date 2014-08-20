@@ -48,123 +48,123 @@ struct GameClient: NetComputer
  */
 class GameHandler: public ConnectionHandler
 {
-    public:
-        GameHandler(IConfiguration *configuration);
+public:
+    GameHandler(IConfiguration *configuration);
 
-        /**
-         * Starts the handler
-         */
-        bool startListen(enet_uint16 port);
+    /**
+     * Starts the handler
+     */
+    bool startListen(enet_uint16 port);
 
-        /**
-         * Sends message to the given character.
-         */
-        void sendTo(Entity *, MessageOut &msg);
-        void sendTo(GameClient *, MessageOut &msg);
+    /**
+     * Sends message to the given character.
+     */
+    void sendTo(Entity *, MessageOut &msg);
+    void sendTo(GameClient *, MessageOut &msg);
 
-        /**
-         * Kills connection with given character.
-         */
-        void detachClient(Entity *);
+    /**
+     * Kills connection with given character.
+     */
+    void detachClient(Entity *);
 
-        /**
-         * Prepares a server change for given character.
-         */
-        void prepareServerChange(Entity *);
+    /**
+     * Prepares a server change for given character.
+     */
+    void prepareServerChange(Entity *);
 
-        /**
-         * Completes a server change for given character ID.
-         */
-        void completeServerChange(int id, const std::string &token,
-                                  const std::string &address, int port);
+    /**
+     * Completes a server change for given character ID.
+     */
+    void completeServerChange(int id, const std::string &token,
+                              const std::string &address, int port);
 
-        /**
-         * Updates the party id of the character
-         */
-        void updateCharacter(int charid, int partyid);
+    /**
+     * Updates the party id of the character
+     */
+    void updateCharacter(int charid, int partyid);
 
-        /**
-         * Registers a character that should soon be claimed by a client.
-         * @param token token used by the client when connecting.
-         */
-        void addPendingCharacter(const std::string &token, Entity *);
+    /**
+     * Registers a character that should soon be claimed by a client.
+     * @param token token used by the client when connecting.
+     */
+    void addPendingCharacter(const std::string &token, Entity *);
 
-        /**
-         * Combines a client with its character.
-         * (Needed for TokenCollector)
-         */
-        void tokenMatched(GameClient *computer, Entity *character);
+    /**
+     * Combines a client with its character.
+     * (Needed for TokenCollector)
+     */
+    void tokenMatched(GameClient *computer, Entity *character);
 
-        /**
-         * Deletes a pending client's data.
-         * (Needed for TokenCollector)
-         */
-        void deletePendingClient(GameClient *computer);
+    /**
+     * Deletes a pending client's data.
+     * (Needed for TokenCollector)
+     */
+    void deletePendingClient(GameClient *computer);
 
-        /**
-         * Deletes a pending connection's data.
-         * (Needed for TokenCollector)
-         */
-        void deletePendingConnect(Entity *character);
+    /**
+     * Deletes a pending connection's data.
+     * (Needed for TokenCollector)
+     */
+    void deletePendingConnect(Entity *character);
 
-        /**
-         * Gets the character associated to a character name. This method is
-         * slow, so it should never be called for regular operations.
-         */
-        Entity *getCharacterByNameSlow(const std::string &) const;
+    /**
+     * Gets the character associated to a character name. This method is
+     * slow, so it should never be called for regular operations.
+     */
+    Entity *getCharacterByNameSlow(const std::string &) const;
 
-    protected:
-        NetComputer *computerConnected(ENetPeer *);
-        void computerDisconnected(NetComputer *);
+protected:
+    NetComputer *computerConnected(ENetPeer *);
+    void computerDisconnected(NetComputer *);
 
-        /**
-         * Processes messages related to core game events.
-         */
-        void processMessage(NetComputer *computer, MessageIn &message);
+    /**
+     * Processes messages related to core game events.
+     */
+    void processMessage(NetComputer *computer, MessageIn &message);
 
-    private:
-        void handleSay(GameClient &client, MessageIn &message);
-        void handleNpc(GameClient &client, MessageIn &message);
-        void handlePickup(GameClient &client, MessageIn &message);
-        void handleUseItem(GameClient &client, MessageIn &message);
-        void handleDrop(GameClient &client, MessageIn &message);
-        void handleWalk(GameClient &client, MessageIn &message);
+private:
+    void handleSay(GameClient &client, MessageIn &message);
+    void handleNpc(GameClient &client, MessageIn &message);
+    void handlePickup(GameClient &client, MessageIn &message);
+    void handleUseItem(GameClient &client, MessageIn &message);
+    void handleDrop(GameClient &client, MessageIn &message);
+    void handleWalk(GameClient &client, MessageIn &message);
 
-        void handleEquip(GameClient &client, MessageIn &message);
-        void handleUnequip(GameClient &client, MessageIn &message);
+    void handleEquip(GameClient &client, MessageIn &message);
+    void handleUnequip(GameClient &client, MessageIn &message);
 
-        void handleUseAbilityOnBeing(GameClient &client, MessageIn &message);
-        void handleUseAbilityOnPoint(GameClient &client, MessageIn &message);
-        void handleUseAbilityOnDirection(GameClient &client, MessageIn &message);
+    void handleUseAbilityOnBeing(GameClient &client, MessageIn &message);
+    void handleUseAbilityOnPoint(GameClient &client, MessageIn &message);
+    void handleUseAbilityOnDirection(GameClient &client, MessageIn &message);
 
-        void handleActionChange(GameClient &client, MessageIn &message);
-        void handleDirectionChange(GameClient &client, MessageIn &message);
+    void handleActionChange(GameClient &client, MessageIn &message);
+    void handleDirectionChange(GameClient &client, MessageIn &message);
 
-        void handleDisconnect(GameClient &client, MessageIn &message);
+    void handleDisconnect(GameClient &client, MessageIn &message);
 
-        void handleTradeRequest(GameClient &client, MessageIn &message);
-        void handleTrade(GameClient &client, MessageIn &message);
+    void handleTradeRequest(GameClient &client, MessageIn &message);
+    void handleTrade(GameClient &client, MessageIn &message);
 
-        void handleNpcBuySell(GameClient &client, MessageIn &message);
+    void handleNpcBuySell(GameClient &client, MessageIn &message);
 
-        void handleRaiseAttribute(GameClient &client, MessageIn &message);
-        void handleLowerAttribute(GameClient &client, MessageIn &message);
+    void handleRaiseAttribute(GameClient &client, MessageIn &message);
+    void handleLowerAttribute(GameClient &client, MessageIn &message);
 
-        void handleNpcPostSend(GameClient &client, MessageIn &message);
+    void handleNpcPostSend(GameClient &client, MessageIn &message);
 
-        void handlePartyInvite(GameClient &client, MessageIn &message);
+    void handlePartyInvite(GameClient &client, MessageIn &message);
 
-        void handleTriggerEmoticon(GameClient &client, MessageIn &message);
+    void handleTriggerEmoticon(GameClient &client, MessageIn &message);
 
-        void sendNpcError(GameClient &client, int id,
-                          const std::string &errorMsg);
+    void sendNpcError(GameClient &client, int id,
+                      const std::string &errorMsg);
 
-        IConfiguration *mConfiguration;
+    IConfiguration *mConfiguration;
 
-        /**
-         * Container for pending clients and pending connections.
-         */
-        TokenCollector<GameHandler, GameClient *, Entity *> mTokenCollector;
+    /**
+     * Container for pending clients and pending connections.
+     */
+    TokenCollector<GameHandler, GameClient *, Entity *> mTokenCollector;
 };
 
 extern GameHandler *gameHandler;

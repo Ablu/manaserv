@@ -31,31 +31,31 @@ class Point;
 
 class EffectComponent : public Component
 {
-    public:
-        static const ComponentType type = CT_Effect;
+public:
+    static const ComponentType type = CT_Effect;
 
-        EffectComponent(int id)
-          : mEffectId(id)
-          , mBeing(0)
-        {}
+    EffectComponent(int id)
+      : mEffectId(id)
+      , mBeing(0)
+    {}
 
-        int getEffectId() const
-        { return mEffectId; }
+    int getEffectId() const
+    { return mEffectId; }
 
-        Entity *getBeing() const
-        { return mBeing; }
+    Entity *getBeing() const
+    { return mBeing; }
 
-        /**
-         * Removes effect after it has been shown.
-         */
-        void update(Entity &entity);
+    /**
+     * Removes effect after it has been shown.
+     */
+    void update(Entity &entity);
 
-        void setBeing(Entity *b)
-        { mBeing = b; }
+    void setBeing(Entity *b)
+    { mBeing = b; }
 
-    private:
-        int mEffectId;
-        Entity *mBeing;
+private:
+    int mEffectId;
+    Entity *mBeing;
 };
 
 

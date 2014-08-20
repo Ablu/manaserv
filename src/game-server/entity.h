@@ -41,50 +41,50 @@ class MapComposite;
  */
 class Entity : public QObject
 {
-    Q_OBJECT
+Q_OBJECT
 
-    public:
-        Entity(EntityType type, MapComposite *map = nullptr);
+public:
+    Entity(EntityType type, MapComposite *map = nullptr);
 
-        virtual ~Entity();
+    virtual ~Entity();
 
-        unsigned getId() const;
-        EntityType getType() const;
+    unsigned getId() const;
+    EntityType getType() const;
 
-        template <class T> void addComponent(T *component);
-        template <class T> T *getComponent() const;
-        template <class T> T *findComponent() const;
-        template <class T> bool hasComponent() const;
+    template <class T> void addComponent(T *component);
+    template <class T> T *getComponent() const;
+    template <class T> T *findComponent() const;
+    template <class T> bool hasComponent() const;
 
-        bool isVisible() const;
-        bool canMove() const;
-        bool canFight() const;
+    bool isVisible() const;
+    bool canMove() const;
+    bool canFight() const;
 
-        virtual void update();
+    virtual void update();
 
-        MapComposite *getMap() const;
-        void setMap(MapComposite *map);
+    MapComposite *getMap() const;
+    void setMap(MapComposite *map);
 
-        void emitInserted(); // TODO: emit insert at mapChange (different commit)
-        void emitRemoved(); // TODO: emit removed at mapChange (different commit)
+    void emitInserted(); // TODO: emit insert at mapChange (different commit)
+    void emitRemoved(); // TODO: emit removed at mapChange (different commit)
 
-    signals:
-        void inserted(Entity *);
-        void removed(Entity *);
-        void mapChanged(Entity *);
+signals:
+    void inserted(Entity *);
+    void removed(Entity *);
+    void mapChanged(Entity *);
 
-    private:
-        Component *getComponent(ComponentType type) const;
+private:
+    Component *getComponent(ComponentType type) const;
 
-        unsigned mId;
-        MapComposite *mMap;     /**< Map the entity is on */
-        EntityType mType;       /**< Type of this entity. */
+    unsigned mId;
+    MapComposite *mMap;     /**< Map the entity is on */
+    EntityType mType;       /**< Type of this entity. */
 
-        Component *mComponents[ComponentTypeCount];
+    Component *mComponents[ComponentTypeCount];
 
-        static IdManager<Entity> mIdManager;
+    static IdManager<Entity> mIdManager;
 
-        friend Entity *findEntity(unsigned id);
+    friend Entity *findEntity(unsigned id);
 };
 
 /**

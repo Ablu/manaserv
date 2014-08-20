@@ -41,102 +41,102 @@ public:
  */
 class Guild
 {
-    public:
-        Guild(const std::string &name);
-        ~Guild();
+public:
+    Guild(const std::string &name);
+    ~Guild();
 
-        /**
-         * Add a member to the guild.
-         * Removes a user from invite list if on it
-         */
-        void addMember(int playerId, int permissions = 0);
+    /**
+     * Add a member to the guild.
+     * Removes a user from invite list if on it
+     */
+    void addMember(int playerId, int permissions = 0);
 
-        /**
-         * Remove a member from the guild.
-         */
-        void removeMember(int playerId);
+    /**
+     * Remove a member from the guild.
+     */
+    void removeMember(int playerId);
 
-        /**
-         * Return owner id
-         */
-        int getOwner() const;
+    /**
+     * Return owner id
+     */
+    int getOwner() const;
 
-        /**
-         * Set the ID of the guild.
-         */
-        void setId(int id)
-        { mId = id; }
+    /**
+     * Set the ID of the guild.
+     */
+    void setId(int id)
+    { mId = id; }
 
-        /**
-         * Check if player has been invited to the guild.
-         */
-        bool checkInvited(int playerId) const;
+    /**
+     * Check if player has been invited to the guild.
+     */
+    bool checkInvited(int playerId) const;
 
-        /**
-         * Add a player to the invite list.
-         */
-        void addInvited(int playerId);
+    /**
+     * Add a player to the invite list.
+     */
+    void addInvited(int playerId);
 
-        /**
-         * Remove a player from the invite list.
-         */
-        void removeInvited(int playerId);
+    /**
+     * Remove a player from the invite list.
+     */
+    void removeInvited(int playerId);
 
-        /**
-         * Returns the name of the guild.
-         */
-        std::string getName() const
-        { return mName; }
+    /**
+     * Returns the name of the guild.
+     */
+    std::string getName() const
+    { return mName; }
 
-        /**
-         * Returns the ID of the guild.
-         */
-        int getId() const
-        { return mId; }
+    /**
+     * Returns the ID of the guild.
+     */
+    int getId() const
+    { return mId; }
 
-        /**
-         * Returns a list of the members in this guild.
-         */
-        std::list<GuildMember*> getMembers() const
-        { return mMembers; }
+    /**
+     * Returns a list of the members in this guild.
+     */
+    std::list<GuildMember*> getMembers() const
+    { return mMembers; }
 
-        /**
-         * Returns the number of members in the guild.
-         */
-        int memberCount() const
-        { return mMembers.size(); }
+    /**
+     * Returns the number of members in the guild.
+     */
+    int memberCount() const
+    { return mMembers.size(); }
 
-        /**
-         * Find member by name.
-         */
-        bool checkInGuild(int playerId) const;
+    /**
+     * Find member by name.
+     */
+    bool checkInGuild(int playerId) const;
 
-        /**
-         * Returns whether a user can invite
-         */
-        bool canInvite(int playerId) const;
+    /**
+     * Returns whether a user can invite
+     */
+    bool canInvite(int playerId) const;
 
-        /**
-         * Returns a users permissions
-         */
-        int getUserPermissions(int playerId) const;
+    /**
+     * Returns a users permissions
+     */
+    int getUserPermissions(int playerId) const;
 
-        /**
-         * Sets a users permissions
-         */
-        void setUserPermissions(int playerId, int level);
+    /**
+     * Sets a users permissions
+     */
+    void setUserPermissions(int playerId, int level);
 
-    protected:
-        /**
-         * Searches for a guild member by player ID
-         */
-        GuildMember *getMember(int playerId) const;
+protected:
+    /**
+     * Searches for a guild member by player ID
+     */
+    GuildMember *getMember(int playerId) const;
 
-    private:
-        short mId;
-        std::string mName;
-        std::list<GuildMember*> mMembers;
-        std::list<int> mInvited;
+private:
+    short mId;
+    std::string mName;
+    std::list<GuildMember*> mMembers;
+    std::list<int> mInvited;
 };
 
 #endif

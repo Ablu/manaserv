@@ -37,22 +37,22 @@ class Party;
  */
 class ChatClient : public NetComputer
 {
-    public:
-        ChatClient(ENetPeer *peer)
-            : NetComputer(peer)
-            , characterId(0)
-            , party(0)
-            , accountLevel(0)
-        {
-        }
+public:
+    ChatClient(ENetPeer *peer)
+        : NetComputer(peer)
+        , characterId(0)
+        , party(0)
+        , accountLevel(0)
+    {
+    }
 
-        std::string characterName;
-        unsigned characterId;
-        std::vector<ChatChannel *> channels;
-        std::vector<Guild *> guilds;
-        Party *party;
-        unsigned char accountLevel;
-        std::map<ChatChannel*, std::string> userModes;
+    std::string characterName;
+    unsigned characterId;
+    std::vector<ChatChannel *> channels;
+    std::vector<Guild *> guilds;
+    Party *party;
+    unsigned char accountLevel;
+    std::map<ChatChannel*, std::string> userModes;
 };
 
 #endif

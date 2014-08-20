@@ -58,98 +58,98 @@ typedef std::map<Element, double> Vulnerabilities;
  */
 class MonsterClass
 {
-    public:
-        MonsterClass(int id):
-            mId(id),
-            mName("unnamed"),
-            mGender(GENDER_UNSPECIFIED),
-            mSpeed(1),
-            mSize(16),
-            mMutation(0),
-            mOptimalLevel(0)
-        {}
+public:
+    MonsterClass(int id):
+        mId(id),
+        mName("unnamed"),
+        mGender(GENDER_UNSPECIFIED),
+        mSpeed(1),
+        mSize(16),
+        mMutation(0),
+        mOptimalLevel(0)
+    {}
 
-        /**
-         * Returns monster type. This is the Id of the monster class.
-         */
-        int getId() const
-        { return mId; }
+    /**
+     * Returns monster type. This is the Id of the monster class.
+     */
+    int getId() const
+    { return mId; }
 
-        /**
-         * Returns the name of the monster type
-         */
-        const std::string &getName() const
-        { return mName; }
+    /**
+     * Returns the name of the monster type
+     */
+    const std::string &getName() const
+    { return mName; }
 
-        /**
-         * Sets the name of the monster type
-         */
-        void setName(const std::string &name)
-        { mName = name; }
+    /**
+     * Sets the name of the monster type
+     */
+    void setName(const std::string &name)
+    { mName = name; }
 
-        void setGender(BeingGender gender)
-        { mGender = gender; }
+    void setGender(BeingGender gender)
+    { mGender = gender; }
 
-        BeingGender getGender() const
-        { return mGender; }
+    BeingGender getGender() const
+    { return mGender; }
 
-        /**
-         * Sets monster drops. These are the items the monster drops when it
-         * dies.
-         */
-        void setDrops(const MonsterDrops &v)
-        { mDrops = v; }
+    /**
+     * Sets monster drops. These are the items the monster drops when it
+     * dies.
+     */
+    void setDrops(const MonsterDrops &v)
+    { mDrops = v; }
 
-        /**
-         * Sets a being base attribute.
-         */
-        void setAttribute(AttributeInfo *attribute, double value);
+    /**
+     * Sets a being base attribute.
+     */
+    void setAttribute(AttributeInfo *attribute, double value);
 
-        const std::map<AttributeInfo *, double>
-        &getAttributes() const;
+    const std::map<AttributeInfo *, double>
+    &getAttributes() const;
 
-        /** Sets collision circle radius. */
-        void setSize(int size) { mSize = size; }
+    /** Sets collision circle radius. */
+    void setSize(int size) { mSize = size; }
 
-        /** Returns collision circle radius. */
-        int getSize() const { return mSize; }
+    /** Returns collision circle radius. */
+    int getSize() const { return mSize; }
 
-        /** Sets mutation factor in percent. */
-        void setMutation(unsigned factor) { mMutation = factor; }
+    /** Sets mutation factor in percent. */
+    void setMutation(unsigned factor) { mMutation = factor; }
 
-        /** Returns mutation factor in percent. */
-        unsigned getMutation() const { return mMutation; }
+    /** Returns mutation factor in percent. */
+    unsigned getMutation() const { return mMutation; }
 
-        void addAbility(AbilityManager::AbilityInfo *info);
-        const std::set<AbilityManager::AbilityInfo *> &getAbilities() const;
+    void addAbility(AbilityManager::AbilityInfo *info);
+    const std::set<AbilityManager::AbilityInfo *> &getAbilities() const;
 
-        void setUpdateCallback(Script *script)
-        { script->assignCallback(mUpdateCallback); }
+    void setUpdateCallback(Script *script)
+    { script->assignCallback(mUpdateCallback); }
 
-        Script::Ref getUpdateCallback() const
-        { return mUpdateCallback; }
+    Script::Ref getUpdateCallback() const
+    { return mUpdateCallback; }
 
-    private:
-        unsigned short mId;
-        std::string mName;
-        BeingGender mGender;
+private:
+    unsigned short mId;
+    std::string mName;
+    BeingGender mGender;
 
-        MonsterDrops mDrops;
-        std::map<AttributeInfo *, double> mAttributes;
-        std::set<AbilityManager::AbilityInfo *> mAbilities;
-        float mSpeed; /**< The monster class speed in tiles per second */
-        int mSize;
+    MonsterDrops mDrops;
+    std::map<AttributeInfo *, double> mAttributes;
+    std::set<AbilityManager::AbilityInfo *> mAbilities;
+    float mSpeed; /**< The monster class speed in tiles per second */
+    int mSize;
 
-        int mMutation;
-        int mOptimalLevel;
+    int mMutation;
+    int mOptimalLevel;
 
-        /**
-         * A reference to the script function that is called each update.
-         */
-        Script::Ref mUpdateCallback;
+    /**
+     * A reference to the script function that is called each update.
+     */
+    Script::Ref mUpdateCallback;
 
-        friend class MonsterManager;
-        friend class MonsterComponent;
+    friend class MonsterManager;
+    friend class MonsterComponent;
 };
 
 /**
@@ -157,34 +157,34 @@ class MonsterClass
  */
 class MonsterComponent : public Component
 {
-    Q_OBJECT
+Q_OBJECT
 
-    public:
-        static const ComponentType type = CT_Monster;
+public:
+    static const ComponentType type = CT_Monster;
 
-        MonsterComponent(Entity &entity, MonsterClass *);
+    MonsterComponent(Entity &entity, MonsterClass *);
 
-        /**
-         * Returns monster specy.
-         */
-        MonsterClass *getSpecy() const
-        { return mSpecy; }
+    /**
+     * Returns monster specy.
+     */
+    MonsterClass *getSpecy() const
+    { return mSpecy; }
 
-        /**
-         * Performs one step of controller logic.
-         */
-        void update(Entity &entity);
+    /**
+     * Performs one step of controller logic.
+     */
+    void update(Entity &entity);
 
-    private slots:
-        void monsterDied(Entity *monster);
+private slots:
+    void monsterDied(Entity *monster);
 
-    private:
-        static const int DECAY_TIME = 50;
+private:
+    static const int DECAY_TIME = 50;
 
-        MonsterClass *mSpecy;
+    MonsterClass *mSpecy;
 
-        /** Time until dead monster is removed */
-        Timeout mDecayTimeout;
+    /** Time until dead monster is removed */
+    Timeout mDecayTimeout;
 };
 
 inline void MonsterClass::setAttribute(AttributeInfo *attribute, double value)

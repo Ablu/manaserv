@@ -32,59 +32,59 @@ class MessageOut;
  */
 class NetComputer
 {
-    public:
-        NetComputer(ENetPeer *peer);
+public:
+    NetComputer(ENetPeer *peer);
 
-        virtual ~NetComputer() {}
+    virtual ~NetComputer() {}
 
-        /**
-         * Returns <code>true</code> if this computer is connected.
-         */
-        bool isConnected() const;
+    /**
+     * Returns <code>true</code> if this computer is connected.
+     */
+    bool isConnected() const;
 
-        /**
-         * Disconnects the computer from the server, after sending a message.
-         *
-         * The caller of this method should prepare the message, because
-         * NetComputer does not know which handler is sending it
-         * (could have been chat/game/account)
-         */
-        void disconnect(const MessageOut &msg);
+    /**
+     * Disconnects the computer from the server, after sending a message.
+     *
+     * The caller of this method should prepare the message, because
+     * NetComputer does not know which handler is sending it
+     * (could have been chat/game/account)
+     */
+    void disconnect(const MessageOut &msg);
 
-        /**
-         * Queues a message for sending to a client.
-         *
-         * Reliable packets always arrive, if the client stays connected.
-         * Unreliable packets may not arrive, and may not even be sent.
-         *
-         * Channels are used to ensure that unrelated reliable packets do not
-         * hold each other up. In essence, each channel represents a different
-         * queue.
-         *
-         * @param msg      The message to be sent.
-         * @param reliable Defines if a reliable or an unreliable packet
-         *                 should be sent.
-         * @param channel  The channel number of which the packet should
-         *                 be sent.
-         */
-        void send(const MessageOut &msg, bool reliable = true,
-                  unsigned channel = 0);
+    /**
+     * Queues a message for sending to a client.
+     *
+     * Reliable packets always arrive, if the client stays connected.
+     * Unreliable packets may not arrive, and may not even be sent.
+     *
+     * Channels are used to ensure that unrelated reliable packets do not
+     * hold each other up. In essence, each channel represents a different
+     * queue.
+     *
+     * @param msg      The message to be sent.
+     * @param reliable Defines if a reliable or an unreliable packet
+     *                 should be sent.
+     * @param channel  The channel number of which the packet should
+     *                 be sent.
+     */
+    void send(const MessageOut &msg, bool reliable = true,
+              unsigned channel = 0);
 
-        /**
-         * Returns IP address of computer in 32bit int form
-         */
-        int getIP() const;
+    /**
+     * Returns IP address of computer in 32bit int form
+     */
+    int getIP() const;
 
-    private:
-        ENetPeer *mPeer;              /**< Client peer */
+private:
+    ENetPeer *mPeer;              /**< Client peer */
 
-        /**
-         * Converts the ip-address of the peer to a stringstream.
-         * Example:
-         * <code> std::cout << comp </code>
-         */
-        friend std::ostream& operator <<(std::ostream &os,
-                                         const NetComputer &comp);
+    /**
+     * Converts the ip-address of the peer to a stringstream.
+     * Example:
+     * <code> std::cout << comp </code>
+     */
+    friend std::ostream& operator <<(std::ostream &os,
+                                     const NetComputer &comp);
 };
 
 #endif // NETCOMPUTER_H

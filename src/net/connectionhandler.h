@@ -37,91 +37,91 @@ class NetComputer;
  */
 class ConnectionHandler
 {
-    public:
-        ConnectionHandler(IConfiguration *configuration)
-            : mConfiguration(configuration)
-        {}
+public:
+    ConnectionHandler(IConfiguration *configuration)
+        : mConfiguration(configuration)
+    {}
 
-        virtual ~ConnectionHandler() {}
+    virtual ~ConnectionHandler() {}
 
-        /**
-         * Open the server socket.
-         * @param port the port to listen to
-         * @host  the host IP to listen on, defaults to the default localhost
-         */
-        bool startListen(enet_uint16 port,
-                         const std::string &host = std::string());
+    /**
+     * Open the server socket.
+     * @param port the port to listen to
+     * @host  the host IP to listen on, defaults to the default localhost
+     */
+    bool startListen(enet_uint16 port,
+                     const std::string &host = std::string());
 
-        /**
-         * Disconnect all the clients and close the server socket.
-         */
-        void stopListen();
+    /**
+     * Disconnect all the clients and close the server socket.
+     */
+    void stopListen();
 
-        /**
-         * Process outgoing messages and listen to the server socket for
-         * incoming messages and new connections.
-         *
-         * @timeout an optional timeout in milliseconds to wait for something
-         *          to happen when there is nothing to do
-         */
-        virtual void process(enet_uint32 timeout = 0);
+    /**
+     * Process outgoing messages and listen to the server socket for
+     * incoming messages and new connections.
+     *
+     * @timeout an optional timeout in milliseconds to wait for something
+     *          to happen when there is nothing to do
+     */
+    virtual void process(enet_uint32 timeout = 0);
 
-        /**
-         * Process outgoing messages.
-         */
-        void flush();
+    /**
+     * Process outgoing messages.
+     */
+    void flush();
 
-        /**
-         * Called when a computer sends a packet to the network session.
-         */
-        //void receivePacket(NetComputer *computer, Packet *packet);
+    /**
+     * Called when a computer sends a packet to the network session.
+     */
+    //void receivePacket(NetComputer *computer, Packet *packet);
 
-        /**
-         * Send packet to every client, used for announcements.
-         */
-        void sendToEveryone(const MessageOut &msg);
+    /**
+     * Send packet to every client, used for announcements.
+     */
+    void sendToEveryone(const MessageOut &msg);
 
-        /**
-         * Return the number of connected clients.
-         */
-        unsigned getClientCount() const;
+    /**
+     * Return the number of connected clients.
+     */
+    unsigned getClientCount() const;
 
-    private:
-        ENetAddress address;      /**< Includes the port to listen to. */
-        ENetHost *host;           /**< The host that listen for connections. */
-        IConfiguration *mConfiguration;
+private:
+    ENetAddress address;      /**< Includes the port to listen to. */
+    ENetHost *host;           /**< The host that listen for connections. */
+    IConfiguration *mConfiguration;
 
-    protected:
-        /**
-         * Called when a computer connects to the server. Initialize
-         * an object derived of NetComputer.
-         */
-        virtual NetComputer *computerConnected(ENetPeer *peer) = 0;
+protected:
+    /**
+     * Called when a computer connects to the server. Initialize
+     * an object derived of NetComputer.
+     */
+    virtual NetComputer *computerConnected(ENetPeer *peer) = 0;
 
-        /**
-         * Called when a computer reconnects to the server.
-         */
-        //virtual NetComputer *computerReconnected(ENetPeer *) = 0;
+    /**
+     * Called when a computer reconnects to the server.
+     */
+    //virtual NetComputer *computerReconnected(ENetPeer *) = 0;
 
-        /**
-         * Called when a computer disconnects from the server.
-         *
-         * <b>Note:</b> After returning from this method the NetComputer
-         *              reference is no longer guaranteed to be valid.
-         */
-        virtual void computerDisconnected(NetComputer *) = 0;
+    /**
+     * Called when a computer disconnects from the server.
+     *
+     * <b>Note:</b> After returning from this method the NetComputer
+     *              reference is no longer guaranteed to be valid.
+     */
+    virtual void computerDisconnected(NetComputer *) = 0;
 
-        /**
-         * Called when a message is received.
-         */
-        virtual void processMessage(NetComputer *, MessageIn &) = 0;
+    /**
+     * Called when a message is received.
+     */
+    virtual void processMessage(NetComputer *, MessageIn &) = 0;
 
-        typedef std::list<NetComputer*> NetComputers;
-        /**
-         * A list of pointers to the client structures created by
-         * computerConnected.
-         */
-        NetComputers clients;
+    typedef std::list<NetComputer*> NetComputers;
+    /**
+     * A list of pointers to the client structures created by
+     * computerConnected.
+     */
+    NetComputers clients;
 };
 
 #endif

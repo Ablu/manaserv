@@ -39,113 +39,113 @@ class ChatClient;
  */
 class ChatChannel
 {
-    public:
-        typedef std::vector< ChatClient * > ChannelUsers;
+public:
+    typedef std::vector< ChatClient * > ChannelUsers;
 
-        /**
-         * Constructor.
-         *
-         * @param name         the name of the channel.
-         * @param announcement a welcome message.
-         * @param password     password (for private channels).
-         * @param privacy      whether this channel is private.
-         */
-        ChatChannel(int id,
-                    const std::string &name,
-                    const std::string &announcement = std::string(),
-                    const std::string &password = std::string(),
-                    bool joinable = true);
+    /**
+     * Constructor.
+     *
+     * @param name         the name of the channel.
+     * @param announcement a welcome message.
+     * @param password     password (for private channels).
+     * @param privacy      whether this channel is private.
+     */
+    ChatChannel(int id,
+                const std::string &name,
+                const std::string &announcement = std::string(),
+                const std::string &password = std::string(),
+                bool joinable = true);
 
-        /**
-         * Get the ID of the channel.
-         */
-        int getId() const
-        { return mId; }
+    /**
+     * Get the ID of the channel.
+     */
+    int getId() const
+    { return mId; }
 
-        /**
-         * Get the name of the channel.
-         */
-        const std::string &getName() const
-        { return mName; }
+    /**
+     * Get the name of the channel.
+     */
+    const std::string &getName() const
+    { return mName; }
 
-        /**
-         * Get the announcement string of the channel.
-         */
-        const std::string &getAnnouncement() const
-        { return mAnnouncement; }
+    /**
+     * Get the announcement string of the channel.
+     */
+    const std::string &getAnnouncement() const
+    { return mAnnouncement; }
 
-        /**
-         * Get the password of the channel.
-         */
-        const std::string& getPassword() const
-        { return mPassword; }
+    /**
+     * Get the password of the channel.
+     */
+    const std::string& getPassword() const
+    { return mPassword; }
 
-        /**
-         * Sets the name of the channel.
-         */
-        void setName(const std::string &channelName)
-        { mName = channelName; }
+    /**
+     * Sets the name of the channel.
+     */
+    void setName(const std::string &channelName)
+    { mName = channelName; }
 
-        /**
-         * Sets the announcement string of the channel.
-         */
-        void setAnnouncement(const std::string &channelAnnouncement)
-        { mAnnouncement = channelAnnouncement; }
+    /**
+     * Sets the announcement string of the channel.
+     */
+    void setAnnouncement(const std::string &channelAnnouncement)
+    { mAnnouncement = channelAnnouncement; }
 
-        /**
-         * Sets the password of the channel.
-         */
-        void setPassword(const std::string &channelPassword)
-        { mPassword = channelPassword; }
+    /**
+     * Sets the password of the channel.
+     */
+    void setPassword(const std::string &channelPassword)
+    { mPassword = channelPassword; }
 
-        /**
-         * Gets the list of the users registered in the channel.
-         */
-        const ChannelUsers &getUserList() const
-        { return mRegisteredUsers; }
+    /**
+     * Gets the list of the users registered in the channel.
+     */
+    const ChannelUsers &getUserList() const
+    { return mRegisteredUsers; }
 
-        /**
-         * Adds a user to the channel.
-         *
-         * @return whether the user was successfully added
-         */
-        bool addUser(ChatClient *);
+    /**
+     * Adds a user to the channel.
+     *
+     * @return whether the user was successfully added
+     */
+    bool addUser(ChatClient *);
 
-        /**
-         * Removes a user from the channel.
-         *
-         * @return whether the user was successfully removed
-         */
-        bool removeUser(ChatClient *);
+    /**
+     * Removes a user from the channel.
+     *
+     * @return whether the user was successfully removed
+     */
+    bool removeUser(ChatClient *);
 
-        /**
-         * Empties a channel from its users (admin included).
-         */
-        void removeAllUsers();
+    /**
+     * Empties a channel from its users (admin included).
+     */
+    void removeAllUsers();
 
-        /**
-         * Get whether a user can join this channel
-         */
-        bool canJoin() const;
+    /**
+     * Get whether a user can join this channel
+     */
+    bool canJoin() const;
 
-        /**
-         * Set user mode
-         */
-        void setUserMode(ChatClient *, unsigned char mode);
+    /**
+     * Set user mode
+     */
+    void setUserMode(ChatClient *, unsigned char mode);
 
-        /**
-         * Get user mode
-         */
-        std::string getUserMode(ChatClient *) const;
+    /**
+     * Get user mode
+     */
+    std::string getUserMode(ChatClient *) const;
 
-    private:
-        unsigned short mId;            /**< The ID of the channel. */
-        std::string mName;             /**< The name of the channel. */
-        std::string mAnnouncement;     /**< Welcome message. */
-        std::string mPassword;         /**< The channel password. */
-        bool mJoinable;                /**< Whether anyone can join. */
-        ChannelUsers mRegisteredUsers; /**< Users in this channel. */
-        std::string mOwner;             /**< Channel owner character name */
+private:
+    unsigned short mId;            /**< The ID of the channel. */
+    std::string mName;             /**< The name of the channel. */
+    std::string mAnnouncement;     /**< Welcome message. */
+    std::string mPassword;         /**< The channel password. */
+    bool mJoinable;                /**< Whether anyone can join. */
+    ChannelUsers mRegisteredUsers; /**< Users in this channel. */
+    std::string mOwner;             /**< Channel owner character name */
 };
 
 #endif

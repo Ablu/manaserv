@@ -30,69 +30,69 @@
  */
 class MessageIn
 {
-    public:
-        /**
-         * Constructor.
-         *
-         * @param data   the message data
-         * @param length the length of the data
-         */
-        MessageIn(const char *data, unsigned short length);
+public:
+    /**
+     * Constructor.
+     *
+     * @param data   the message data
+     * @param length the length of the data
+     */
+    MessageIn(const char *data, unsigned short length);
 
-        /**
-         * Returns the message ID.
-         */
-        int getId() const { return mId; }
+    /**
+     * Returns the message ID.
+     */
+    int getId() const { return mId; }
 
-        /**
-         * Returns the total length of this message.
-         */
-        int getLength() const { return mLength; }
+    /**
+     * Returns the total length of this message.
+     */
+    int getLength() const { return mLength; }
 
-        int readInt8();             /**< Reads a byte. */
-        int readInt16();            /**< Reads a short. */
-        int readInt32();            /**< Reads a long. */
+    int readInt8();             /**< Reads a byte. */
+    int readInt16();            /**< Reads a short. */
+    int readInt32();            /**< Reads a long. */
 
-        /**
-         * Reads a double. HACKY and should *not* be used for client
-         * communication!
-         */
-        double readDouble();
+    /**
+     * Reads a double. HACKY and should *not* be used for client
+     * communication!
+     */
+    double readDouble();
 
-        /**
-         * Reads a string. If a length is not given (-1), it is assumed
-         * that the length of the string is stored in a short at the
-         * start of the string.
-         */
-        std::string readString(int length = -1);
+    /**
+     * Reads a string. If a length is not given (-1), it is assumed
+     * that the length of the string is stored in a short at the
+     * start of the string.
+     */
+    std::string readString(int length = -1);
 
-        /**
-         * Returns the length of unread data.
-         */
-        int getUnreadLength() const { return mLength - mPos; }
+    /**
+     * Returns the length of unread data.
+     */
+    int getUnreadLength() const { return mLength - mPos; }
 
-    private:
-        bool readValueType(ManaServ::ValueType type);
+private:
+    bool readValueType(ManaServ::ValueType type);
 
-        const char *mData;            /**< Packet data */
-        unsigned short mLength;       /**< Length of data in bytes */
-        unsigned short mId;           /**< The message ID. */
-        bool mDebugMode;              /**< Includes debugging information. */
+    const char *mData;            /**< Packet data */
+    unsigned short mLength;       /**< Length of data in bytes */
+    unsigned short mId;           /**< The message ID. */
+    bool mDebugMode;              /**< Includes debugging information. */
 
-        /**
-         * Actual position in the packet. From 0 to packet->length. A value
-         * bigger than packet->length means EOP was reached when reading it.
-         */
-        unsigned short mPos;
+    /**
+     * Actual position in the packet. From 0 to packet->length. A value
+     * bigger than packet->length means EOP was reached when reading it.
+     */
+    unsigned short mPos;
 
-        /**
-         * Streams message ID and length to the given output stream.
-         *
-         * When the message includes debugging information, prints out
-         * the message contents instead of the length.
-         */
-        friend std::ostream& operator <<(std::ostream &os,
-                                         const MessageIn &msg);
+    /**
+     * Streams message ID and length to the given output stream.
+     *
+     * When the message includes debugging information, prints out
+     * the message contents instead of the length.
+     */
+    friend std::ostream& operator <<(std::ostream &os,
+                                     const MessageIn &msg);
 };
 
 #endif

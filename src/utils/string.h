@@ -27,105 +27,105 @@
 
 namespace utils
 {
-    /**
-     * Returns an upper-cased copy of the string.
-     */
-    std::string toUpper(std::string);
+/**
+ * Returns an upper-cased copy of the string.
+ */
+std::string toUpper(std::string);
 
-    /**
-     * Returns an lower-cased copy of the string.
-     */
-    std::string toLower(std::string);
+/**
+ * Returns an lower-cased copy of the string.
+ */
+std::string toLower(std::string);
 
-    /**
-     * Tells whether the string is a numerical representation.
-     */
-    bool isNumeric(const std::string &);
+/**
+ * Tells whether the string is a numerical representation.
+ */
+bool isNumeric(const std::string &);
 
-    /**
-     * Turns a string representing a numerical representation
-     * into an integer value.
-     */
-    int stringToInt(const std::string &);
+/**
+ * Turns a string representing a numerical representation
+ * into an integer value.
+ */
+int stringToInt(const std::string &);
 
-    /**
-     * Compares the two strings case-insensitively.
-     *
-     * @param a the first string in the comparison
-     * @param b the second string in the comparison
-     * @return 0 if the strings are equal, positive if the first is greater,
-     *           negative if the second is greater
-     */
-    int compareStrI(const std::string &a, const std::string &b);
+/**
+ * Compares the two strings case-insensitively.
+ *
+ * @param a the first string in the comparison
+ * @param b the second string in the comparison
+ * @return 0 if the strings are equal, positive if the first is greater,
+ *           negative if the second is greater
+ */
+int compareStrI(const std::string &a, const std::string &b);
 
-    /**
-     * Returns the boolean value represented in a string, or default.
-     */
-    bool stringToBool(const std::string &s, bool defaultValue);
+/**
+ * Returns the boolean value represented in a string, or default.
+ */
+bool stringToBool(const std::string &s, bool defaultValue);
 
-    /**
-     * Trims spaces off the end and the beginning of the given string.
-     *
-     * @param str the string to trim spaces off
-     */
-    void trim(std::string &str);
+/**
+ * Trims spaces off the end and the beginning of the given string.
+ *
+ * @param str the string to trim spaces off
+ */
+void trim(std::string &str);
 
-    /**
-     * Converts the given value to a string using std::stringstream.
-     *
-     * @param arg the value to convert to a string
-     * @return the string representation of arg
-     */
-    template<typename T> std::string toString(const T &arg)
+/**
+ * Converts the given value to a string using std::stringstream.
+ *
+ * @param arg the value to convert to a string
+ * @return the string representation of arg
+ */
+template<typename T> std::string toString(const T &arg)
+{
+    std::stringstream ss;
+    ss << arg;
+    return ss.str();
+}
+
+/**
+ * A case-insensitive name map, mapping instances from a user-specified
+ * type by their name.
+ */
+template<typename T> class NameMap
+{
+public:
+    NameMap()
+        : mDefault()
+    {}
+
+    void insert(const std::string &name, T value)
     {
-        std::stringstream ss;
-        ss << arg;
-        return ss.str();
+        mMap.insert(std::make_pair(toLower(name), value));
     }
 
-    /**
-     * A case-insensitive name map, mapping instances from a user-specified
-     * type by their name.
-     */
-    template<typename T> class NameMap
+    const T &value(const std::string &name) const
     {
-    public:
-        NameMap()
-            : mDefault()
-        {}
+        typename Map::const_iterator result = mMap.find(toLower(name));
+        return result != mMap.end() ? result->second : mDefault;
+    }
 
-        void insert(const std::string &name, T value)
-        {
-            mMap.insert(std::make_pair(toLower(name), value));
-        }
+    T &operator[](const std::string &name)
+    {
+        return mMap[toLower(name)];
+    }
 
-        const T &value(const std::string &name) const
-        {
-            typename Map::const_iterator result = mMap.find(toLower(name));
-            return result != mMap.end() ? result->second : mDefault;
-        }
+    bool contains(const std::string &name) const
+    {
+        return mMap.find(toLower(name)) != mMap.end();
+    }
 
-        T &operator[](const std::string &name)
-        {
-            return mMap[toLower(name)];
-        }
+    void clear()
+    {
+        mMap.clear();
+    }
 
-        bool contains(const std::string &name) const
-        {
-            return mMap.find(toLower(name)) != mMap.end();
-        }
+private:
+    typedef std::map<std::string, T> Map;
 
-        void clear()
-        {
-            mMap.clear();
-        }
-
-    private:
-        typedef std::map<std::string, T> Map;
-
-        Map mMap;
-        const T mDefault;
-    };
+    Map mMap;
+    const T mDefault;
+};
 
 } // namespace utils
 

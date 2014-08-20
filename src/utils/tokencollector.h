@@ -31,41 +31,41 @@
  */
 class TokenCollectorBase
 {
-        struct Item
-        {
-            std::string token; /**< Cookie used by the client. */
-            intptr_t data;     /**< User data. */
-            time_t timeStamp;  /**< Creation time. */
-        };
+    struct Item
+    {
+        std::string token; /**< Cookie used by the client. */
+        intptr_t data;     /**< User data. */
+        time_t timeStamp;  /**< Creation time. */
+    };
 
-        /**
-         * List containing client already connected. Newer clients are at the
-         * back of the list.
-         */
-        std::list<Item> mPendingClients;
+    /**
+     * List containing client already connected. Newer clients are at the
+     * back of the list.
+     */
+    std::list<Item> mPendingClients;
 
-        /**
-         * List containing server data waiting for clients. Newer data are at
-         * the back of the list.
-         */
-        std::list<Item> mPendingConnects;
+    /**
+     * List containing server data waiting for clients. Newer data are at
+     * the back of the list.
+     */
+    std::list<Item> mPendingConnects;
 
-        /**
-         * Time at which the TokenCollector performed its last check.
-         */
-        time_t mLastCheck;
+    /**
+     * Time at which the TokenCollector performed its last check.
+     */
+    time_t mLastCheck;
 
-    protected:
+protected:
 
-        virtual void removedClient(intptr_t) = 0;
-        virtual void removedConnect(intptr_t) = 0;
-        virtual void foundMatch(intptr_t client, intptr_t connect) = 0;
-        TokenCollectorBase();
-        virtual ~TokenCollectorBase();
-        void insertClient(const std::string &, intptr_t);
-        void removeClient(intptr_t);
-        void insertConnect(const std::string &, intptr_t);
-        void removeOutdated(time_t);
+    virtual void removedClient(intptr_t) = 0;
+    virtual void removedConnect(intptr_t) = 0;
+    virtual void foundMatch(intptr_t client, intptr_t connect) = 0;
+    TokenCollectorBase();
+    virtual ~TokenCollectorBase();
+    void insertClient(const std::string &, intptr_t);
+    void removeClient(intptr_t);
+    void insertConnect(const std::string &, intptr_t);
+    void removeOutdated(time_t);
 };
 
 /**
@@ -91,49 +91,49 @@ template< class Handler, class Client, class ServerData >
 class TokenCollector: private TokenCollectorBase
 {
 
-    public:
+public:
 
-        TokenCollector(Handler *h): mHandler(h)
-        {
-            _TC_CheckData<Client> ClientMustBeSimple;
-            (void)&ClientMustBeSimple;
-            _TC_CheckData<ServerData> ServerDataMustBeSimple;
-            (void)&ServerDataMustBeSimple;
-        }
+    TokenCollector(Handler *h): mHandler(h)
+    {
+        _TC_CheckData<Client> ClientMustBeSimple;
+        (void)&ClientMustBeSimple;
+        _TC_CheckData<ServerData> ServerDataMustBeSimple;
+        (void)&ServerDataMustBeSimple;
+    }
 
-        /**
-         * Checks if the server expected this client token. If so, calls
-         * Handler::tokenMatched. Otherwise marks the client as pending.
-         */
-        void addPendingClient(const std::string &token, Client data)
-        { insertClient(token, (intptr_t)data); }
+    /**
+     * Checks if the server expected this client token. If so, calls
+     * Handler::tokenMatched. Otherwise marks the client as pending.
+     */
+    void addPendingClient(const std::string &token, Client data)
+    { insertClient(token, (intptr_t)data); }
 
-        /**
-         * Checks if a client already registered this token. If so, calls
-         * Handler::tokenMatched. Otherwise marks the data as pending.
-         */
-        void addPendingConnect(const std::string &token, ServerData data)
-        { insertConnect(token, (intptr_t)data); }
+    /**
+     * Checks if a client already registered this token. If so, calls
+     * Handler::tokenMatched. Otherwise marks the data as pending.
+     */
+    void addPendingConnect(const std::string &token, ServerData data)
+    { insertConnect(token, (intptr_t)data); }
 
-        /**
-         * Removes a pending client.
-         * @note Does not call destroyPendingClient.
-         */
-        void deletePendingClient(Client data)
-        { removeClient((intptr_t)data); }
+    /**
+     * Removes a pending client.
+     * @note Does not call destroyPendingClient.
+     */
+    void deletePendingClient(Client data)
+    { removeClient((intptr_t)data); }
 
-    private:
+private:
 
-        void removedClient(intptr_t data)
-        { mHandler->deletePendingClient((Client)data); }
+    void removedClient(intptr_t data)
+    { mHandler->deletePendingClient((Client)data); }
 
-        void removedConnect(intptr_t data)
-        { mHandler->deletePendingConnect((ServerData)data); }
+    void removedConnect(intptr_t data)
+    { mHandler->deletePendingConnect((ServerData)data); }
 
-        void foundMatch(intptr_t client, intptr_t data)
-        { mHandler->tokenMatched((Client)client, (ServerData)data); }
+    void foundMatch(intptr_t client, intptr_t data)
+    { mHandler->tokenMatched((Client)client, (ServerData)data); }
 
-        Handler *mHandler;
+    Handler *mHandler;
 };
 
 #endif // TOKENCOLLECTOR_H

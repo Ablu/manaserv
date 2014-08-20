@@ -29,36 +29,36 @@
  */
 class Point
 {
-    public:
-        Point():
-            x(0), y(0)
-        {}
+public:
+    Point():
+        x(0), y(0)
+    {}
 
-        Point(int X, int Y):
-            x(X), y(Y)
-        {}
+    Point(int X, int Y):
+        x(X), y(Y)
+    {}
 
-        int x; /**< x coordinate */
-        int y; /**< y coordinate */
+    int x; /**< x coordinate */
+    int y; /**< y coordinate */
 
-        /**
-         * Check whether the given point is within range of this point.
-         */
-        bool inRangeOf(const Point &p, int radius) const
-        {
-            return std::abs(x - p.x) <= radius &&
-                   std::abs(y - p.y) <= radius;
-        }
+    /**
+     * Check whether the given point is within range of this point.
+     */
+    bool inRangeOf(const Point &p, int radius) const
+    {
+        return std::abs(x - p.x) <= radius &&
+               std::abs(y - p.y) <= radius;
+    }
 
-        bool operator== (const Point &other) const
-        {
-            return (x == other.x && y == other.y);
-        }
+    bool operator== (const Point &other) const
+    {
+        return (x == other.x && y == other.y);
+    }
 
-        bool operator!= (const Point &other) const
-        {
-            return (x != other.x || y != other.y);
-        }
+    bool operator!= (const Point &other) const
+    {
+        return (x != other.x || y != other.y);
+    }
 };
 
 /**
@@ -66,25 +66,25 @@ class Point
  */
 class Rectangle
 {
-    public:
-        int x; /**< x coordinate */
-        int y; /**< y coordinate */
-        int w; /**< width */
-        int h; /**< height */
+public:
+    int x; /**< x coordinate */
+    int y; /**< y coordinate */
+    int w; /**< width */
+    int h; /**< height */
 
-        bool contains(const Point &p) const
-        {
-            return (p.x >= x && p.x < x + w &&
-                    p.y >= y && p.y < y + h);
-        }
+    bool contains(const Point &p) const
+    {
+        return (p.x >= x && p.x < x + w &&
+                p.y >= y && p.y < y + h);
+    }
 
-        bool intersects(const Rectangle &r) const
-        {
-            return x < (r.x + r.w) &&
-                   y < (r.y + r.h) &&
-                   x + w > r.x &&
-                   y + h > r.y;
-        }
+    bool intersects(const Rectangle &r) const
+    {
+        return x < (r.x + r.w) &&
+               y < (r.y + r.h) &&
+               x + w > r.x &&
+               y + h > r.y;
+    }
 };
 
 inline std::ostream &operator <<(std::ostream &os, const Point &point)

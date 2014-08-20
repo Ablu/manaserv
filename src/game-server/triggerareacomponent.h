@@ -32,93 +32,93 @@ class Entity;
 
 class TriggerAction
 {
-    public:
-        virtual ~TriggerAction() {}
-        virtual void process(Entity *obj) = 0;
+public:
+    virtual ~TriggerAction() {}
+    virtual void process(Entity *obj) = 0;
 };
 
 class WarpAction : public TriggerAction
 {
-    public:
-        WarpAction(MapComposite *m, const Point &point)
-          : mMap(m), mTargetPoint(point) {}
+public:
+    WarpAction(MapComposite *m, const Point &point)
+      : mMap(m), mTargetPoint(point) {}
 
-        virtual void process(Entity *obj);
+    virtual void process(Entity *obj);
 
-    private:
-        MapComposite *mMap;
-        Point mTargetPoint;
+private:
+    MapComposite *mMap;
+    Point mTargetPoint;
 };
 
 class AutowarpAction: public TriggerAction
 {
-    public:
-        enum ExitDirection {
-            ExitNorth,
-            ExitEast,
-            ExitSouth,
-            ExitWest
-        };
+public:
+    enum ExitDirection {
+        ExitNorth,
+        ExitEast,
+        ExitSouth,
+        ExitWest
+    };
 
-        AutowarpAction(MapComposite *m,
-                       const Rectangle &sourceArea,
-                       const Rectangle &targetArea,
-                       ExitDirection direction)
-            : mMap(m),
-              mSourceArea(sourceArea),
-              mTargetArea(targetArea),
-              mDirection(direction)
-        {}
+    AutowarpAction(MapComposite *m,
+                   const Rectangle &sourceArea,
+                   const Rectangle &targetArea,
+                   ExitDirection direction)
+        : mMap(m),
+          mSourceArea(sourceArea),
+          mTargetArea(targetArea),
+          mDirection(direction)
+    {}
 
-        virtual void process(Entity *obj);
+    virtual void process(Entity *obj);
 
-    private:
-        /** Target map */
-        MapComposite *mMap;
-        /** Source area - used to calculate warp offset and warp direction */
-        Rectangle mSourceArea;
-        /** Target area */
-        Rectangle mTargetArea;
-        /** The direction to exit target area */
-        ExitDirection mDirection;
+private:
+    /** Target map */
+    MapComposite *mMap;
+    /** Source area - used to calculate warp offset and warp direction */
+    Rectangle mSourceArea;
+    /** Target area */
+    Rectangle mTargetArea;
+    /** The direction to exit target area */
+    ExitDirection mDirection;
 };
 
 class ScriptAction : public TriggerAction
 {
-    public:
-        ScriptAction(Script *script, Script::Ref callback, int arg);
+public:
+    ScriptAction(Script *script, Script::Ref callback, int arg);
 
-        virtual void process(Entity *obj);
+    virtual void process(Entity *obj);
 
-    private:
-        Script *mScript;        // Script object to be called
-        Script::Ref mCallback;  // Reference to the function to call
-        int mArg;               // Argument passed to script function (meaning is function-specific)
+private:
+    Script *mScript;        // Script object to be called
+    Script::Ref mCallback;  // Reference to the function to call
+    int mArg;               // Argument passed to script function (meaning is function-specific)
 };
 
 class TriggerAreaComponent : public Component
 {
-    public:
-        static const ComponentType type = CT_TriggerArea;
+public:
+    static const ComponentType type = CT_TriggerArea;
 
-        /**
-         * Creates a rectangular trigger for a given map.
-         */
-        TriggerAreaComponent(const Rectangle &r,
-                             TriggerAction *ptr,
-                             bool once) :
-            mZone(r),
-            mAction(ptr),
-            mOnce(once)
-        {}
+    /**
+     * Creates a rectangular trigger for a given map.
+     */
+    TriggerAreaComponent(const Rectangle &r,
+                         TriggerAction *ptr,
+                         bool once) :
+        mZone(r),
+        mAction(ptr),
+        mOnce(once)
+    {}
 
-        void update(Entity &entity);
+    void update(Entity &entity);
 
-    private:
-        Rectangle mZone;
-        TriggerAction *mAction;
-        bool mOnce;
-        std::set<Entity *> mInside;
+private:
+    Rectangle mZone;
+    TriggerAction *mAction;
+    bool mOnce;
+    std::set<Entity *> mInside;
 };
 
 #endif // TRIGGERAREACOMPONENT_H

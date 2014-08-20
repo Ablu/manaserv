@@ -60,44 +60,44 @@ struct ModifierLocation
 
 class AttributeManager
 {
-    public:
-        AttributeManager()
-        {}
+public:
+    AttributeManager()
+    {}
 
-        /**
-         * Loads attribute reference file.
-         */
-        void initialize();
+    /**
+     * Loads attribute reference file.
+     */
+    void initialize();
 
-        /**
-         * Reloads attribute reference file.
-         */
-        void reload();
-        void deinitialize();
+    /**
+     * Reloads attribute reference file.
+     */
+    void reload();
+    void deinitialize();
 
-        AttributeInfo *getAttributeInfo(int id) const;
-        AttributeInfo *getAttributeInfo(const std::string &name) const;
+    AttributeInfo *getAttributeInfo(int id) const;
+    AttributeInfo *getAttributeInfo(const std::string &name) const;
 
-        const std::set<AttributeInfo *> &getAttributeScope(ScopeType) const;
+    const std::set<AttributeInfo *> &getAttributeScope(ScopeType) const;
 
-        ModifierLocation getLocation(const std::string &tag) const;
+    ModifierLocation getLocation(const std::string &tag) const;
 
-        const std::string *getTag(const ModifierLocation &location) const;
+    const std::string *getTag(const ModifierLocation &location) const;
 
-        void readAttributeNode(xmlNodePtr attributeNode);
+    void readAttributeNode(xmlNodePtr attributeNode);
 
-        void checkStatus();
+    void checkStatus();
 
-    private:
-        void readModifierNode(xmlNodePtr modifierNode, int attributeId,
-                              AttributeInfo *info);
+private:
+    void readModifierNode(xmlNodePtr modifierNode, int attributeId,
+                          AttributeInfo *info);
 
-        std::set<AttributeInfo *> mAttributeScopes[MaxScope];
+    std::set<AttributeInfo *> mAttributeScopes[MaxScope];
 
-        std::map<int, AttributeInfo *> mAttributeMap;
-        utils::NameMap<AttributeInfo *> mAttributeNameMap;
+    std::map<int, AttributeInfo *> mAttributeMap;
+    utils::NameMap<AttributeInfo *> mAttributeNameMap;
 
-        std::map<std::string, ModifierLocation> mTagMap;
+    std::map<std::string, ModifierLocation> mTagMap;
 };
 
 extern AttributeManager *attributeManager;

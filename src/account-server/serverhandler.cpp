@@ -79,36 +79,36 @@ static GameServer *getGameServerFromMap(int);
  */
 class ServerHandler: public ConnectionHandler
 {
-    friend GameServer *getGameServerFromMap(int);
-    friend void GameServerHandler::dumpStatistics(std::ostream &);
+friend GameServer *getGameServerFromMap(int);
+friend void GameServerHandler::dumpStatistics(std::ostream &);
 
-    public:
-        ServerHandler(IConfiguration *configuration, IStorage *storage)
-            : ConnectionHandler(configuration)
-            , mConfiguration(configuration)
-            , mStorage(storage)
-        {}
+public:
+    ServerHandler(IConfiguration *configuration, IStorage *storage)
+        : ConnectionHandler(configuration)
+        , mConfiguration(configuration)
+        , mStorage(storage)
+    {}
 
-    protected:
-        /**
-         * Processes server messages.
-         */
-        void processMessage(NetComputer *computer, MessageIn &message);
+protected:
+    /**
+     * Processes server messages.
+     */
+    void processMessage(NetComputer *computer, MessageIn &message);
 
-        /**
-         * Called when a game server connects. Initializes a simple NetComputer
-         * as these connections are stateless.
-         */
-        NetComputer *computerConnected(ENetPeer *peer);
+    /**
+     * Called when a game server connects. Initializes a simple NetComputer
+     * as these connections are stateless.
+     */
+    NetComputer *computerConnected(ENetPeer *peer);
 
-        /**
-         * Called when a game server disconnects.
-         */
-        void computerDisconnected(NetComputer *comp);
+    /**
+     * Called when a game server disconnects.
+     */
+    void computerDisconnected(NetComputer *comp);
 
-    private:
-        IConfiguration *mConfiguration;
-        IStorage *mStorage;
+private:
+    IConfiguration *mConfiguration;
+    IStorage *mStorage;
 };
 
 static ServerHandler *serverHandler;

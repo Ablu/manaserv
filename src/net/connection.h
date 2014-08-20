@@ -33,46 +33,46 @@ class MessageOut;
  */
 class Connection
 {
-    public:
-        Connection();
-        virtual ~Connection() {}
+public:
+    Connection();
+    virtual ~Connection() {}
 
-        /**
-         * Connects to the given host/port and waits until the connection is
-         * established. Returns false if it fails to connect.
-         */
-        bool start(const std::string &, int);
+    /**
+     * Connects to the given host/port and waits until the connection is
+     * established. Returns false if it fails to connect.
+     */
+    bool start(const std::string &, int);
 
-        /**
-         * Disconnects.
-         */
-        void stop();
+    /**
+     * Disconnects.
+     */
+    void stop();
 
-        /**
-         * Returns whether the connection is established or not.
-         */
-        bool isConnected() const;
+    /**
+     * Returns whether the connection is established or not.
+     */
+    bool isConnected() const;
 
-        /**
-         * Sends a message to the remote host.
-         */
-        void send(const MessageOut &msg, bool reliable = true,
-                  unsigned channel = 0);
+    /**
+     * Sends a message to the remote host.
+     */
+    void send(const MessageOut &msg, bool reliable = true,
+              unsigned channel = 0);
 
-        /**
-         * Dispatches received messages to processMessage.
-         */
-        void process();
+    /**
+     * Dispatches received messages to processMessage.
+     */
+    void process();
 
-    protected:
-        /**
-         * Processes a single message from the remote host.
-         */
-        virtual void processMessage(MessageIn &) = 0;
+protected:
+    /**
+     * Processes a single message from the remote host.
+     */
+    virtual void processMessage(MessageIn &) = 0;
 
-    private:
-        ENetPeer *mRemote;
-        ENetHost *mLocal;
+private:
+    ENetPeer *mRemote;
+    ENetHost *mLocal;
 };
 
 #endif
