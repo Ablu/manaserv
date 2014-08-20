@@ -46,7 +46,7 @@ class Post;
 class SqlStorage : public IStorage
 {
     public:
-        SqlStorage(IConfiguration *configuration);
+        SqlStorage();
         ~SqlStorage();
 
         /**
@@ -428,6 +428,8 @@ class SqlStorage : public IStorage
          */
         std::vector<Transaction> getTransactions(time_t date);
 
+        void setDatabase(const QSqlDatabase &db);
+
     private:
         SqlStorage(const SqlStorage &rhs) = delete;
         SqlStorage &operator=(const SqlStorage &rhs) = delete;
@@ -457,7 +459,6 @@ class SqlStorage : public IStorage
          */
         void fixCharactersSlot(int accountId);
 
-        IConfiguration *mConfiguration;
         QSqlDatabase mDb;
         unsigned mItemDbVersion;
 };

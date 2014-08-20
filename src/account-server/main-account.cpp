@@ -122,7 +122,7 @@ static void initialize()
     // Open database
     try
     {
-        storage = new SqlStorage(configuration);
+        storage = new SqlStorage();
         storage->open();
     }
     catch (std::string &error)

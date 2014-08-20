@@ -69,46 +69,9 @@ static const QString ONLINE_USERS_TBL_NAME        =   "mana_online_list";
 static const QString TRANSACTION_TBL_NAME         =   "mana_transactions";
 static const QString FLOOR_ITEMS_TBL_NAME         =   "mana_floor_items";
 
-static QString databaseToDriver(const QString &name)
+SqlStorage::SqlStorage()
+    : mItemDbVersion(0)
 {
-    if (name == QLatin1String("sqlite"))
-        return QLatin1String("QSQLITE");
-    if (name == QLatin1String("mysql"))
-        return QLatin1String("QMYSQL");
-    return QString();
-}
-
-SqlStorage::SqlStorage(IConfiguration *configuration)
-    : mConfiguration(configuration)
-    , mItemDbVersion(0)
-{
-    const std::string &dbBackend = mConfiguration->getValue("db_backend", std::string());
-    const QString &dbDriver = databaseToDriver(QString::fromStdString(dbBackend));
-
-    if (dbDriver.isEmpty())
-    {
-        throw std::string("Unknown db backend");
-    }
-
-    mDb = QSqlDatabase::addDatabase(dbDriver);
-
-    if (dbBackend == "sqlite")
-    {
-        mDb.setDatabaseName(QString::fromStdString(mConfiguration->getValue("sqlite_database", std::string())));
-    }
-    else if (dbBackend == "mysql")
-    {
-        mDb.setHostName(QString::fromStdString(mConfiguration->getValue("mysql_hostname", std::string())));
-        mDb.setPort(mConfiguration->getValue("mysql_port", 3306));
-        mDb.setDatabaseName(QString::fromStdString(mConfiguration->getValue("mysql_database", std::string())));
-        mDb.setUserName(QString::fromStdString(mConfiguration->getValue("mysql_username", std::string())));
-        mDb.setPassword(QString::fromStdString(mConfiguration->getValue("mysql_password", std::string())));
-    }
-
-    if (!mDb.open())
-    {
-        throw std::string(mDb.lastError().text().toStdString());
-    }
 }
 
 SqlStorage::~SqlStorage()
@@ -1498,4 +1461,9 @@ std::vector<Transaction> SqlStorage::getTransactions(time_t date)
     }
 
     return transactions;
+}
+
+void SqlStorage::setDatabase(const QSqlDatabase &db)
+{
+    mDb = db;
 }
