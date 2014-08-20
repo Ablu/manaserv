@@ -47,4 +47,10 @@ CppApplication {
     cpp.includePaths: [
         "../../../../",
     ]
+
+    cpp.cxxFlags: [
+        "-Wall",
+        "-Werror",
+        "-std=c++0x",
+    ]
 }
