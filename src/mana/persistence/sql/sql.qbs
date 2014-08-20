@@ -1,40 +1,39 @@
 import qbs 1.0
 
-DynamicLibrary {
-    name: "ManaPersitenceSql"
-
-    Depends {
-        name: "Qt"
-        submodules: [
-            "sql",
-        ]
-    }
-
-    Depends {
-        name: "cpp"
-    }
-
-    Depends {
-        name: "ManaPersitenceInterfaces"
-    }
-
-    Depends {
-        name: "ManaEntities"
-    }
-
-    Group {
-        name: "Sources"
-        files: [
-            "sqlstorage.h",
-            "sqlstorage.cpp",
-        ]
-    }
-
-    cpp.includePaths: [
-        "../../../",
+Project {
+    references: [
+        "sqlitetest/test.qbs"
     ]
 
-    cpp.cxxFlags: [
-        "-std=c++0x",
-    ]
+    DynamicCppLibrary {
+        name: "ManaPersitenceSql"
+
+        Depends {
+            name: "Qt"
+            submodules: [
+                "core",
+                "sql",
+            ]
+        }
+
+        Depends {
+            name: "ManaPersitenceInterfaces"
+        }
+
+        Depends {
+            name: "ManaEntities"
+        }
+
+        Group {
+            name: "Sources"
+            files: [
+                "sqlstorage.h",
+                "sqlstorage.cpp",
+            ]
+        }
+
+        cpp.includePaths: [
+            "../../../",
+        ]
+    }
 }
