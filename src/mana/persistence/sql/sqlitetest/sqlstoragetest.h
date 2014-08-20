@@ -3,16 +3,20 @@
 
 #include <QObject>
 
+class SqlStorage;
+
 class SqlStorageTest : public QObject
 {
     Q_OBJECT
-public:
-    explicit SqlStorageTest(QObject *parent = 0);
 
-signals:
+private slots:
+    void init();
+    void cleanup();
 
-public slots:
+    void characterSaveAndGetTest();
 
+private:
+    SqlStorage *mStorage = nullptr;
 };
 
 #endif // SQLSTORAGETEST_H

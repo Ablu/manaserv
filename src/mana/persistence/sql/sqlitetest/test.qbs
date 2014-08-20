@@ -6,5 +6,16 @@ Test {
     testFor: "ManaPersitenceSql"
     suffix: "Sqlite"
 
+    Depends {
+        name: "Qt"
+        submodules: [
+            "sql",
+        ]
+    }
+
+    Depends {
+        name: "ManaEntities"
+    }
+
     cpp.rpaths: BuildHelper.buildRpathForPrefix(project, qbs.targetOS, "../..")
 }
