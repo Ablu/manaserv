@@ -60,16 +60,16 @@ void SqlStorageTest::cleanup()
 
 void SqlStorageTest::characterSaveAndGetTest()
 {
-    CharacterData *character = new CharacterData("Test");
+    std::unique_ptr<CharacterData> character(new CharacterData("Test"));
 
-    Account *account = new Account();
-    account->setName("test");
-    account->setEmail("test");
-    account->setPassword("test");
-    mStorage->addAccount(account);
+    Account account;
+    account.setName("test");
+    account.setEmail("test");
+    account.setPassword("test");
+    mStorage->addAccount(&account);
 
-    account->addCharacter(character);
-    mStorage->flush(account);
+    account.addCharacter(std::move(character));
+    mStorage->flush(&account);
 
     auto characterFromStorage = mStorage->getCharacter("Test");
     QVERIFY2(characterFromStorage, "The character just stored was unable to retreive!");

@@ -280,17 +280,17 @@ void AccountHandler::computerDisconnected(NetComputer *comp)
     delete client; // ~AccountClient unsets the account
 }
 
-static void sendCharacterData(MessageOut &charInfo, const CharacterData *ch)
+static void sendCharacterData(MessageOut &charInfo, const CharacterData &ch)
 {
-    charInfo.writeInt8(ch->getCharacterSlot());
-    charInfo.writeString(ch->getName());
-    charInfo.writeInt8(ch->getGender());
-    charInfo.writeInt8(ch->getHairStyle());
-    charInfo.writeInt8(ch->getHairColor());
-    charInfo.writeInt16(ch->getAttributePoints());
-    charInfo.writeInt16(ch->getCorrectionPoints());
+    charInfo.writeInt8(ch.getCharacterSlot());
+    charInfo.writeString(ch.getName());
+    charInfo.writeInt8(ch.getGender());
+    charInfo.writeInt8(ch.getHairStyle());
+    charInfo.writeInt8(ch.getHairColor());
+    charInfo.writeInt16(ch.getAttributePoints());
+    charInfo.writeInt16(ch.getCorrectionPoints());
 
-    auto &possessions = ch->getPossessions();
+    auto &possessions = ch.getPossessions();
     auto &equipData = possessions.getEquipment();
     auto &inventoryData = possessions.getInventory();
     charInfo.writeInt8(equipData.size());
@@ -302,8 +302,8 @@ static void sendCharacterData(MessageOut &charInfo, const CharacterData *ch)
         charInfo.writeInt16(it->second.itemId);
     }
 
-    charInfo.writeInt8(ch->getAttributes().size());
-    for (auto &it : ch->getAttributes())
+    charInfo.writeInt8(ch.getAttributes().size());
+    for (auto &it : ch.getAttributes())
     {
         // {id, base value in 256ths, modified value in 256ths }*
         charInfo.writeInt32(it.first);
@@ -313,11 +313,11 @@ static void sendCharacterData(MessageOut &charInfo, const CharacterData *ch)
 }
 
 static void sendFullCharacterData(AccountClient *client,
-                                  const Characters &chars)
+                                  const std::map<unsigned, std::unique_ptr<CharacterData>> &chars)
 {
     MessageOut msg(APMSG_CHAR_INFO);
     for (auto &charIt : chars)
-        sendCharacterData(msg, charIt.second);
+        sendCharacterData(msg, *charIt.second);
     client->send(msg);
 }
 
@@ -441,14 +441,14 @@ void AccountHandler::handleLoginMessage(AccountClient &client, MessageIn &msg)
     reply.writeInt8(ERRMSG_OK);
     addServerInfo(&reply);
 
-    Characters &chars = acc->getCharacters();
+    auto &chars = acc->getCharacters();
 
     if (client.version < 10) {
         client.send(reply);
         sendFullCharacterData(&client, chars);
     } else {
         for (auto &charIt : chars)
-            sendCharacterData(reply, charIt.second);
+            sendCharacterData(reply, *charIt.second);
         client.send(reply);
     }
 }
@@ -763,7 +763,7 @@ void AccountHandler::handleCharacterCreateMessage(AccountClient &client,
 
         // An account shouldn't have more
         // than <account_maxCharacters> characters.
-        Characters &chars = acc->getCharacters();
+        auto &chars = acc->getCharacters();
         if (slot < 1 || slot > mMaxCharacters
             || !acc->isSlotEmpty((unsigned) slot))
         {
@@ -812,7 +812,7 @@ void AccountHandler::handleCharacterCreateMessage(AccountClient &client,
         }
         else
         {
-            CharacterData *newCharacter = new CharacterData(name);
+            std::unique_ptr<CharacterData> newCharacter(new CharacterData(name));
 
             // Set the initial attributes provided by the client
             for (unsigned i = 0; i < mModifiableAttributes.size(); ++i)
@@ -832,12 +832,6 @@ void AccountHandler::handleCharacterCreateMessage(AccountClient &client,
             Point startingPos(mConfiguration->getValue("char_startX", 1024),
                               mConfiguration->getValue("char_startY", 1024));
             newCharacter->setPosition(startingPos);
-            acc->addCharacter(newCharacter);
-
-            LOG_INFO("Character " << name << " was created for "
-                     << acc->getName() << "'s account.");
-
-            mStorage->flush(acc); // flush changes
 
             // log transaction
             Transaction trans;
@@ -849,8 +843,15 @@ void AccountHandler::handleCharacterCreateMessage(AccountClient &client,
 
             reply.writeInt8(ERRMSG_OK);
 
-            sendCharacterData(reply, newCharacter);
+            sendCharacterData(reply, *newCharacter);
             client.send(reply);
+
+            acc->addCharacter(std::move(newCharacter));
+
+            LOG_INFO("Character " << name << " was created for "
+                     << acc->getName() << "'s account.");
+
+            mStorage->flush(acc); // flush changes
             return;
         }
     }
@@ -872,7 +873,7 @@ void AccountHandler::handleCharacterSelectMessage(AccountClient &client,
     }
 
     int slot = msg.readInt8();
-    Characters &chars = acc->getCharacters();
+    auto &chars = acc->getCharacters();
 
     if (chars.find(slot) == chars.end())
     {
@@ -882,14 +883,14 @@ void AccountHandler::handleCharacterSelectMessage(AccountClient &client,
         return;
     }
 
-    CharacterData *selectedChar = chars[slot];
+    CharacterData &selectedChar = *chars[slot];
 
     std::string address;
     int port;
     if (!GameServerHandler::getGameServerFromMap
-            (selectedChar->getMapId(), address, port))
+            (selectedChar.getMapId(), address, port))
     {
-        LOG_ERROR("Character Selection: No game server for map #"<<selectedChar->getMapId());
+        LOG_ERROR("Character Selection: No game server for map #"<<selectedChar.getMapId());
         reply.writeInt8(ERRMSG_FAILURE);
         client.send(reply);
         return;
@@ -897,7 +898,7 @@ void AccountHandler::handleCharacterSelectMessage(AccountClient &client,
 
     reply.writeInt8(ERRMSG_OK);
 
-    LOG_DEBUG(selectedChar->getName() << " is trying to enter the servers.");
+    LOG_DEBUG(selectedChar.getName() << " is trying to enter the servers.");
 
     std::string magic_token(utils::getMagicToken());
     reply.writeString(magic_token, MAGIC_TOKEN_LENGTH);
@@ -918,13 +919,13 @@ void AccountHandler::handleCharacterSelectMessage(AccountClient &client,
                                              alternativePort));
 
     GameServerHandler::registerClient(magic_token, selectedChar);
-    registerChatClient(magic_token, selectedChar->getName(), acc->getLevel());
+    registerChatClient(magic_token, selectedChar.getName(), acc->getLevel());
 
     client.send(reply);
 
     // log transaction
     Transaction trans;
-    trans.mCharacterId = selectedChar->getDatabaseID();
+    trans.mCharacterId = selectedChar.getDatabaseID();
     trans.mAction = TRANS_CHAR_SELECTED;
     mStorage->addTransaction(trans);
 }
@@ -943,7 +944,7 @@ void AccountHandler::handleCharacterDeleteMessage(AccountClient &client,
     }
 
     int slot = msg.readInt8();
-    Characters &chars = acc->getCharacters();
+    auto &chars = acc->getCharacters();
 
     if (slot < 1 || acc->isSlotEmpty(slot))
     {
@@ -999,7 +1000,7 @@ void AccountHandler::tokenMatched(AccountClient *client, int accountID)
     client->send(reply);
 
     // Return information about available characters
-    Characters &chars = acc->getCharacters();
+    auto &chars = acc->getCharacters();
 
     // Send characters list
     sendFullCharacterData(client, chars);

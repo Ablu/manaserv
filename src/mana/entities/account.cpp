@@ -22,43 +22,31 @@
 
 #include "account.h"
 
-Account::~Account()
-{
-    for (Characters::iterator i = mCharacters.begin(),
-         i_end = mCharacters.end(); i != i_end; ++i)
-    {
-        delete (*i).second;
-    }
-}
-
 bool Account::isSlotEmpty(unsigned slot) const
 {
     return mCharacters.find(slot) == mCharacters.end();
 }
 
-void Account::setCharacters(const Characters &characters)
+void Account::setCharacters(std::map<unsigned, std::unique_ptr<CharacterData>> &&characters)
 {
-    mCharacters = characters;
+    mCharacters = std::move(characters);
 }
 
-void Account::addCharacter(CharacterData *character)
+void Account::addCharacter(std::unique_ptr<CharacterData> character)
 {
     unsigned slot = (unsigned) character->getCharacterSlot();
     assert(isSlotEmpty(slot));
 
-    mCharacters[slot] = character;
+    mCharacters.emplace(std::make_pair(slot, std::move(character)));
 }
 
 void Account::delCharacter(unsigned slot)
 {
-    for (Characters::iterator iter = mCharacters.begin(),
-             iter_end = mCharacters.end(); iter != iter_end; ++iter)
+    for (auto &it : mCharacters)
     {
-        if ((*iter).second->getCharacterSlot() == slot)
+        if (it.second->getCharacterSlot() == slot)
         {
-            delete (*iter).second;
-            (*iter).second = 0;
-            mCharacters.erase(iter);
+            mCharacters.erase(it.first);
         }
     }
 }

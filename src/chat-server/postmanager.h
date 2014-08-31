@@ -22,6 +22,7 @@
 #define POSTMANAGER_H
 
 #include <map>
+#include <memory>
 
 class IConfiguration;
 class Letter;
@@ -47,15 +48,15 @@ public:
      * @param player Character that is getting post
      * @return Returns the post for that character
      */
-    Post *getPost(CharacterData *player) const;
+    Post *getPost(CharacterData &player) const;
 
     /**
      * Remove the post for character
      */
-    void clearPost(CharacterData *player);
+    void clearPost(CharacterData &player);
 
 private:
-    std::map<CharacterData*, Post*> mPostBox;
+    std::map<int, Post*> mPostBox;
     IConfiguration *mConfiguration;
 };
 

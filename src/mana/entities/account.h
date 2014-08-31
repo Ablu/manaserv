@@ -21,6 +21,7 @@
 #ifndef ACCOUNT_H
 #define ACCOUNT_H
 
+#include <memory>
 #include <string>
 #include <vector>
 #include <time.h>
@@ -40,8 +41,6 @@ public:
         , mRegistrationDate(0)
         , mLastLogin(0)
     {}
-
-    ~Account();
 
     /**
      * Set the user name.
@@ -147,14 +146,14 @@ public:
      *
      * @param characters a list of characters.
      */
-    void setCharacters(const Characters& characters);
+    void setCharacters(std::map<unsigned, std::unique_ptr<CharacterData> > &&characters);
 
     /**
      * Adds a new character.
      *
      * @param character the new character.
      */
-    void addCharacter(CharacterData *character);
+    void addCharacter(std::unique_ptr<CharacterData> character);
 
     /**
      * Removes a character from the account.
@@ -168,7 +167,7 @@ public:
      *
      * @return all the characters.
      */
-    Characters &getCharacters()
+    std::map<unsigned, std::unique_ptr<CharacterData>> &getCharacters()
     { return mCharacters; }
 
     /**
@@ -176,7 +175,7 @@ public:
      *
      * @return all the characters.
      */
-    const Characters &getCharacters() const
+    const std::map<unsigned, std::unique_ptr<CharacterData>> &getCharacters() const
     { return mCharacters; }
 
     /**
@@ -228,7 +227,7 @@ private:
     std::string mRandomSalt;  /**< A random sequence sent to client to
                                    protect against replay attacks.*/
     std::string mEmail;       /**< User email address (hashed) */
-    Characters mCharacters;   /**< Character data */
+    std::map<unsigned, std::unique_ptr<CharacterData>> mCharacters;   /**< Character data */
     int mID;                  /**< Unique id */
     unsigned char mLevel;     /**< Account level */
     time_t mRegistrationDate; /**< Date and time of the account registration */

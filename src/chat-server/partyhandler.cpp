@@ -22,6 +22,8 @@
 #include "chatclient.h"
 #include "party.h"
 
+#include "mana/entities/character.h"
+
 #include "mana/persistence/interfaces/istorage.h"
 
 #include "account-server/serverhandler.h"
@@ -35,8 +37,8 @@ using namespace ManaServ;
 
 void ChatHandler::updateInfo(ChatClient *client, int partyId)
 {
-    CharacterData *character = mStorage->getCharacter(client->characterName);
-    GameServerHandler::sendPartyChange(character, partyId);
+    auto character = mStorage->getCharacter(client->characterName);
+    GameServerHandler::sendPartyChange(*character, partyId);
 }
 
 void ChatHandler::removeExpiredPartyInvites()

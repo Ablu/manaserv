@@ -20,14 +20,15 @@
 
 #include "postmanager.h"
 
+#include "mana/entities/character.h"
 #include "mana/entities/post.h"
 
 #include "mana/configuration/interfaces/iconfiguration.h"
 
 void PostManager::addLetter(Letter *letter)
 {
-    std::map<CharacterData*, Post*>::iterator itr =
-        mPostBox.find(letter->getReceiver());
+    std::map<int, Post*>::iterator itr =
+        mPostBox.find(letter->getReceiver().getDatabaseID());
     if (itr != mPostBox.end())
     {
         unsigned maximumLetterCountPerMail =
@@ -43,21 +44,21 @@ void PostManager::addLetter(Letter *letter)
         Post *post = new Post();
         post->addLetter(letter);
         mPostBox.insert(
-            std::pair<CharacterData*, Post*>(letter->getReceiver(), post)
+            std::pair<int, Post*>(letter->getReceiver().getDatabaseID(), post)
             );
     }
 }
 
-Post *PostManager::getPost(CharacterData *player) const
+Post *PostManager::getPost(CharacterData &player) const
 {
-    std::map<CharacterData*, Post*>::const_iterator itr = mPostBox.find(player);
+    std::map<int, Post*>::const_iterator itr = mPostBox.find(player.getDatabaseID());
     return (itr == mPostBox.end()) ? nullptr : itr->second;
 }
 
-void PostManager::clearPost(CharacterData *player)
+void PostManager::clearPost(CharacterData &player)
 {
-    std::map<CharacterData*, Post*>::iterator itr =
-        mPostBox.find(player);
+    std::map<int, Post*>::iterator itr =
+        mPostBox.find(player.getDatabaseID());
     if (itr != mPostBox.end())
     {
         delete itr->second;

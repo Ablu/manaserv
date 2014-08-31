@@ -23,7 +23,9 @@
 
 #include <list>
 #include <map>
+#include <memory>
 #include <vector>
+
 #include <QSqlDatabase>
 
 #include "mana/persistence/interfaces/istorage.h"
@@ -85,7 +87,7 @@ public:
      *
      * @return the character associated to the Id.
      */
-    CharacterData *getCharacter(int id, Account *owner);
+    std::unique_ptr<CharacterData> getCharacter(int id, Account *owner);
 
     /**
      * Gets a character by character name.
@@ -94,7 +96,7 @@ public:
      *
      * @return the character associated to the name
      */
-    CharacterData *getCharacter(const std::string &name);
+    std::unique_ptr<CharacterData> getCharacter(const std::string &name);
 
     /**
      * Gets the id of a character by its name.
@@ -231,7 +233,7 @@ public:
      *
      * @return true on success
      */
-    void updateCharacter(CharacterData *ptr);
+    void updateCharacter(const CharacterData &ptr);
 
     /**
      * Add a new guild.
@@ -448,7 +450,7 @@ private:
      *
      * @return the character found by the query.
      */
-    CharacterData *getCharacterBySQL(QSqlQuery &sqlQuery, Account *owner);
+    std::unique_ptr<CharacterData> getCharacterBySQL(QSqlQuery &sqlQuery, Account *owner);
 
     /**
      * Fix improper character slots

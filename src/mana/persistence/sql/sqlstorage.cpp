@@ -186,7 +186,7 @@ Account *SqlStorage::getAccountBySQL(QSqlQuery &query)
     tryExecuteSql(charInfoQuery, sql);
     if (!charInfoQuery.next())
     {
-        Characters characters;
+        std::map<unsigned, std::unique_ptr<CharacterData>> characters;
 
         qDebug() << "Account " << id << " has " << charInfoQuery.size()
                  << " character(s) in database.";
@@ -200,10 +200,9 @@ Account *SqlStorage::getAccountBySQL(QSqlQuery &query)
         int size = charInfoQuery.size();
         for (int k = 0; k < size; ++k)
         {
-            if (CharacterData *ptr =
-                    getCharacter(characterIDs[k], account))
+            if (auto ptr = getCharacter(characterIDs[k], account))
             {
-                characters[ptr->getCharacterSlot()] = ptr;
+                characters[ptr->getCharacterSlot()] = std::move(ptr);
             }
             else
             {
@@ -212,7 +211,7 @@ Account *SqlStorage::getAccountBySQL(QSqlQuery &query)
             }
         }
 
-        account->setCharacters(characters);
+        account->setCharacters(std::move(characters));
     }
 
     return account;
@@ -295,18 +294,17 @@ Account *SqlStorage::getAccount(int accountID)
     return getAccountBySQL(query);
 }
 
-CharacterData *SqlStorage::getCharacterBySQL(QSqlQuery &sqlQuery, Account *owner)
+std::unique_ptr<CharacterData> SqlStorage::getCharacterBySQL(QSqlQuery &sqlQuery, Account *owner)
 {
     tryExecutePrepared(sqlQuery);
-
-    CharacterData *character = 0;
 
     // If the character is not even in the database then
     // we have no choice but to return nothing.
     if (!sqlQuery.next())
-        return 0;
+        return nullptr;
 
-    character = new CharacterData(sqlQuery.value(2).toString().toStdString(), sqlQuery.value(0).toInt());
+
+    std::unique_ptr<CharacterData> character(new CharacterData(sqlQuery.value(2).toString().toStdString(), sqlQuery.value(0).toInt()));
     character->setGender(sqlQuery.value(3).toInt());
     character->setHairStyle(sqlQuery.value(4).toInt());
     character->setHairColor(sqlQuery.value(5).toInt());
@@ -446,7 +444,7 @@ CharacterData *SqlStorage::getCharacterBySQL(QSqlQuery &sqlQuery, Account *owner
     return character;
 }
 
-CharacterData *SqlStorage::getCharacter(int id, Account *owner)
+std::unique_ptr<CharacterData> SqlStorage::getCharacter(int id, Account *owner)
 {
     QString sql = "SELECT * FROM " + CHARACTERS_TBL_NAME + " WHERE id = :id";
     QSqlQuery query(mDb);
@@ -455,7 +453,7 @@ CharacterData *SqlStorage::getCharacter(int id, Account *owner)
     return getCharacterBySQL(query, owner);
 }
 
-CharacterData *SqlStorage::getCharacter(const std::string &name)
+std::unique_ptr<CharacterData> SqlStorage::getCharacter(const std::string &name)
 {
     QString sql = "SELECT * FROM " + CHARACTERS_TBL_NAME + " WHERE name = :name";
     QSqlQuery query(mDb);
@@ -516,7 +514,7 @@ bool SqlStorage::doesCharacterNameExist(const std::string& name)
     return query.value(0).toInt() != 0;
 }
 
-void SqlStorage::updateCharacter(CharacterData *character)
+void SqlStorage::updateCharacter(const CharacterData &character)
 {
     mDb.transaction();
 
@@ -525,16 +523,16 @@ void SqlStorage::updateCharacter(CharacterData *character)
         QString sql =
                 "update "         + CHARACTERS_TBL_NAME + " "
                 "set "
-                "gender = '"      + QString::number(character->getGender()) + "', "
-                "hair_style = '"  + QString::number(character->getHairStyle()) + "', "
-                "hair_color = '"  + QString::number(character->getHairColor()) + "', "
-                "char_pts = '"    + QString::number(character->getAttributePoints()) + "', "
-                "correct_pts = '" + QString::number(character->getCorrectionPoints()) + "', "
-                "x = '"           + QString::number(character->getPosition().x) + "', "
-                "y = '"           + QString::number(character->getPosition().y) + "', "
-                "map_id = '"      + QString::number(character->getMapId()) + "', "
-                "slot = '"        + QString::number(character->getCharacterSlot()) + "' "
-                "where id = '"    + QString::number(character->getDatabaseID()) + "';";
+                "gender = '"      + QString::number(character.getGender()) + "', "
+                "hair_style = '"  + QString::number(character.getHairStyle()) + "', "
+                "hair_color = '"  + QString::number(character.getHairColor()) + "', "
+                "char_pts = '"    + QString::number(character.getAttributePoints()) + "', "
+                "correct_pts = '" + QString::number(character.getCorrectionPoints()) + "', "
+                "x = '"           + QString::number(character.getPosition().x) + "', "
+                "y = '"           + QString::number(character.getPosition().y) + "', "
+                "map_id = '"      + QString::number(character.getMapId()) + "', "
+                "slot = '"        + QString::number(character.getCharacterSlot()) + "' "
+                "where id = '"    + QString::number(character.getDatabaseID()) + "';";
 
         QSqlQuery query(mDb);
         tryExecuteSql(query, sql);
@@ -542,9 +540,9 @@ void SqlStorage::updateCharacter(CharacterData *character)
 
     // Character attributes.
     {
-        for (auto &it : character->getAttributes())
+        for (auto &it : character.getAttributes())
         {
-            updateAttribute(character->getDatabaseID(), it.first,
+            updateAttribute(character.getDatabaseID(), it.first,
                             it.second.base, it.second.modified);
         }
     }
@@ -552,10 +550,10 @@ void SqlStorage::updateCharacter(CharacterData *character)
     // Character's kill count
     {
         std::map<int, int>::const_iterator kill_it;
-        for (kill_it = character->getKillCountBegin();
-             kill_it != character->getKillCountEnd(); ++kill_it)
+        for (kill_it = character.getKillCountBegin();
+             kill_it != character.getKillCountEnd(); ++kill_it)
         {
-            updateKillCount(character->getDatabaseID(),
+            updateKillCount(character.getDatabaseID(),
                             kill_it->first, kill_it->second);
         }
     }
@@ -564,16 +562,16 @@ void SqlStorage::updateCharacter(CharacterData *character)
     {
         QString sql = "DELETE FROM " + CHAR_ABILITIES_TBL_NAME
                 + " WHERE char_id='"
-                + QString::number(character->getDatabaseID()) + "';";
+                + QString::number(character.getDatabaseID()) + "';";
         QSqlQuery query(mDb);
         tryExecuteSql(query, sql);
 
-        for (int abilityId : character->getAbilities())
+        for (int abilityId : character.getAbilities())
         {
             QString insertSql = "INSERT INTO " + CHAR_ABILITIES_TBL_NAME
                     + " (char_id, ability_id)"
                     + " VALUES ("
-                    + " '" + QString::number(character->getDatabaseID()) + "',"
+                    + " '" + QString::number(character.getDatabaseID()) + "',"
                     + " '" + QString::number(abilityId)
                     + "');";
 
@@ -586,17 +584,17 @@ void SqlStorage::updateCharacter(CharacterData *character)
     {
         QString sql = "DELETE FROM " + QUESTLOG_TBL_NAME
                 + " WHERE char_id='"
-                + QString::number(character->getDatabaseID()) + "';";
+                + QString::number(character.getDatabaseID()) + "';";
         QSqlQuery query(mDb);
         tryExecuteSql(query, sql);
 
-        for (const QuestInfo &quest : character->getQuests())
+        for (const QuestInfo &quest : character.getQuests())
         {
             QString insertSql = "INSERT INTO " + QUESTLOG_TBL_NAME
                     + " (char_id, quest_id, quest_state, "
                     + "quest_title, quest_description)"
                     + " VALUES ("
-                    + QString::number(character->getDatabaseID()) + ","
+                    + QString::number(character.getDatabaseID()) + ","
                     + " " + QString::number(quest.id) + ","
                     + " " + QString::number(quest.state) + ","
                     + " :title,"
@@ -615,7 +613,7 @@ void SqlStorage::updateCharacter(CharacterData *character)
     // Delete the old inventory and equipment table first
     {
         QString sql = "delete from " + INVENTORIES_TBL_NAME
-                + " where owner_id = '" + QString::number(character->getDatabaseID()) + "';";
+                + " where owner_id = '" + QString::number(character.getDatabaseID()) + "';";
         mDb.exec(sql);
     }
 
@@ -623,9 +621,9 @@ void SqlStorage::updateCharacter(CharacterData *character)
     {
         QString sqlPrefix = "insert into " + INVENTORIES_TBL_NAME
                 + " (owner_id, slot, class_id, amount, equipped) values ("
-                + QString::number(character->getDatabaseID()) + ", ";
+                + QString::number(character.getDatabaseID()) + ", ";
 
-        const Possessions &poss = character->getPossessions();
+        const Possessions &poss = character.getPossessions();
         const InventoryData &inventoryData = poss.getInventory();
         for (InventoryData::const_iterator itemIt = inventoryData.begin(),
              j_end = inventoryData.end(); itemIt != j_end; ++itemIt)
@@ -647,17 +645,17 @@ void SqlStorage::updateCharacter(CharacterData *character)
     {
         // Delete the old status effects first
         QString sql = "delete from " + CHAR_STATUS_EFFECTS_TBL_NAME
-                + " where char_id = '" + QString::number(character->getDatabaseID()) + "';";
+                + " where char_id = '" + QString::number(character.getDatabaseID()) + "';";
 
         mDb.exec(sql);
     }
 
     {
         std::map<int, Status>::const_iterator status_it;
-        for (status_it = character->getStatusEffectBegin();
-             status_it != character->getStatusEffectEnd(); ++status_it)
+        for (status_it = character.getStatusEffectBegin();
+             status_it != character.getStatusEffectEnd(); ++status_it)
         {
-            insertStatusEffect(character->getDatabaseID(),
+            insertStatusEffect(character.getDatabaseID(),
                                status_it->first, status_it->second.time);
         }
     }
@@ -713,14 +711,13 @@ void SqlStorage::flush(Account *account)
     }
 
     // Get the list of characters that belong to this account.
-    Characters &characters = account->getCharacters();
+    std::map<unsigned, std::unique_ptr<CharacterData>> &characters = account->getCharacters();
 
     // Insert or update the characters.
-    for (Characters::const_iterator it = characters.begin(),
-         it_end = characters.end(); it != it_end; ++it)
+    for (auto &it : characters)
     {
-        CharacterData *character = (*it).second;
-        if (character->getDatabaseID() >= 0)
+        CharacterData &character = *it.second;
+        if (character.getDatabaseID() >= 0)
         {
             updateCharacter(character);
         }
@@ -735,29 +732,29 @@ void SqlStorage::flush(Account *account)
                  + " char_pts, correct_pts,"
                  + " x, y, map_id, slot) values ("
                  + QString::number(account->getID()) + ", :charname, "
-                 + QString::number(character->getGender()) + ", "
-                 + QString::number(character->getHairStyle()) + ", "
-                 + QString::number(character->getHairColor()) + ", "
-                 + QString::number(character->getAttributePoints()) + ", "
-                 + QString::number(character->getCorrectionPoints()) + ", "
-                 + QString::number(character->getPosition().x) + ", "
-                 + QString::number(character->getPosition().y) + ", "
-                 + QString::number(character->getMapId()) + ", "
-                 + QString::number(character->getCharacterSlot())
+                 + QString::number(character.getGender()) + ", "
+                 + QString::number(character.getHairStyle()) + ", "
+                 + QString::number(character.getHairColor()) + ", "
+                 + QString::number(character.getAttributePoints()) + ", "
+                 + QString::number(character.getCorrectionPoints()) + ", "
+                 + QString::number(character.getPosition().x) + ", "
+                 + QString::number(character.getPosition().y) + ", "
+                 + QString::number(character.getMapId()) + ", "
+                 + QString::number(character.getCharacterSlot())
                  + ");";
 
             QSqlQuery query(mDb);
             tryPrepare(query, sqlInsertCharactersTable);
-            query.bindValue(":charname", QString::fromStdString(character->getName()));
+            query.bindValue(":charname", QString::fromStdString(character.getName()));
             tryExecutePrepared(query);
 
             // Update the character ID.
-            character->setDatabaseID(query.lastInsertId().toInt());
+            character.setDatabaseID(query.lastInsertId().toInt());
 
             // Update all attributes.
-            for (auto attrPair : character->getAttributes())
+            for (auto attrPair : character.getAttributes())
             {
-                updateAttribute(character->getDatabaseID(), attrPair.first,
+                updateAttribute(character.getDatabaseID(), attrPair.first,
                                 attrPair.second.base,
                                 attrPair.second.modified);
             }
@@ -781,10 +778,9 @@ void SqlStorage::flush(Account *account)
         while(query.next()) // In database
         {
             charFound = false;
-            for (Characters::const_iterator it = characters.begin(),
-                 it_end = characters.end(); it != it_end; ++it) // In memory
+            for (auto &it : characters)
             {
-                if (query.value(0).toString().toStdString() == (*it).second->getName())
+                if (query.value(0).toString().toStdString() == it.second->getName())
                 {
                     charFound = true;
                     break;
@@ -817,7 +813,7 @@ void SqlStorage::delAccount(Account *account)
     mDb.exec(sql);
 
     // Remove the account's characters.
-    account->setCharacters(Characters());
+    account->getCharacters().clear();
 }
 
 void SqlStorage::updateLastLogin(const Account *account)
@@ -1051,12 +1047,12 @@ std::map<int, Guild*> SqlStorage::getGuildList()
         std::list<std::pair<int, int> >::const_iterator i, i_end;
         for (i = members.begin(), i_end = members.end(); i != i_end; ++i)
         {
-            CharacterData *character = getCharacter((*i).first, 0);
-            if (character)
-            {
-                character->addGuild(it->second->getName());
-                it->second->addMember(character->getDatabaseID(), (*i).second);
-            }
+            CharacterData &character = *getCharacter((*i).first, 0);
+           // if (character)
+            //{
+                character.addGuild(it->second->getName());
+                it->second->addMember(character.getDatabaseID(), (*i).second);
+            //}
         }
     }
 
@@ -1287,8 +1283,8 @@ void SqlStorage::storeLetter(Letter *letter)
         // The letter was never saved before
         QString sql = "INSERT INTO " + POST_TBL_NAME + " VALUES ( "
                 + "NULL, "
-                + QString::number(letter->getSender()->getDatabaseID()) + ", "
-                + QString::number(letter->getReceiver()->getDatabaseID()) + ", "
+                + QString::number(letter->getSender().getDatabaseID()) + ", "
+                + QString::number(letter->getReceiver().getDatabaseID()) + ", "
                 + QString::number(letter->getExpiry()) + ", "
                 + QString::number(time(0)) + ", "
                 + ":content)";
@@ -1308,9 +1304,9 @@ void SqlStorage::storeLetter(Letter *letter)
         // The letter has a unique id, update the record in the db
         QString sql = "UPDATE " + POST_TBL_NAME
                 + "   SET sender_id       = '"
-                + QString::number(letter->getSender()->getDatabaseID()) + "', "
+                + QString::number(letter->getSender().getDatabaseID()) + "', "
                 + "       receiver_id     = '"
-                + QString::number(letter->getReceiver()->getDatabaseID()) + "', "
+                + QString::number(letter->getReceiver().getDatabaseID()) + "', "
                 + "       letter_type     = '" + QString::number(letter->getType()) + "', "
                 + "       expiration_date = '" + QString::number(letter->getExpiry()) + "', "
                 + "       sending_date    = '" + QString::number(time(0)) + "', "
@@ -1344,10 +1340,12 @@ Post *SqlStorage::getStoredPost(int playerId)
     while (query.next())
     {
         // Load sender and receiver
-        CharacterData *sender = getCharacter(query.value(1).toUInt(), 0);
-        CharacterData *receiver = getCharacter(query.value(2).toUInt(), 0);
+        auto sender = getCharacter(query.value(1).toUInt(), 0);
+        auto receiver = getCharacter(query.value(2).toUInt(), 0);
 
-        Letter *letter = new Letter(query.value(3).toUInt(), sender, receiver);
+        Letter *letter = new Letter(query.value(3).toUInt(),
+                                    std::move(sender),
+                                    std::move(receiver));
 
         letter->setId(query.value(0).toUInt());
         letter->setExpiry(query.value(4).toUInt());

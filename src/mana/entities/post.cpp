@@ -22,22 +22,13 @@
 
 #include "character.h"
 
-Letter::Letter(unsigned type, CharacterData *sender, CharacterData *receiver)
+Letter::Letter(unsigned type, std::unique_ptr<CharacterData> sender, std::unique_ptr<CharacterData> receiver)
     : mId(0)
     , mType(type)
     , mExpiry(0)
-    , mSender(sender)
-    , mReceiver(receiver)
+    , mSender(std::move(sender))
+    , mReceiver(std::move(receiver))
 {
-}
-
-Letter::~Letter()
-{
-    if (mSender)
-        delete mSender;
-
-    if (mReceiver)
-        delete mReceiver;
 }
 
 void Letter::setExpiry(unsigned long expiry)
@@ -65,14 +56,14 @@ void Letter::addAttachment(InventoryItem item)
     mAttachments.push_back(item);
 }
 
-CharacterData *Letter::getReceiver() const
+CharacterData &Letter::getReceiver() const
 {
-    return mReceiver;
+    return *mReceiver;
 }
 
-CharacterData *Letter::getSender() const
+CharacterData &Letter::getSender() const
 {
-    return mSender;
+    return *mSender;
 }
 
 std::vector<InventoryItem> Letter::getAttachments() const

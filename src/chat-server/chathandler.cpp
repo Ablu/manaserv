@@ -88,16 +88,16 @@ void ChatHandler::tokenMatched(ChatClient *client, Pending *p)
     client->characterName = p->character;
     client->accountLevel = p->level;
 
-    CharacterData *c = mStorage->getCharacter(p->character);
+    auto character = mStorage->getCharacter(p->character);
 
-    if (!c)
+    if (!character)
     {
         // character wasnt found
         msg.writeInt8(ERRMSG_FAILURE);
     }
     else
     {
-        client->characterId = c->getDatabaseID();
+        client->characterId = character->getDatabaseID();
         delete p;
 
         msg.writeInt8(ERRMSG_OK);

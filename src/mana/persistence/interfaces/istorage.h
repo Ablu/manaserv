@@ -23,6 +23,7 @@
 
 #include <list>
 #include <map>
+#include <memory>
 #include <vector>
 
 #include <QString>
@@ -83,7 +84,7 @@ public:
      *
      * @return the character associated to the Id.
      */
-    virtual CharacterData *getCharacter(int id, Account *owner) = 0;
+    virtual std::unique_ptr<CharacterData> getCharacter(int id, Account *owner) = 0;
 
     /**
      * Gets a character by character name.
@@ -92,7 +93,7 @@ public:
      *
      * @return the character associated to the name
      */
-    virtual CharacterData *getCharacter(const std::string &name) = 0;
+    virtual std::unique_ptr<CharacterData> getCharacter(const std::string &name) = 0;
 
     /**
      * Gets the id of a character by its name.
@@ -229,7 +230,7 @@ public:
      *
      * @return true on success
      */
-    virtual void updateCharacter(CharacterData *ptr) = 0;
+    virtual void updateCharacter(const CharacterData &ptr) = 0;
 
     /**
      * Add a new guild.

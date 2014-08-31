@@ -176,20 +176,20 @@ bool GameServerHandler::getGameServerFromMap(int mapId,
 }
 
 static void registerGameClient(GameServer *s, const std::string &token,
-                               CharacterData *ptr)
+                               CharacterData &ptr)
 {
     MessageOut msg(AGMSG_PLAYER_ENTER);
     msg.writeString(token, MAGIC_TOKEN_LENGTH);
-    msg.writeInt32(ptr->getDatabaseID());
-    msg.writeString(ptr->getName());
-    CharacterDataUtils::serialize(*ptr, msg);
+    msg.writeInt32(ptr.getDatabaseID());
+    msg.writeString(ptr.getName());
+    CharacterDataUtils::serialize(ptr, msg);
     s->send(msg);
 }
 
 void GameServerHandler::registerClient(const std::string &token,
-                                       CharacterData *ptr)
+                                       CharacterData &ptr)
 {
-    GameServer *s = ::getGameServerFromMap(ptr->getMapId());
+    GameServer *s = ::getGameServerFromMap(ptr.getMapId());
     assert(s);
     registerGameClient(s, token, ptr);
 }
@@ -309,11 +309,10 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
         {
             LOG_DEBUG("GAMSG_PLAYER_DATA");
             int id = msg.readInt32();
-            if (CharacterData *ptr = mStorage->getCharacter(id, nullptr))
+            if (auto ptr = mStorage->getCharacter(id, nullptr))
             {
                 CharacterDataUtils::deserialize(*ptr, msg);
-                mStorage->updateCharacter(ptr);
-                delete ptr;
+                mStorage->updateCharacter(*ptr);
             }
             else
             {
@@ -333,12 +332,12 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
             LOG_DEBUG("GAMSG_REDIRECT");
             int id = msg.readInt32();
             std::string magic_token(utils::getMagicToken());
-            if (CharacterData *ptr = mStorage->getCharacter(id, nullptr))
+            if (auto ptr = mStorage->getCharacter(id, nullptr))
             {
                 int mapId = ptr->getMapId();
                 if (GameServer *s = getGameServerFromMap(mapId))
                 {
-                    registerGameClient(s, magic_token, ptr);
+                    registerGameClient(s, magic_token, *ptr);
                     MessageOut result(AGMSG_REDIRECT_RESPONSE);
                     result.writeInt32(id);
                     result.writeString(magic_token, MAGIC_TOKEN_LENGTH);
@@ -351,7 +350,6 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
                     LOG_ERROR("Server Change: No game server for map " <<
                               mapId << '.');
                 }
-                delete ptr;
             }
             else
             {
@@ -366,11 +364,10 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
             int id = msg.readInt32();
             std::string magic_token = msg.readString(MAGIC_TOKEN_LENGTH);
 
-            if (CharacterData *ptr = mStorage->getCharacter(id, nullptr))
+            if (auto ptr = mStorage->getCharacter(id, nullptr))
             {
                 int accountID = ptr->getAccountID();
                 AccountClientHandler::prepareReconnect(magic_token, accountID);
-                delete ptr;
             }
             else
             {
@@ -436,10 +433,10 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
             int level = msg.readInt16();
 
             // get the character so we can get the account id
-            CharacterData *c = mStorage->getCharacter(id, nullptr);
-            if (c)
+            auto character = mStorage->getCharacter(id, nullptr);
+            if (character)
             {
-                mStorage->setAccountLevel(c->getAccountID(), level);
+                mStorage->setAccountLevel(character->getAccountID(), level);
             }
         } break;
 
@@ -482,7 +479,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
             result.writeInt32(characterId);
 
             // get the character based on the id
-            CharacterData *ptr = mStorage->getCharacter(characterId, nullptr);
+            auto ptr = mStorage->getCharacter(characterId, nullptr);
             if (!ptr)
             {
                 // Invalid character
@@ -491,7 +488,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
             }
 
             // get the post for that character
-            Post *post = postalManager->getPost(ptr);
+            Post *post = postalManager->getPost(*ptr);
 
             // send the post if valid
             if (post)
@@ -501,7 +498,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
                     // get each letter, send the sender's name,
                     // the contents and any attachments
                     Letter *letter = post->getLetter(i);
-                    result.writeString(letter->getSender()->getName());
+                    result.writeString(letter->getSender().getName());
                     result.writeString(letter->getContents());
                     std::vector<InventoryItem> items = letter->getAttachments();
                     for (unsigned j = 0; j < items.size(); ++j)
@@ -512,7 +509,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
                 }
 
                 // clean up
-                postalManager->clearPost(ptr);
+                postalManager->clearPost(*ptr);
             }
 
             comp->send(result);
@@ -532,8 +529,8 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
             result.writeInt32(senderId);
 
             // get their characters
-            CharacterData *sender = mStorage->getCharacter(senderId, nullptr);
-            CharacterData *receiver = mStorage->getCharacter(receiverName);
+            auto sender = mStorage->getCharacter(senderId, nullptr);
+            auto receiver = mStorage->getCharacter(receiverName);
             if (!sender || !receiver)
             {
                 // Invalid character
@@ -553,7 +550,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
 
             // save the letter
             LOG_DEBUG("Creating letter");
-            Letter *letter = new Letter(0, sender, receiver);
+            Letter *letter = new Letter(0, std::move(sender), std::move(receiver));
             letter->addText(contents);
             for (unsigned i = 0; i < items.size(); ++i)
             {
@@ -667,13 +664,13 @@ void GameServerHandler::dumpStatistics(std::ostream &os)
     }
 }
 
-void GameServerHandler::sendPartyChange(CharacterData *ptr, int partyId)
+void GameServerHandler::sendPartyChange(CharacterData &ptr, int partyId)
 {
-    GameServer *s = ::getGameServerFromMap(ptr->getMapId());
+    GameServer *s = ::getGameServerFromMap(ptr.getMapId());
     if (s)
     {
         MessageOut msg(CGMSG_CHANGED_PARTY);
-        msg.writeInt32(ptr->getDatabaseID());
+        msg.writeInt32(ptr.getDatabaseID());
         msg.writeInt32(partyId);
         s->send(msg);
     }

@@ -22,6 +22,7 @@
 #define POST_H
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -42,10 +43,8 @@ public:
      * @param receiver Pointer to character that will receive the letter
      */
     Letter(unsigned type,
-           CharacterData *sender,
-           CharacterData *receiver);
-
-    ~Letter();
+           std::unique_ptr<CharacterData> sender,
+           std::unique_ptr<CharacterData> receiver);
 
     /**
      * Gets the unique Id of the letter.
@@ -100,13 +99,13 @@ public:
      * Get the character receiving the letter
      * @return Returns the Character who will receive the letter
      */
-    CharacterData *getReceiver() const;
+    CharacterData &getReceiver() const;
 
     /**
      * Get the character who sent the letter
      * @return Returns the Character who sent the letter
      */
-    CharacterData *getSender() const;
+    CharacterData &getSender() const;
 
     /**
      * Get the attachments
@@ -119,8 +118,8 @@ private:
     unsigned long mExpiry;
     std::string mContents;
     std::vector<InventoryItem> mAttachments;
-    CharacterData *mSender;
-    CharacterData *mReceiver;
+    std::unique_ptr<CharacterData> mSender;
+    std::unique_ptr<CharacterData> mReceiver;
 };
 
 class Post

@@ -51,7 +51,7 @@ namespace GameServerHandler
     /**
      * Warns a game server about a soon-to-connect client.
      */
-    void registerClient(const std::string &token, CharacterData *);
+    void registerClient(const std::string &token, CharacterData &);
 
     /**
      * Dumps per-server statistics into given stream
@@ -66,7 +66,7 @@ namespace GameServerHandler
     /**
      * Sends chat party information
      */
-    void sendPartyChange(CharacterData *ptr, int partyId);
+    void sendPartyChange(CharacterData &ptr, int partyId);
 
     /**
      * Takes a GAMSG_PLAYER_SYNC from the gameserver and stores all changes in

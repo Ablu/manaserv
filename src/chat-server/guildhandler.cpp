@@ -129,8 +129,8 @@ void ChatHandler::sendGuildListUpdate(Guild *guild,
     for (std::list<GuildMember*>::const_iterator itr = members.begin();
          itr != members.end(); ++itr)
     {
-        CharacterData *c = mStorage->getCharacter((*itr)->mId, nullptr);
-        chr = mPlayerMap.find(c->getName());
+        auto character = mStorage->getCharacter((*itr)->mId, nullptr);
+        chr = mPlayerMap.find(character->getName());
         if (chr != mPlayerMap.end())
         {
             chr->second->send(msg);
@@ -295,8 +295,8 @@ void ChatHandler::handleGuildGetMembers(ChatClient &client, MessageIn &msg)
             for (std::list<GuildMember*>::iterator itr = memberList.begin();
                  itr != itr_end; ++itr)
             {
-                CharacterData *c = mStorage->getCharacter((*itr)->mId, nullptr);
-                std::string memberName = c->getName();
+                auto character = mStorage->getCharacter((*itr)->mId, nullptr);
+                std::string memberName = character->getName();
                 reply.writeString(memberName);
                 reply.writeInt8(mPlayerMap.find(memberName) != mPlayerMap.end());
             }
@@ -320,12 +320,12 @@ void ChatHandler::handleGuildMemberLevelChange(ChatClient &client,
     std::string user = msg.readString();
     short level = msg.readInt8();
     Guild *guild = guildManager->findById(guildId);
-    CharacterData *c = mStorage->getCharacter(user);
+    auto character = mStorage->getCharacter(user);
 
-    if (guild && c)
+    if (guild && character)
     {
-        int rights = guild->getUserPermissions(c->getDatabaseID()) | level;
-        if (guildManager->changeMemberLevel(&client, guild, c->getDatabaseID(),
+        int rights = guild->getUserPermissions(character->getDatabaseID()) | level;
+        if (guildManager->changeMemberLevel(&client, guild, character->getDatabaseID(),
                                             rights) == 0)
         {
             reply.writeInt8(ERRMSG_OK);
