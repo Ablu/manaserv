@@ -109,4 +109,42 @@ void SqlStorageTest::characterSaveAndGetTest()
     QCOMPARE(mStorage->getCharacterId("Test"), (unsigned)characterId);
 }
 
+void SqlStorageTest::accountDeletion()
+{
+    auto account = createTestAccount();
+    mStorage->addAccount(*account);
+    mStorage->delAccount(*account);
+
+    QVERIFY2(!mStorage->getAccount("test"), "Account is still there!");
+}
+
+void SqlStorageTest::accountDeletionWithCharacters()
+{
+    auto account = createTestAccount();
+    mStorage->addAccount(*account);
+
+    auto character = createTestCharacter();
+    account->addCharacter(std::move(character));
+    mStorage->flush(*account);
+
+    mStorage->delAccount(*account);
+
+    QVERIFY2(!mStorage->getAccount("test"), "Account is still there!");
+    QVERIFY2(!mStorage->getCharacter("Test"), "Character is still there!");
+}
+
+void SqlStorageTest::characterDeletion()
+{
+    auto account = createTestAccount();
+    mStorage->addAccount(*account);
+
+    auto character = createTestCharacter();
+    account->addCharacter(std::move(character));
+    mStorage->flush(*account);
+    int characterId = account->getCharacters()[0]->getDatabaseId();
+
+    mStorage->delCharacter(characterId);
+    QVERIFY2(!mStorage->getCharacter("Test"), "Character is still there!");
+}
+
 QTEST_MAIN(SqlStorageTest)

@@ -15,6 +15,10 @@ private slots:
 
     void characterSaveAndGetTest();
 
+    void accountDeletion();
+    void accountDeletionWithCharacters();
+    void characterDeletion();
+
 private:
     SqlStorage *mStorage = nullptr;
 };
