@@ -802,6 +802,9 @@ void SqlStorage::flush(Account &account)
 
 void SqlStorage::delAccount(Account &account)
 {
+    // Remove the account's characters.
+    account.getCharacters().clear();
+
     // Sync the account info into the database.
     flush(account);
 
@@ -809,9 +812,6 @@ void SqlStorage::delAccount(Account &account)
     QString sql = "delete from " + ACCOUNTS_TBL_NAME
             + " where id = '" + QString::number(account.getId()) + "';";
     mDb.exec(sql);
-
-    // Remove the account's characters.
-    account.getCharacters().clear();
 }
 
 void SqlStorage::updateLastLogin(Account &account)
