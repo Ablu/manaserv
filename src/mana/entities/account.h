@@ -36,7 +36,7 @@ class Account
 {
 public:
     Account(int id = -1)
-        : mID(id)
+        : mId(id)
         , mLevel(0)
         , mRegistrationDate(0)
         , mLastLogin(0)
@@ -183,14 +183,14 @@ public:
      *
      * @return the unique ID of the account, a negative number if none yet.
      */
-    int getID() const
-    { return mID; }
+    int getId() const
+    { return mId; }
 
     /**
      * Set account ID.
      * The account shall not have any ID yet.
      */
-    void setID(int);
+    void setId(int);
 
     /**
      * Get the time of the account registration.
@@ -228,7 +228,7 @@ private:
                                    protect against replay attacks.*/
     QString mEmail;       /**< User email address (hashed) */
     std::map<unsigned, std::unique_ptr<CharacterData>> mCharacters;   /**< Character data */
-    int mID;                  /**< Unique id */
+    int mId;                  /**< Unique id */
     unsigned char mLevel;     /**< Account level */
     time_t mRegistrationDate; /**< Date and time of the account registration */
     time_t mLastLogin;        /**< Date and time of the last login */

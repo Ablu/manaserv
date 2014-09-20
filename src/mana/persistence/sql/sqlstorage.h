@@ -68,7 +68,7 @@ public:
      *
      * @return the account associated to the user name.
      */
-    Account *getAccount(const QString &userName);
+    std::unique_ptr<Account> getAccount(const QString &userName);
 
     /**
      * Get an account by Id.
@@ -77,7 +77,7 @@ public:
      *
      * @return the account associated with the Id.
      */
-    Account *getAccount(int accountId);
+    std::unique_ptr<Account> getAccount(int accountId);
 
     /**
      * Gets a character by database Id.
@@ -87,7 +87,7 @@ public:
      *
      * @return the character associated to the Id.
      */
-    std::unique_ptr<CharacterData> getCharacter(int id, Account *owner);
+    std::unique_ptr<CharacterData> getCharacter(int id, const Account *owner);
 
     /**
      * Gets a character by character name.
@@ -112,21 +112,21 @@ public:
      *
      * @param account the new account.
      */
-    void addAccount(Account *account);
+    void addAccount(Account &account);
 
     /**
      * Delete an account and its associated data from the database.
      *
      * @param account the account to delete.
      */
-    void delAccount(Account *account);
+    void delAccount(Account &account);
 
     /**
      * Update the date and time of the last login.
      *
      * @param account the account that recently logged in.
      */
-    void updateLastLogin(const Account *account);
+    void updateLastLogin(Account &account);
 
     /**
      * Write a modification message about Character points to the database.
@@ -318,7 +318,7 @@ public:
      *
      * @param Account object to update.
      */
-    void flush(Account *);
+    void flush(Account &);
 
     /**
      * Gets the value of a quest variable.
@@ -441,7 +441,7 @@ private:
      *
      * @return the account found
      */
-    Account *getAccountBySQL(QSqlQuery &query);
+    std::unique_ptr<Account> getAccountBySQL(QSqlQuery &query);
 
     /**
      * Gets a character from a prepared SQL statement
@@ -450,7 +450,7 @@ private:
      *
      * @return the character found by the query.
      */
-    std::unique_ptr<CharacterData> getCharacterBySQL(QSqlQuery &sqlQuery, Account *owner);
+    std::unique_ptr<CharacterData> getCharacterBySQL(QSqlQuery &sqlQuery, const Account *owner);
 
     /**
      * Fix improper character slots

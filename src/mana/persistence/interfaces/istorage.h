@@ -65,7 +65,7 @@ public:
      *
      * @return the account associated to the user name.
      */
-    virtual Account *getAccount(const QString &userName) = 0;
+    virtual std::unique_ptr<Account> getAccount(const QString &userName) = 0;
 
     /**
      * Get an account by Id.
@@ -74,7 +74,7 @@ public:
      *
      * @return the account associated with the Id.
      */
-    virtual Account *getAccount(int accountId) = 0;
+    virtual std::unique_ptr<Account> getAccount(int accountId) = 0;
 
     /**
      * Gets a character by database Id.
@@ -84,7 +84,7 @@ public:
      *
      * @return the character associated to the Id.
      */
-    virtual std::unique_ptr<CharacterData> getCharacter(int id, Account *owner) = 0;
+    virtual std::unique_ptr<CharacterData> getCharacter(int id, const Account *owner) = 0;
 
     /**
      * Gets a character by character name.
@@ -109,21 +109,21 @@ public:
      *
      * @param account the new account.
      */
-    virtual void addAccount(Account *account) = 0;
+    virtual void addAccount(Account &account) = 0;
 
     /**
      * Delete an account and its associated data from the database.
      *
      * @param account the account to delete.
      */
-    virtual void delAccount(Account *account) = 0;
+    virtual void delAccount(Account &account) = 0;
 
     /**
      * Update the date and time of the last login.
      *
      * @param account the account that recently logged in.
      */
-    virtual void updateLastLogin(const Account *account) = 0;
+    virtual void updateLastLogin(Account &account) = 0;
 
     /**
      * Write a modification message about Character points to the database.
@@ -315,7 +315,7 @@ public:
      *
      * @param Account object to update.
      */
-    virtual void flush(Account *) = 0;
+    virtual void flush(Account &) = 0;
 
     /**
      * Gets the value of a quest variable.

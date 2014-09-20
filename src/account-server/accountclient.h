@@ -45,9 +45,9 @@ class AccountClient : public NetComputer
 public:
     AccountClient(ENetPeer *peer);
 
-    void setAccount(Account *acc);
-    void unsetAccount();
-    Account *getAccount() const;
+    void setAccount(std::unique_ptr<Account> account);
+    void releaseAccount();
+    const std::unique_ptr<Account> &getAccount() const;
 
     AccountClientStatus status;
     int version;
@@ -59,25 +59,25 @@ private:
 /**
  * Set the account associated with the connection.
  */
-inline void AccountClient::setAccount(Account *acc)
+inline void AccountClient::setAccount(std::unique_ptr<Account> account)
 {
-    mAccount.reset(acc);
+    mAccount = std::move(account);
 }
 
 /**
  * Unset the account associated with the connection.
  */
-inline void AccountClient::unsetAccount()
+inline void AccountClient::releaseAccount()
 {
-    mAccount.reset();
+    mAccount.release();
 }
 
 /**
  * Get account associated with the connection.
  */
-inline Account *AccountClient::getAccount() const
+inline const std::unique_ptr<Account> &AccountClient::getAccount() const
 {
-    return mAccount.get();
+    return mAccount;
 }
 
 #endif // ACCOUNTCLIENT_H

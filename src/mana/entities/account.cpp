@@ -51,10 +51,10 @@ void Account::delCharacter(unsigned slot)
     }
 }
 
-void Account::setID(int id)
+void Account::setId(int id)
 {
-    assert(mID < 0);
-    mID = id;
+    assert(mId < 0);
+    mId = id;
 }
 
 void Account::setRegistrationDate(time_t time)

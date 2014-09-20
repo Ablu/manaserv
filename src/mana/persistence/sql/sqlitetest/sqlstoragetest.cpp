@@ -66,10 +66,10 @@ void SqlStorageTest::characterSaveAndGetTest()
     account.setName("test");
     account.setEmail("test");
     account.setPassword("test");
-    mStorage->addAccount(&account);
+    mStorage->addAccount(account);
 
     account.addCharacter(std::move(character));
-    mStorage->flush(&account);
+    mStorage->flush(account);
 
     auto characterFromStorage = mStorage->getCharacter("Test");
     QVERIFY2(characterFromStorage, "The character just stored was unable to retreive!");

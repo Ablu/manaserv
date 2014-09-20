@@ -109,7 +109,7 @@ private:
     /** List of all accounts which requested a random seed, but are not logged
      *  yet. This list will be regularly remove (after timeout) old accounts
      */
-    std::list<Account*> mPendingAccounts;
+    std::map<QString, std::unique_ptr<Account>> mPendingAccounts;
 
     /** List of attributes that the client can send at account creation. */
     std::vector<int> mModifiableAttributes;
@@ -336,10 +336,10 @@ void AccountHandler::handleLoginRandTriggerMessage(AccountClient &client, Messag
     QString salt = getRandomString(4);
     QString username = msg.readString();
 
-    if (Account *acc = mStorage->getAccount(username))
+    if (auto account = mStorage->getAccount(username))
     {
-        acc->setRandomSalt(salt);
-        mPendingAccounts.push_back(acc);
+        account->setRandomSalt(salt);
+        mPendingAccounts.emplace(account->getName(), std::move(account));
     }
     MessageOut reply(APMSG_LOGIN_RNDTRGR_RESPONSE);
     reply.writeString(salt);
@@ -403,26 +403,23 @@ void AccountHandler::handleLoginMessage(AccountClient &client, MessageIn &msg)
     }
 
     // Check if the account exists
-    Account *acc = nullptr;
-    for (Account *account : mPendingAccounts)
-        if (account->getName() == username)
-            acc = account;
-    mPendingAccounts.remove(acc);
+    std::unique_ptr<Account> account = std::move(mPendingAccounts.at(username));
+    mPendingAccounts.erase(username);
 
-    if (!acc || QString::fromStdString(
-                    sha256((acc->getPassword() + acc->getRandomSalt())
+    if (!account || QString::fromStdString(
+                    sha256((account->getPassword() + account->getRandomSalt())
                                .toStdString())) != password) {
         reply.writeInt8(ERRMSG_INVALID_ARGUMENT);
         client.send(reply);
-        delete acc;
+        account.release();
         return;
     }
 
-    if (acc->getLevel() == AL_BANNED)
+    if (account->getLevel() == AL_BANNED)
     {
         reply.writeInt8(LOGIN_BANNED);
         client.send(reply);
-        delete acc;
+        account.release();
         return;
     }
 
@@ -431,17 +428,15 @@ void AccountHandler::handleLoginMessage(AccountClient &client, MessageIn &msg)
     // Set lastLogin date of the account.
     time_t login;
     time(&login);
-    acc->setLastLogin(login);
-    mStorage->updateLastLogin(acc);
+    account->setLastLogin(login);
+    mStorage->updateLastLogin(*account);
 
-    // Associate account with connection.
-    client.setAccount(acc);
     client.status = CLIENT_CONNECTED;
 
     reply.writeInt8(ERRMSG_OK);
     addServerInfo(&reply);
 
-    auto &chars = acc->getCharacters();
+    auto &chars = account->getCharacters();
 
     if (client.version < 10) {
         client.send(reply);
@@ -451,6 +446,8 @@ void AccountHandler::handleLoginMessage(AccountClient &client, MessageIn &msg)
             sendCharacterData(reply, *charIt.second);
         client.send(reply);
     }
+
+    client.setAccount(std::move(account));
 }
 
 void AccountHandler::handleLogoutMessage(AccountClient &client)
@@ -463,7 +460,7 @@ void AccountHandler::handleLogoutMessage(AccountClient &client)
     }
     else if (client.status == CLIENT_CONNECTED)
     {
-        client.unsetAccount();
+        client.releaseAccount();
         client.status = CLIENT_LOGIN;
         reply.writeInt8(ERRMSG_OK);
     }
@@ -544,27 +541,27 @@ void AccountHandler::handleRegisterMessage(AccountClient &client,
     }
     else
     {
-        Account *acc = new Account;
-        acc->setName(username);
-        acc->setPassword(QString::fromStdString(sha256(password.toStdString())));
+        std::unique_ptr<Account> account(new Account);
+        account->setName(username);
+        account->setPassword(QString::fromStdString(sha256(password.toStdString())));
         // We hash email server-side for additional privacy
         // we ask for it again when we need it and verify it
         // through comparing it with the hash.
-        acc->setEmail(QString::fromStdString(sha256(email.toStdString())));
-        acc->setLevel(AL_PLAYER);
+        account->setEmail(QString::fromStdString(sha256(email.toStdString())));
+        account->setLevel(AL_PLAYER);
 
         // Set the date and time of the account registration, and the last login
         time_t regdate;
         time(&regdate);
-        acc->setRegistrationDate(regdate);
-        acc->setLastLogin(regdate);
+        account->setRegistrationDate(regdate);
+        account->setLastLogin(regdate);
 
-        mStorage->addAccount(acc);
+        mStorage->addAccount(*account);
         reply.writeInt8(ERRMSG_OK);
         addServerInfo(&reply);
 
         // Associate account with connection
-        client.setAccount(acc);
+        client.setAccount(std::move(account));
         client.status = CLIENT_CONNECTED;
     }
 
@@ -596,20 +593,19 @@ void AccountHandler::handleUnregisterMessage(AccountClient &client,
     }
 
     // See whether the account exists
-    Account *acc = mStorage->getAccount(username);
+    const std::unique_ptr<Account> account = mStorage->getAccount(username);
 
-    if (!acc || acc->getPassword() != QString::fromStdString(sha256(password.toStdString())))
+    if (!account || account->getPassword() != QString::fromStdString(sha256(password.toStdString())))
     {
         reply.writeInt8(ERRMSG_INVALID_ARGUMENT);
         client.send(reply);
-        delete acc;
         return;
     }
 
     // Delete account and associated characters
     LOG_INFO("Unregistered \"" << username
-             << "\", AccountID: " << acc->getID());
-    mStorage->delAccount(acc);
+             << "\", AccountID: " << account->getId());
+    mStorage->delAccount(*account);
     reply.writeInt8(ERRMSG_OK);
 
     client.send(reply);
@@ -642,8 +638,8 @@ void AccountHandler::handleEmailChangeMessage(AccountClient &client,
 {
     MessageOut reply(APMSG_EMAIL_CHANGE_RESPONSE);
 
-    Account *acc = client.getAccount();
-    if (!acc)
+    const std::unique_ptr<Account> &account = client.getAccount();
+    if (!account)
     {
         reply.writeInt8(ERRMSG_NO_LOGIN);
         client.send(reply);
@@ -667,9 +663,9 @@ void AccountHandler::handleEmailChangeMessage(AccountClient &client,
     }
     else
     {
-        acc->setEmail(emailHash);
+        account->setEmail(emailHash);
         // Keep the database up to date otherwise we will go out of sync
-        mStorage->flush(acc);
+        mStorage->flush(*account);
         reply.writeInt8(ERRMSG_OK);
     }
     client.send(reply);
@@ -683,8 +679,8 @@ void AccountHandler::handlePasswordChangeMessage(AccountClient &client,
 
     MessageOut reply(APMSG_PASSWORD_CHANGE_RESPONSE);
 
-    Account *acc = client.getAccount();
-    if (!acc)
+    const std::unique_ptr<Account> &account = client.getAccount();
+    if (!account)
     {
         reply.writeInt8(ERRMSG_NO_LOGIN);
     }
@@ -692,15 +688,15 @@ void AccountHandler::handlePasswordChangeMessage(AccountClient &client,
     {
         reply.writeInt8(ERRMSG_INVALID_ARGUMENT);
     }
-    else if (oldPassword != acc->getPassword())
+    else if (oldPassword != account->getPassword())
     {
         reply.writeInt8(ERRMSG_FAILURE);
     }
     else
     {
-        acc->setPassword(newPassword);
+        account->setPassword(newPassword);
         // Keep the database up to date otherwise we will go out of sync
-        mStorage->flush(acc);
+        mStorage->flush(*account);
         reply.writeInt8(ERRMSG_OK);
     }
 
@@ -722,8 +718,8 @@ void AccountHandler::handleCharacterCreateMessage(AccountClient &client,
 
     MessageOut reply(APMSG_CHAR_CREATE_RESPONSE);
 
-    Account *acc = client.getAccount();
-    if (!acc)
+    const std::unique_ptr<Account> &account = client.getAccount();
+    if (!account)
     {
         reply.writeInt8(ERRMSG_NO_LOGIN);
     }
@@ -763,9 +759,9 @@ void AccountHandler::handleCharacterCreateMessage(AccountClient &client,
 
         // An account shouldn't have more
         // than <account_maxCharacters> characters.
-        auto &chars = acc->getCharacters();
+        auto &chars = account->getCharacters();
         if (slot < 1 || slot > mMaxCharacters
-            || !acc->isSlotEmpty((unsigned) slot))
+            || !account->isSlotEmpty((unsigned) slot))
         {
             reply.writeInt8(CREATE_INVALID_SLOT);
             client.send(reply);
@@ -823,7 +819,8 @@ void AccountHandler::handleCharacterCreateMessage(AccountClient &client,
 
             newCharacter->mAttributes.insert(mDefaultAttributes.begin(),
                                              mDefaultAttributes.end());
-            newCharacter->setAccount(acc);
+            newCharacter->setAccountID(account->getId());
+            newCharacter->setAccountLevel(account->getLevel());
             newCharacter->setCharacterSlot(slot);
             newCharacter->setGender(gender);
             newCharacter->setHairStyle(hairStyle);
@@ -837,7 +834,7 @@ void AccountHandler::handleCharacterCreateMessage(AccountClient &client,
             Transaction trans;
             trans.mCharacterId = newCharacter->getDatabaseID();
             trans.mAction = TRANS_CHAR_CREATE;
-            trans.mMessage = acc->getName() + " created character ";
+            trans.mMessage = account->getName() + " created character ";
             trans.mMessage.append("called " + name);
             mStorage->addTransaction(trans);
 
@@ -846,12 +843,12 @@ void AccountHandler::handleCharacterCreateMessage(AccountClient &client,
             sendCharacterData(reply, *newCharacter);
             client.send(reply);
 
-            acc->addCharacter(std::move(newCharacter));
+            account->addCharacter(std::move(newCharacter));
 
             LOG_INFO("Character " << name << " was created for "
-                     << acc->getName() << "'s account.");
+                     << account->getName() << "'s account.");
 
-            mStorage->flush(acc); // flush changes
+            mStorage->flush(*account); // flush changes
             return;
         }
     }
@@ -864,8 +861,8 @@ void AccountHandler::handleCharacterSelectMessage(AccountClient &client,
 {
     MessageOut reply(APMSG_CHAR_SELECT_RESPONSE);
 
-    Account *acc = client.getAccount();
-    if (!acc)
+    const std::unique_ptr<Account> &account = client.getAccount();
+    if (!account)
     {
         reply.writeInt8(ERRMSG_NO_LOGIN);
         client.send(reply);
@@ -873,7 +870,7 @@ void AccountHandler::handleCharacterSelectMessage(AccountClient &client,
     }
 
     int slot = msg.readInt8();
-    auto &chars = acc->getCharacters();
+    auto &chars = account->getCharacters();
 
     if (chars.find(slot) == chars.end())
     {
@@ -919,7 +916,7 @@ void AccountHandler::handleCharacterSelectMessage(AccountClient &client,
                                              alternativePort));
 
     GameServerHandler::registerClient(magic_token, selectedChar);
-    registerChatClient(magic_token, selectedChar.getName(), acc->getLevel());
+    registerChatClient(magic_token, selectedChar.getName(), account->getLevel());
 
     client.send(reply);
 
@@ -935,8 +932,8 @@ void AccountHandler::handleCharacterDeleteMessage(AccountClient &client,
 {
     MessageOut reply(APMSG_CHAR_DELETE_RESPONSE);
 
-    Account *acc = client.getAccount();
-    if (!acc)
+    const std::unique_ptr<Account> &account = client.getAccount();
+    if (!account)
     {
         reply.writeInt8(ERRMSG_NO_LOGIN);
         client.send(reply);
@@ -944,9 +941,9 @@ void AccountHandler::handleCharacterDeleteMessage(AccountClient &client,
     }
 
     int slot = msg.readInt8();
-    auto &chars = acc->getCharacters();
+    auto &chars = account->getCharacters();
 
-    if (slot < 1 || acc->isSlotEmpty(slot))
+    if (slot < 1 || account->isSlotEmpty(slot))
     {
         // Invalid char selection
         reply.writeInt8(ERRMSG_INVALID_ARGUMENT);
@@ -962,11 +959,11 @@ void AccountHandler::handleCharacterDeleteMessage(AccountClient &client,
     trans.mCharacterId = chars[slot]->getDatabaseID();
     trans.mAction = TRANS_CHAR_DELETED;
     trans.mMessage = chars[slot]->getName() + " deleted by ";
-    trans.mMessage.append(acc->getName());
+    trans.mMessage.append(account->getName());
     mStorage->addTransaction(trans);
 
-    acc->delCharacter(slot);
-    mStorage->flush(acc);
+    account->delCharacter(slot);
+    mStorage->flush(*account);
 
     reply.writeInt8(ERRMSG_OK);
     client.send(reply);
@@ -987,23 +984,24 @@ void AccountHandler::addServerInfo(MessageOut *msg)
     msg->writeInt8(mMaxCharacters);
 }
 
-void AccountHandler::tokenMatched(AccountClient *client, int accountID)
+void AccountHandler::tokenMatched(AccountClient *client, int accountId)
 {
     MessageOut reply(APMSG_RECONNECT_RESPONSE);
 
     // Associate account with connection.
-    Account *acc = mStorage->getAccount(accountID);
-    client->setAccount(acc);
+    std::unique_ptr<Account> account = mStorage->getAccount(accountId);
     client->status = CLIENT_CONNECTED;
 
     reply.writeInt8(ERRMSG_OK);
     client->send(reply);
 
     // Return information about available characters
-    auto &chars = acc->getCharacters();
+    auto &chars = account->getCharacters();
 
     // Send characters list
     sendFullCharacterData(client, chars);
+
+    client->setAccount(std::move(account));
 }
 
 void AccountHandler::deletePendingClient(AccountClient *client)

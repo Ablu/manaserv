@@ -97,13 +97,6 @@ public:
     void setCharacterSlot(unsigned slot)
     { mCharacterSlot = slot; }
 
-    /** Gets the account the character belongs to. */
-    Account *getAccount() const
-    { return mAccount; }
-
-    /** Sets the account the character belongs to, and related fields. */
-    void setAccount(Account *ptr);
-
     /**
      * Gets the ID of the account the character belongs to.
      */
@@ -254,7 +247,6 @@ private:
     int mDatabaseID;          //!< Character database ID.
     unsigned mCharacterSlot;  //!< Character slot.
     int mAccountID;           //!< Account ID of the owner.
-    Account *mAccount;        //!< Account owning the character.
     Point mPos;               //!< Position the being is at.
     AttributeMap mAttributes; //!< Attributes.
     std::map<int, Status> mStatusEffects; //!< Status Effects

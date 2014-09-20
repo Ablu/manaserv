@@ -30,7 +30,6 @@ CharacterData::CharacterData(const QString &name, int id):
     mDatabaseID(id),
     mCharacterSlot(0),
     mAccountID(-1),
-    mAccount(nullptr),
     mMapId(0),
     mGender(0),
     mHairStyle(0),
@@ -39,13 +38,6 @@ CharacterData::CharacterData(const QString &name, int id):
     mCorrectionPoints(0),
     mAccountLevel(0)
 {
-}
-
-void CharacterData::setAccount(Account *acc)
-{
-    mAccount = acc;
-    mAccountID = acc->getID();
-    mAccountLevel = acc->getLevel();
 }
 
 void CharacterData::giveAbility(int id)

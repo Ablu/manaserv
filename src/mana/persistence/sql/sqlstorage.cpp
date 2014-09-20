@@ -142,7 +142,7 @@ void SqlStorage::close()
     mDb.close();
 }
 
-Account *SqlStorage::getAccountBySQL(QSqlQuery &query)
+std::unique_ptr<Account> SqlStorage::getAccountBySQL(QSqlQuery &query)
 {
     tryExecutePrepared(query);
 
@@ -155,7 +155,7 @@ Account *SqlStorage::getAccountBySQL(QSqlQuery &query)
 
     // Create an Account instance
     // and initialize it with information about the user.
-    Account *account = new Account(id);
+    std::unique_ptr<Account> account(new Account(id));
     account->setName(query.value(1).toString());
     account->setPassword(query.value(2).toString());
     account->setEmail(query.value(3).toString());
@@ -199,7 +199,7 @@ Account *SqlStorage::getAccountBySQL(QSqlQuery &query)
         int size = charInfoQuery.size();
         for (int k = 0; k < size; ++k)
         {
-            if (auto ptr = getCharacter(characterIDs[k], account))
+            if (auto ptr = getCharacter(characterIDs[k], account.get()))
             {
                 characters[ptr->getCharacterSlot()] = std::move(ptr);
             }
@@ -274,7 +274,7 @@ void SqlStorage::fixCharactersSlot(int accountId)
     }
 }
 
-Account *SqlStorage::getAccount(const QString &userName)
+std::unique_ptr<Account> SqlStorage::getAccount(const QString &userName)
 {
     QString sql = "SELECT * FROM " + ACCOUNTS_TBL_NAME + " WHERE username = :username";
     QSqlQuery query(mDb);
@@ -284,7 +284,7 @@ Account *SqlStorage::getAccount(const QString &userName)
     return 0;
 }
 
-Account *SqlStorage::getAccount(int accountID)
+std::unique_ptr<Account> SqlStorage::getAccount(int accountID)
 {
     QString sql = "SELECT * FROM " + ACCOUNTS_TBL_NAME + " WHERE id = :id";
     QSqlQuery query(mDb);
@@ -293,7 +293,7 @@ Account *SqlStorage::getAccount(int accountID)
     return getAccountBySQL(query);
 }
 
-std::unique_ptr<CharacterData> SqlStorage::getCharacterBySQL(QSqlQuery &sqlQuery, Account *owner)
+std::unique_ptr<CharacterData> SqlStorage::getCharacterBySQL(QSqlQuery &sqlQuery, const Account *owner)
 {
     tryExecutePrepared(sqlQuery);
 
@@ -321,12 +321,11 @@ std::unique_ptr<CharacterData> SqlStorage::getCharacterBySQL(QSqlQuery &sqlQuery
     // SQL query.
     if (owner)
     {
-        character->setAccount(owner);
+        character->setAccountLevel(owner->getLevel());
     }
     else
     {
         int id = sqlQuery.value(1).toInt();
-        character->setAccountID(id);
         QString sql = "select level from " + ACCOUNTS_TBL_NAME
                 + " where id = '" + QString::number(id) + "';";
         QSqlQuery query(mDb);
@@ -443,7 +442,7 @@ std::unique_ptr<CharacterData> SqlStorage::getCharacterBySQL(QSqlQuery &sqlQuery
     return character;
 }
 
-std::unique_ptr<CharacterData> SqlStorage::getCharacter(int id, Account *owner)
+std::unique_ptr<CharacterData> SqlStorage::getCharacter(int id, const Account *owner)
 {
     QString sql = "SELECT * FROM " + CHARACTERS_TBL_NAME + " WHERE id = :id";
     QSqlQuery query(mDb);
@@ -662,31 +661,31 @@ void SqlStorage::updateCharacter(const CharacterData &character)
     mDb.commit();
 }
 
-void SqlStorage::addAccount(Account *account)
+void SqlStorage::addAccount(Account &account)
 {
-    assert(account->getCharacters().size() == 0);
+    assert(account.getCharacters().size() == 0);
 
     // Insert the account
     QString sql = "insert into " + ACCOUNTS_TBL_NAME
             + " (username, password, email, level, "
             + "banned, registration, lastlogin)"
             + " VALUES (:name, :password, :email, "
-            + QString::number(account->getLevel()) + ", 0, "
-            + QString::number(account->getRegistrationDate()) + ", "
-            + QString::number(account->getLastLogin()) + ");";
+            + QString::number(account.getLevel()) + ", 0, "
+            + QString::number(account.getRegistrationDate()) + ", "
+            + QString::number(account.getLastLogin()) + ");";
     QSqlQuery query(mDb);
     tryPrepare(query, sql);
-    query.bindValue(":name", account->getName());
-    query.bindValue(":password", account->getPassword());
-    query.bindValue(":email", account->getEmail());
+    query.bindValue(":name", account.getName());
+    query.bindValue(":password", account.getPassword());
+    query.bindValue(":email", account.getEmail());
 
     tryExecutePrepared(query);
-    account->setID(query.lastInsertId().toInt());
+    account.setId(query.lastInsertId().toInt());
 }
 
-void SqlStorage::flush(Account *account)
+void SqlStorage::flush(Account &account)
 {
-    assert(account->getID() >= 0);
+    assert(account.getId() >= 0);
 
     mDb.transaction();
 
@@ -699,18 +698,18 @@ void SqlStorage::flush(Account *account)
 
         QSqlQuery query(mDb);
         tryPrepare(query, sqlUpdateAccountTable);
-        query.bindValue(":username", account->getName());
-        query.bindValue(":password", account->getPassword());
-        query.bindValue(":email", account->getEmail());
-        query.bindValue(":level", account->getLevel());
-        query.bindValue(":lastlogin", QVariant::fromValue(account->getLastLogin()));
-        query.bindValue(":id", account->getID());
+        query.bindValue(":username", account.getName());
+        query.bindValue(":password", account.getPassword());
+        query.bindValue(":email", account.getEmail());
+        query.bindValue(":level", account.getLevel());
+        query.bindValue(":lastlogin", QVariant::fromValue(account.getLastLogin()));
+        query.bindValue(":id", account.getId());
 
         tryExecutePrepared(query);
     }
 
     // Get the list of characters that belong to this account.
-    std::map<unsigned, std::unique_ptr<CharacterData>> &characters = account->getCharacters();
+    std::map<unsigned, std::unique_ptr<CharacterData>> &characters = account.getCharacters();
 
     // Insert or update the characters.
     for (auto &it : characters)
@@ -730,7 +729,7 @@ void SqlStorage::flush(Account *account)
                  + " (user_id, name, gender, hair_style, hair_color,"
                  + " char_pts, correct_pts,"
                  + " x, y, map_id, slot) values ("
-                 + QString::number(account->getID()) + ", :charname, "
+                 + QString::number(account.getId()) + ", :charname, "
                  + QString::number(character.getGender()) + ", "
                  + QString::number(character.getHairStyle()) + ", "
                  + QString::number(character.getHairColor()) + ", "
@@ -766,7 +765,7 @@ void SqlStorage::flush(Account *account)
     {
         QString sqlSelectNameIdCharactersTable =
                 "select name, id from " + CHARACTERS_TBL_NAME
-                + " where user_id = '" + QString::number(account->getID()) + "';";
+                + " where user_id = '" + QString::number(account.getId()) + "';";
 
         QSqlQuery query(mDb);
         tryExecuteSql(query, sqlSelectNameIdCharactersTable);
@@ -801,25 +800,25 @@ void SqlStorage::flush(Account *account)
     mDb.commit();
 }
 
-void SqlStorage::delAccount(Account *account)
+void SqlStorage::delAccount(Account &account)
 {
     // Sync the account info into the database.
     flush(account);
 
     // Delete the account.
     QString sql = "delete from " + ACCOUNTS_TBL_NAME
-            + " where id = '" + QString::number(account->getID()) + "';";
+            + " where id = '" + QString::number(account.getId()) + "';";
     mDb.exec(sql);
 
     // Remove the account's characters.
-    account->getCharacters().clear();
+    account.getCharacters().clear();
 }
 
-void SqlStorage::updateLastLogin(const Account *account)
+void SqlStorage::updateLastLogin(Account &account)
 {
     QString sql = "UPDATE " + ACCOUNTS_TBL_NAME
-            + "   SET lastlogin = '" + QString::number(account->getLastLogin()) + "'"
-            + " WHERE id = '" + QString::number(account->getID()) + "';";
+            + "   SET lastlogin = '" + QString::number(account.getLastLogin()) + "'"
+            + " WHERE id = '" + QString::number(account.getId()) + "';";
     mDb.exec(sql);
 }
 
