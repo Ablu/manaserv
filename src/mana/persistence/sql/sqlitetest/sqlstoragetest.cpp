@@ -5,6 +5,8 @@
 
 #include "mana/persistence/sql/sqlstorage.h"
 
+#include <iostream>
+
 #include <QCoreApplication>
 #include <QDebug>
 #include <QFile>
@@ -14,6 +16,26 @@
 #include <QSqlRecord>
 #include <QTest>
 #include <QTextStream>
+
+
+void messageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    Q_UNUSED(context);
+    Q_UNUSED(msg);
+
+    switch (type) {
+    case QtDebugMsg:
+        std::cout << msg.toStdString();
+        return;
+    default:
+        QFAIL(QString("Unexpected warning or error occurred:\n%1").arg(msg).toStdString().c_str());
+    }
+}
+
+void SqlStorageTest::initTestCase()
+{
+    qInstallMessageHandler(messageHandler);
+}
 
 void executeAllFromFile(QFile &file, QSqlDatabase &db)
 {
