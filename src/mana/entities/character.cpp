@@ -27,7 +27,7 @@
 
 CharacterData::CharacterData(const QString &name, int id):
     mName(name),
-    mDatabaseID(id),
+    mDatabaseId(id),
     mCharacterSlot(0),
     mAccountID(-1),
     mMapId(0),

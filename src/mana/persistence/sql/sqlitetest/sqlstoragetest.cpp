@@ -58,22 +58,55 @@ void SqlStorageTest::cleanup()
 }
 
 
-void SqlStorageTest::characterSaveAndGetTest()
+static std::unique_ptr<Account> createTestAccount()
+{
+    std::unique_ptr<Account> account(new Account);
+    account->setName("test");
+    account->setEmail("mailtest");
+    account->setPassword("secretpw");
+
+    return account;
+}
+
+static void verifyAccount(const std::unique_ptr<Account> &account)
+{
+    QVERIFY2(account, "The account was unable to retreive!");
+    QCOMPARE(account->getName(), QString("test"));
+    QCOMPARE(account->getEmail(), QString("mailtest"));
+    QCOMPARE(account->getPassword(), QString("secretpw"));
+}
+
+
+static std::unique_ptr<CharacterData> createTestCharacter()
 {
     std::unique_ptr<CharacterData> character(new CharacterData("Test"));
+    return character;
+}
 
-    Account account;
-    account.setName("test");
-    account.setEmail("test");
-    account.setPassword("test");
-    mStorage->addAccount(account);
+static void verifyCharacter(const std::unique_ptr<CharacterData> &character)
+{
+    QVERIFY2(character, "The character was unable to retreive!");
+    QCOMPARE(character->getName(), QString("Test"));
+}
 
-    account.addCharacter(std::move(character));
-    mStorage->flush(account);
 
-    auto characterFromStorage = mStorage->getCharacter("Test");
-    QVERIFY2(characterFromStorage, "The character just stored was unable to retreive!");
-    QCOMPARE(characterFromStorage->getDatabaseID(), 1);
+void SqlStorageTest::characterSaveAndGetTest()
+{
+    auto account = createTestAccount();
+    mStorage->addAccount(*account);
+
+    auto character = createTestCharacter();
+    account->addCharacter(std::move(character));
+    mStorage->flush(*account);
+    int characterId = account->getCharacters()[0]->getDatabaseId();
+
+    verifyAccount(mStorage->getAccount(account->getId()));
+    verifyAccount(mStorage->getAccount("test"));
+
+    verifyCharacter(mStorage->getCharacter("Test"));
+    verifyCharacter(mStorage->getCharacter(characterId, nullptr));
+
+    QCOMPARE(mStorage->getCharacterId("Test"), (unsigned)characterId);
 }
 
 QTEST_MAIN(SqlStorageTest)

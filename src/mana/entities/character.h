@@ -85,8 +85,8 @@ public:
     /**
      * Gets the database id of the character.
      */
-    int getDatabaseID() const { return mDatabaseID; }
-    void setDatabaseID(int id) { mDatabaseID = id; }
+    int getDatabaseId() const { return mDatabaseId; }
+    void setDatabaseId(int id) { mDatabaseId = id; }
 
     /**
      * Gets the slot of the character.
@@ -244,7 +244,7 @@ private:
 
     Possessions mPossessions; //!< All the possesions of the character.
     QString mName;        //!< Name of the character.
-    int mDatabaseID;          //!< Character database ID.
+    int mDatabaseId;          //!< Character database ID.
     unsigned mCharacterSlot;  //!< Character slot.
     int mAccountID;           //!< Account ID of the owner.
     Point mPos;               //!< Position the being is at.

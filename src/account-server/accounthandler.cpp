@@ -832,7 +832,7 @@ void AccountHandler::handleCharacterCreateMessage(AccountClient &client,
 
             // log transaction
             Transaction trans;
-            trans.mCharacterId = newCharacter->getDatabaseID();
+            trans.mCharacterId = newCharacter->getDatabaseId();
             trans.mAction = TRANS_CHAR_CREATE;
             trans.mMessage = account->getName() + " created character ";
             trans.mMessage.append("called " + name);
@@ -922,7 +922,7 @@ void AccountHandler::handleCharacterSelectMessage(AccountClient &client,
 
     // log transaction
     Transaction trans;
-    trans.mCharacterId = selectedChar.getDatabaseID();
+    trans.mCharacterId = selectedChar.getDatabaseId();
     trans.mAction = TRANS_CHAR_SELECTED;
     mStorage->addTransaction(trans);
 }
@@ -956,7 +956,7 @@ void AccountHandler::handleCharacterDeleteMessage(AccountClient &client,
 
     // Log transaction
     Transaction trans;
-    trans.mCharacterId = chars[slot]->getDatabaseID();
+    trans.mCharacterId = chars[slot]->getDatabaseId();
     trans.mAction = TRANS_CHAR_DELETED;
     trans.mMessage = chars[slot]->getName() + " deleted by ";
     trans.mMessage.append(account->getName());

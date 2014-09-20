@@ -180,7 +180,7 @@ static void registerGameClient(GameServer *s, const QString &token,
 {
     MessageOut msg(AGMSG_PLAYER_ENTER);
     msg.writeString(token, MAGIC_TOKEN_LENGTH);
-    msg.writeInt32(ptr.getDatabaseID());
+    msg.writeInt32(ptr.getDatabaseId());
     msg.writeString(ptr.getName());
     CharacterDataUtils::serialize(ptr, msg);
     s->send(msg);
@@ -670,7 +670,7 @@ void GameServerHandler::sendPartyChange(CharacterData &ptr, int partyId)
     if (s)
     {
         MessageOut msg(CGMSG_CHANGED_PARTY);
-        msg.writeInt32(ptr.getDatabaseID());
+        msg.writeInt32(ptr.getDatabaseId());
         msg.writeInt32(partyId);
         s->send(msg);
     }

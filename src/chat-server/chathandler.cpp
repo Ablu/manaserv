@@ -97,7 +97,7 @@ void ChatHandler::tokenMatched(ChatClient *client, Pending *p)
     }
     else
     {
-        client->characterId = character->getDatabaseID();
+        client->characterId = character->getDatabaseId();
         delete p;
 
         msg.writeInt8(ERRMSG_OK);

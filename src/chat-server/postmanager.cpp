@@ -28,7 +28,7 @@
 void PostManager::addLetter(Letter *letter)
 {
     std::map<int, Post*>::iterator itr =
-        mPostBox.find(letter->getReceiver().getDatabaseID());
+        mPostBox.find(letter->getReceiver().getDatabaseId());
     if (itr != mPostBox.end())
     {
         unsigned maximumLetterCountPerMail =
@@ -44,21 +44,21 @@ void PostManager::addLetter(Letter *letter)
         Post *post = new Post();
         post->addLetter(letter);
         mPostBox.insert(
-            std::pair<int, Post*>(letter->getReceiver().getDatabaseID(), post)
+            std::pair<int, Post*>(letter->getReceiver().getDatabaseId(), post)
             );
     }
 }
 
 Post *PostManager::getPost(CharacterData &player) const
 {
-    std::map<int, Post*>::const_iterator itr = mPostBox.find(player.getDatabaseID());
+    std::map<int, Post*>::const_iterator itr = mPostBox.find(player.getDatabaseId());
     return (itr == mPostBox.end()) ? nullptr : itr->second;
 }
 
 void PostManager::clearPost(CharacterData &player)
 {
     std::map<int, Post*>::iterator itr =
-        mPostBox.find(player.getDatabaseID());
+        mPostBox.find(player.getDatabaseId());
     if (itr != mPostBox.end())
     {
         delete itr->second;

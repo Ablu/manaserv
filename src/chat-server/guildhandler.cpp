@@ -324,8 +324,8 @@ void ChatHandler::handleGuildMemberLevelChange(ChatClient &client,
 
     if (guild && character)
     {
-        int rights = guild->getUserPermissions(character->getDatabaseID()) | level;
-        if (guildManager->changeMemberLevel(&client, guild, character->getDatabaseID(),
+        int rights = guild->getUserPermissions(character->getDatabaseId()) | level;
+        if (guildManager->changeMemberLevel(&client, guild, character->getDatabaseId(),
                                             rights) == 0)
         {
             reply.writeInt8(ERRMSG_OK);
