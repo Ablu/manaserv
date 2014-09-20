@@ -22,7 +22,7 @@
 #define CHATCLIENT_H
 
 #include <map>
-#include <string>
+#include <QString>
 #include <vector>
 
 #include "net/netcomputer.h"
@@ -46,13 +46,13 @@ public:
     {
     }
 
-    std::string characterName;
+    QString characterName;
     unsigned characterId;
     std::vector<ChatChannel *> channels;
     std::vector<Guild *> guilds;
     Party *party;
     unsigned char accountLevel;
-    std::map<ChatChannel*, std::string> userModes;
+    std::map<ChatChannel*, QString> userModes;
 };
 
 #endif

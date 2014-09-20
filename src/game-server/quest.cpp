@@ -27,10 +27,10 @@
 #include <cassert>
 #include <list>
 #include <map>
-#include <string>
+#include <QString>
 
 typedef std::list< QuestCallback * > QuestCallbacks;
-typedef std::map< std::string, QuestCallbacks > PendingVariables;
+typedef std::map< QString, QuestCallbacks > PendingVariables;
 
 
 
@@ -59,9 +59,9 @@ typedef std::map< int, PendingQuest * > PendingQuests;
 
 static PendingQuests pendingQuests;
 
-bool getQuestVar(Entity *ch, const std::string &name, std::string &value)
+bool getQuestVar(Entity *ch, const QString &name, QString &value)
 {
-    std::map< std::string, std::string >::iterator
+    std::map< QString, QString >::iterator
         i = ch->getComponent<CharacterComponent>()->questCache.find(name);
     if (i == ch->getComponent<CharacterComponent>()->questCache.end())
         return false;
@@ -69,13 +69,13 @@ bool getQuestVar(Entity *ch, const std::string &name, std::string &value)
     return true;
 }
 
-void setQuestVar(Entity *ch, const std::string &name,
-                 const std::string &value)
+void setQuestVar(Entity *ch, const QString &name,
+                 const QString &value)
 {
     auto *characterComponent =
             ch->getComponent<CharacterComponent>();
 
-    std::map< std::string, std::string >::iterator
+    std::map< QString, QString >::iterator
         i = characterComponent->questCache.lower_bound(name);
     if (i == characterComponent->questCache.end() || i->first != name)
     {
@@ -93,7 +93,7 @@ void setQuestVar(Entity *ch, const std::string &name,
 }
 
 void QuestRefCallback::triggerCallback(Entity *ch,
-                                       const std::string &value) const
+                                       const QString &value) const
 {
     if (!mRef.isValid())
         return;
@@ -132,7 +132,7 @@ static void fullRemove(Entity &ch)
     }
 }
 
-void recoverQuestVar(Entity *ch, const std::string &name,
+void recoverQuestVar(Entity *ch, const QString &name,
                      QuestCallback *f)
 {
     auto *characterComponent =
@@ -159,8 +159,8 @@ void recoverQuestVar(Entity *ch, const std::string &name,
 }
 
 void recoveredQuestVar(int id,
-                       const std::string &name,
-                       const std::string &value)
+                       const QString &name,
+                       const QString &value)
 {
     PendingQuests::iterator i = pendingQuests.find(id);
     if (i == pendingQuests.end())

@@ -23,7 +23,7 @@
 
 #include <deque>
 #include <map>
-#include <string>
+#include <QString>
 
 #include "mana/entities/guild.h"
 
@@ -51,13 +51,13 @@ private:
      */
     struct Pending
     {
-        std::string character;
+        QString character;
         unsigned char level;
     };
 
     struct PartyInvite
     {
-        PartyInvite(std::string inviterName, std::string inviteeName)
+        PartyInvite(QString inviterName, QString inviteeName)
             : mInviter(inviterName)
             , mInvitee(inviteeName)
         {
@@ -65,16 +65,16 @@ private:
             mExpireTime = time(nullptr) + validTimeframe;
         }
 
-        std::string mInviter;
-        std::string mInvitee;
+        QString mInviter;
+        QString mInvitee;
         time_t mExpireTime;
     };
 
     IConfiguration *mConfiguration;
     IStorage *mStorage;
-    std::map<std::string, ChatClient*> mPlayerMap;
+    std::map<QString, ChatClient*> mPlayerMap;
     std::deque<PartyInvite> mInvitations;
-    std::map<std::string, int> mNumInvites;
+    std::map<QString, int> mNumInvites;
 
 public:
     ChatHandler(IConfiguration *configuration, IStorage *storage);
@@ -82,7 +82,7 @@ public:
     /**
      * Start the handler.
      */
-    bool startListen(enet_uint16 port, const std::string &host);
+    bool startListen(enet_uint16 port, const QString &host);
 
     /**
      * Tell a list of users about an event in a chatchannel.
@@ -91,7 +91,7 @@ public:
      * @param info information pertaining to the event
      */
     void warnUsersAboutPlayerEventInChat(ChatChannel *channel,
-                                         const std::string &info,
+                                         const QString &info,
                                          char eventId);
 
     /**
@@ -113,7 +113,7 @@ public:
      * Send information about a change in the guild list to guild members.
      */
     void sendGuildListUpdate(Guild *guild,
-                             const std::string &characterName,
+                             const QString &characterName,
                              char eventId);
 
     void handlePartyInvite(MessageIn &msg);
@@ -121,15 +121,15 @@ public:
     /**
      * Sends an announce to all connected clients.
      */
-    void handleAnnounce(const std::string &message, int senderId,
-                        const std::string &senderName);
+    void handleAnnounce(const QString &message, int senderId,
+                        const QString &senderName);
 
     /**
      * Returns ChatClient from the Player Map
      * @param The name of the character
      * @return The Chat Client
      */
-    ChatClient *getClient(const std::string &name) const;
+    ChatClient *getClient(const QString &name) const;
 
 protected:
     /**
@@ -157,15 +157,15 @@ protected:
      * correct channels.
      */
     void sendGuildEnterChannel(const MessageOut &msg,
-                               const std::string &name);
+                               const QString &name);
 
-    void sendGuildInvite(const std::string &invitedName,
-                         const std::string &inviterName,
-                         const std::string &guildName);
+    void sendGuildInvite(const QString &invitedName,
+                         const QString &inviterName,
+                         const QString &guildName);
 
 private:
     // TODO: Unused
-    void handleCommand(ChatClient &client, const std::string &command);
+    void handleCommand(ChatClient &client, const QString &command);
 
     void handleChatMessage(ChatClient &client, MessageIn &msg);
     void handlePrivMsgMessage(ChatClient &client, MessageIn &msg);
@@ -210,14 +210,14 @@ private:
     /**
      * Say something private to a player.
      */
-    void sayToPlayer(ChatClient &computer, const std::string &playerName,
-                     const std::string &text);
+    void sayToPlayer(ChatClient &computer, const QString &playerName,
+                     const QString &text);
 
     /**
      * Finds out the name of a character by its id. Either searches it
      * in the list of online characters or otherwise gets it from the db.
      */
-    unsigned getIdOfChar(const std::string &name);
+    unsigned getIdOfChar(const QString &name);
 
     /**
      * Sends a message to every client in a registered channel.
@@ -234,14 +234,14 @@ private:
      * @param The client to join the channel
      * @return Returns the channel joined
      */
-    ChatChannel *joinGuildChannel(const std::string &name,
+    ChatChannel *joinGuildChannel(const QString &name,
                                   ChatClient &client);
 
     /**
      * Set the topic of a guild channel
      */
     void guildChannelTopicChange(ChatChannel *channel, int playerId,
-                                 const std::string &topic);
+                                 const QString &topic);
 
     void updateInfo(ChatClient *client, int partyId);
 
@@ -249,13 +249,13 @@ private:
      * Container for pending clients and pending connections.
      */
     TokenCollector<ChatHandler, ChatClient *, Pending *> mTokenCollector;
-    friend void registerChatClient(const std::string &, const std::string &, int);
+    friend void registerChatClient(const QString &, const QString &, int);
 };
 
 /**
  * Register future client attempt. Temporary until physical server split.
  */
-void registerChatClient(const std::string &, const std::string &, int);
+void registerChatClient(const QString &, const QString &, int);
 
 extern ChatHandler *chatHandler;
 

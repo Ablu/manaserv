@@ -33,7 +33,7 @@
 
 static std::vector<unsigned> tilesetFirstGids;
 
-Map *MapReader::readMap(const std::string &filename)
+Map *MapReader::readMap(const QString &filename)
 {
     XML::Document doc(filename);
     xmlNodePtr rootNode = doc.rootNode();
@@ -76,10 +76,10 @@ Map *MapReader::readMap(xmlNodePtr node)
             {
                 if (xmlStrEqual(propNode->name, BAD_CAST "property"))
                 {
-                    std::string key = XML::getProperty(propNode, "name",
-                                                       std::string());
-                    std::string val = XML::getProperty(propNode, "value",
-                                                       std::string());
+                    QString key = XML::getProperty(propNode, "name",
+                                                       QString());
+                    QString val = XML::getProperty(propNode, "value",
+                                                       QString());
                     LOG_DEBUG("  " << key << ": " << val);
                     map->setProperty(key, val);
                 }
@@ -87,8 +87,8 @@ Map *MapReader::readMap(xmlNodePtr node)
         }
         else if (xmlStrEqual(node->name, BAD_CAST "layer"))
         {
-            if (utils::compareStrI(XML::getProperty(node, "name", "unnamed"),
-                                   "collision") == 0)
+            if (XML::getProperty(node, "name", "unnamed")
+                    .compare("collision", Qt::CaseInsensitive) == 0)
             {
                 readLayer(node, map);
             }
@@ -103,11 +103,11 @@ Map *MapReader::readMap(xmlNodePtr node)
                     continue;
                 }
 
-                std::string objName = XML::getProperty(objectNode, "name",
-                                                       std::string());
-                std::string objType = XML::getProperty(objectNode, "type",
-                                                       std::string());
-                objType = utils::toUpper(objType);
+                QString objName = XML::getProperty(objectNode, "name",
+                                                       QString());
+                QString objType = XML::getProperty(objectNode, "type",
+                                                       QString());
+                objType = objType.toUpper();
                 int objX = XML::getProperty(objectNode, "x", 0);
                 int objY = XML::getProperty(objectNode, "y", 0);
                 int objW = XML::getProperty(objectNode, "width", 0);
@@ -127,10 +127,10 @@ Map *MapReader::readMap(xmlNodePtr node)
                     {
                         if (xmlStrEqual(propertyNode->name, BAD_CAST "property"))
                         {
-                            std::string key = XML::getProperty(
-                                    propertyNode, "name", std::string());
-                            std::string value = getObjectProperty(propertyNode,
-                                                                 std::string());
+                            QString key = XML::getProperty(
+                                    propertyNode, "name", QString());
+                            QString value = getObjectProperty(propertyNode,
+                                                                 QString());
                             newObject->addProperty(key, value);
                         }
                     }
@@ -169,7 +169,7 @@ void MapReader::readLayer(xmlNodePtr node, Map *map)
         return;
     }
 
-    std::string encoding = XML::getProperty(node, "encoding", std::string());
+    QString encoding = XML::getProperty(node, "encoding", QString());
     if (encoding == "base64")
     {
         // Read base64 encoded map file
@@ -208,8 +208,8 @@ void MapReader::readLayer(xmlNodePtr node, Map *map)
             return;
         }
 
-        std::string compression =
-            XML::getProperty(node, "compression", std::string());
+        QString compression =
+            XML::getProperty(node, "compression", QString());
         if (compression == "gzip" || compression == "zlib")
         {
             // Inflate the gzipped layer data
@@ -253,16 +253,16 @@ void MapReader::readLayer(xmlNodePtr node, Map *map)
             return;
 
         const char *data = (const char*) xmlNodeGetContent(dataChild);
-        std::string csv(data);
+        QString csv(data);
 
-        size_t pos = 0;
-        size_t oldPos = 0;
+        int pos = 0;
+        int oldPos = 0;
 
-        while (oldPos != csv.npos)
+        while (oldPos != -1)
         {
-            pos = csv.find_first_of(",", oldPos);
+            pos = csv.indexOf(",", oldPos);
 
-            unsigned gid = atol(csv.substr(oldPos, pos - oldPos).c_str());
+            unsigned gid = csv.mid(oldPos, pos - oldPos).toUInt();
             setTileWithGid(map, x, y, gid);
 
             x++;
@@ -304,8 +304,8 @@ void MapReader::readLayer(xmlNodePtr node, Map *map)
     }
 }
 
-std::string MapReader::getObjectProperty(xmlNodePtr node,
-                                         const std::string &def)
+QString MapReader::getObjectProperty(xmlNodePtr node,
+                                         const QString &def)
 {
     if (xmlHasProp(node, BAD_CAST "value"))
     {
@@ -313,9 +313,9 @@ std::string MapReader::getObjectProperty(xmlNodePtr node,
     }
     else if (const char *prop = (const char *)node->xmlChildrenNode->content)
     {
-        return std::string(prop);
+        return QString(prop);
     }
-    return std::string();
+    return QString();
 }
 
 int MapReader::getObjectProperty(xmlNodePtr node, int def)

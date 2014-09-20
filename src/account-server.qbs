@@ -71,7 +71,6 @@ CppApplication {
         files: [
             "base64.cpp",
             "base64.h",
-            "functors.h",
             "logger.cpp",
             "logger.h",
             "mathutils.cpp",
@@ -88,7 +87,6 @@ CppApplication {
             "stringfilter.h",
             "string.h",
             "throwerror.h",
-            "time.h",
             "timer.cpp",
             "timer.h",
             "tokencollector.cpp",

@@ -23,7 +23,7 @@
 
 #include <map>
 #include <memory>
-#include <string>
+#include <QString>
 #include <vector>
 
 #include "common/inventorydata.h"
@@ -80,13 +80,13 @@ public:
      * This overwrites whatever was there previously
      * @param text The content of the letter to add
      */
-    void addText(const std::string &text);
+    void addText(const QString &text);
 
     /**
      * Get the text contents of letter
      * @return String containing the text
      */
-    std::string getContents() const;
+    QString getContents() const;
 
     /**
      * Add an attachment
@@ -116,7 +116,7 @@ private:
     unsigned mId;
     unsigned mType;
     unsigned long mExpiry;
-    std::string mContents;
+    QString mContents;
     std::vector<InventoryItem> mAttachments;
     std::unique_ptr<CharacterData> mSender;
     std::unique_ptr<CharacterData> mReceiver;

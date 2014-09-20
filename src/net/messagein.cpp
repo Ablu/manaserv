@@ -22,7 +22,7 @@
 #include <cstring>
 #include <iomanip>
 #include <iostream>
-#include <string>
+#include <QString>
 #include <enet/enet.h>
 #ifndef USE_NATIVE_DOUBLE
 #include <sstream>
@@ -134,16 +134,15 @@ double MessageIn::readDouble()
     mPos += sizeof(double);
 #else
     int length = readInt8();
-    std::istringstream i (readString(length));
-    i >> value;
+    value = readString(length).toDouble();
 #endif
     return value;
 }
 
-std::string MessageIn::readString(int length)
+QString MessageIn::readString(int length)
 {
     if (!readValueType(ManaServ::String))
-        return std::string();
+        return QString();
 
     if (mDebugMode)
     {
@@ -156,7 +155,7 @@ std::string MessageIn::readString(int length)
             LOG_DEBUG("Expected string of length " << length <<
                       " but received length " << fixedLength);
             mPos = mLength + 1;
-            return std::string();
+            return QString();
         }
     }
 
@@ -170,17 +169,16 @@ std::string MessageIn::readString(int length)
     if (length < 0 || mPos + length > mLength)
     {
         mPos = mLength + 1;
-        return std::string();
+        return QString();
     }
 
     // Read the string
     const char *stringBeg = mData + mPos;
     const char *stringEnd = (const char *)memchr(stringBeg, '\0', length);
-    std::string readString(stringBeg,
-                           stringEnd ? stringEnd - stringBeg : length);
+    std::string readString(stringBeg, stringEnd ? stringEnd - stringBeg : length);
     mPos += length;
 
-    return readString;
+    return QString::fromStdString(readString);
 }
 
 bool MessageIn::readValueType(ManaServ::ValueType type)
@@ -210,11 +208,13 @@ bool MessageIn::readValueType(ManaServ::ValueType type)
     return false;
 }
 
-std::ostream&
-operator <<(std::ostream &os, const MessageIn &msg)
+QTextStream &operator<<(QTextStream &os, const MessageIn &msg)
 {
-    os << std::setw(6) << std::hex << std::showbase << std::internal
-       << std::setfill('0') << msg.getId() << std::dec;
+    os.setIntegerBase(16);
+    os.setNumberFlags(QTextStream::ShowBase);
+    os.setPadChar('0');
+    os << msg.getId();
+    os.setIntegerBase(10);
 
     if (!msg.mDebugMode)
     {

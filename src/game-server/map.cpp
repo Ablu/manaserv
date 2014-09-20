@@ -124,10 +124,10 @@ void Map::setSize(int width, int height)
     mMetaTiles.resize(width * height);
 }
 
-const std::string &Map::getProperty(const std::string &key) const
+const QString &Map::getProperty(const QString &key) const
 {
-    static std::string empty;
-    std::map<std::string, std::string>::const_iterator i;
+    static QString empty;
+    std::map<QString, QString>::const_iterator i;
     i = mProperties.find(key);
     if (i == mProperties.end())
         return empty;

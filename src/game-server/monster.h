@@ -32,7 +32,7 @@
 
 #include <map>
 #include <set>
-#include <string>
+#include <QString>
 #include <vector>
 
 class CharacterComponent;
@@ -78,13 +78,13 @@ public:
     /**
      * Returns the name of the monster type
      */
-    const std::string &getName() const
+    const QString &getName() const
     { return mName; }
 
     /**
      * Sets the name of the monster type
      */
-    void setName(const std::string &name)
+    void setName(const QString &name)
     { mName = name; }
 
     void setGender(BeingGender gender)
@@ -131,7 +131,7 @@ public:
 
 private:
     unsigned short mId;
-    std::string mName;
+    QString mName;
     BeingGender mGender;
 
     MonsterDrops mDrops;

@@ -49,45 +49,45 @@ struct CmdRef
     const char *cmd;
     const char *usage;
     const char *help;
-    void (*func)(Entity*, std::string&) ;
+    void (*func)(Entity*, QString&) ;
 };
 
-static void handleHelp(Entity*, std::string&);
-static void handleReport(Entity*, std::string&);
-static void handleWhere(Entity*, std::string&);
-static void handleRights(Entity*, std::string&);
-static void handleWarp(Entity*, std::string&);
-static void handleCharWarp(Entity*, std::string&);
-static void handleGoto(Entity*, std::string&);
-static void handleRecall(Entity*, std::string&);
-static void handleBan(Entity*, std::string&);
-static void handleItem(Entity*, std::string&);
-static void handleDrop(Entity*, std::string&);
-static void handleMoney(Entity*, std::string&);
-static void handleSpawn(Entity*, std::string&);
-static void handleAttribute(Entity*, std::string&);
-static void handleReload(Entity*, std::string&);
-static void handlePermissions(Entity*, std::string&);
-static void handleGivePermission(Entity*, std::string&);
-static void handleTakePermission(Entity*, std::string&);
-static void handleAnnounce(Entity*, std::string&);
-static void handleHistory(Entity*, std::string&);
-static void handleMute(Entity*, std::string&);
-static void handleDie(Entity*, std::string&);
-static void handleKill(Entity*, std::string&);
-static void handleKick(Entity*, std::string&);
-static void handleLog(Entity*, std::string&);
-static void handleLogsay(Entity*, std::string&);
-static void handleKillMonsters(Entity*, std::string&);
-static void handleCraft(Entity*, std::string&);
-static void handleGetPos(Entity*, std::string&);
-static void handleEffect(Entity*, std::string&);
-static void handleGiveAbility(Entity*, std::string&);
-static void handleTakeAbility(Entity*, std::string&);
-static void handleRechargeAbility(Entity*, std::string&);
-static void handleListAbility(Entity*, std::string&);
-static void handleSetAttributePoints(Entity*, std::string&);
-static void handleSetCorrectionPoints(Entity*, std::string&);
+static void handleHelp(Entity*, QString&);
+static void handleReport(Entity*, QString&);
+static void handleWhere(Entity*, QString&);
+static void handleRights(Entity*, QString&);
+static void handleWarp(Entity*, QString&);
+static void handleCharWarp(Entity*, QString&);
+static void handleGoto(Entity*, QString&);
+static void handleRecall(Entity*, QString&);
+static void handleBan(Entity*, QString&);
+static void handleItem(Entity*, QString&);
+static void handleDrop(Entity*, QString&);
+static void handleMoney(Entity*, QString&);
+static void handleSpawn(Entity*, QString&);
+static void handleAttribute(Entity*, QString&);
+static void handleReload(Entity*, QString&);
+static void handlePermissions(Entity*, QString&);
+static void handleGivePermission(Entity*, QString&);
+static void handleTakePermission(Entity*, QString&);
+static void handleAnnounce(Entity*, QString&);
+static void handleHistory(Entity*, QString&);
+static void handleMute(Entity*, QString&);
+static void handleDie(Entity*, QString&);
+static void handleKill(Entity*, QString&);
+static void handleKick(Entity*, QString&);
+static void handleLog(Entity*, QString&);
+static void handleLogsay(Entity*, QString&);
+static void handleKillMonsters(Entity*, QString&);
+static void handleCraft(Entity*, QString&);
+static void handleGetPos(Entity*, QString&);
+static void handleEffect(Entity*, QString&);
+static void handleGiveAbility(Entity*, QString&);
+static void handleTakeAbility(Entity*, QString&);
+static void handleRechargeAbility(Entity*, QString&);
+static void handleListAbility(Entity*, QString&);
+static void handleSetAttributePoints(Entity*, QString&);
+static void handleSetCorrectionPoints(Entity*, QString&);
 
 static CmdRef const cmdRef[] =
 {
@@ -177,7 +177,7 @@ static CmdRef const cmdRef[] =
 
 static IConfiguration *mConfiguration;
 
-static void say(const std::string &message, Entity *player)
+static void say(const QString &message, Entity *player)
 {
     GameState::sayTo(player, nullptr, message);
 }
@@ -199,44 +199,44 @@ static bool checkPermission(Character *player, unsigned permissions)
  * Returns the next argument, and remove it from the given string.
  */
 
-static std::string playerRights(Entity *ch)
+static QString playerRights(Entity *ch)
 {
-    std::stringstream str;
-    str << (unsigned)ch->getComponent<CharacterComponent>()->getAccountLevel();
-    str << " ( ";
-    std::list<std::string> classes = PermissionManager::getClassList(ch);
+    QString str = QString::number(
+        ch->getComponent<CharacterComponent>()->getAccountLevel());
+    str += " ( ";
+    std::list<QString> classes = PermissionManager::getClassList(ch);
 
-    for (std::string &permission : classes)
+    for (QString &permission : classes)
     {
-        str << permission << " ";
+        str += permission + " ";
     }
-    str << ")";
-    return str.str();
+    str += ")";
+    return str;
 }
 
-static std::string getArgument(std::string &args)
+static QString getArgument(QString &args)
 {
-    std::string argument;
-    std::string::size_type pos = std::string::npos;
+    QString argument;
+    int pos = -1;
     bool doubleQuotes = false;
 
     // Finds out if the next argument is between double-quotes
-    if (args.empty() || args.at(0) != '"')
+    if (args.isEmpty() || args[0] != '"')
     {
         // No double-quotes, we then search an ending space.
-        pos = args.find(' ');
+        pos = args.indexOf(' ');
         doubleQuotes = false;
     }
     else
     {
         // Exclude the first double-quote from search.
-        pos = args.find('"', 1);
+        pos = args.indexOf('"', 1);
         doubleQuotes = true;
     }
 
-    if (pos != std::string::npos)
+    if (pos != -1)
     {
-        argument = args.substr(0, pos);
+        argument = args.mid(0, pos);
         if (doubleQuotes)
         {
             // Jumps to the next parameter,
@@ -244,36 +244,36 @@ static std::string getArgument(std::string &args)
             // and remove the two double-quotes before returning.
             if (pos + 2 < args.size())
             {
-                args = args.substr(pos + 2);
+                args = args.mid(pos + 2);
             }
             else
             {
                 // This was the last argument
                 args.clear();
             }
-            argument = argument.substr(1, pos - 1);
+            argument = argument.mid(1, pos - 1);
         }
         else
         {
             // Jumps to the next parameter, after the ending space.
-            args = args.substr(pos + 1);
+            args = args.mid(pos + 1);
         }
     }
     else
     {
         argument = args;
-        args = std::string();
+        args = QString();
     }
     return argument;
 }
 
-static void handleHelp(Entity *player, std::string &args)
+static void handleHelp(Entity *player, QString &args)
 {
-    if (args.empty())
+    if (args.isEmpty())
     {
         // short list of all commands
         say("=Available Commands=", player);
-        for (std::string &command :
+        for (QString &command :
                 PermissionManager::getPermissionList(player))
         {
             say(command, player);
@@ -290,7 +290,7 @@ static void handleHelp(Entity *player, std::string &args)
         {
             if (cmdRef[j].cmd == args)
             {
-                std::string msg;
+                QString msg;
                 msg.append("@");
                 msg.append(cmdRef[j].cmd);
                 msg.append(" ");
@@ -304,18 +304,17 @@ static void handleHelp(Entity *player, std::string &args)
     }
 }
 
-static void handleWarp(Entity *player, std::string &args)
+static void handleWarp(Entity *player, QString &args)
 {
-    int x, y;
     MapComposite *map;
 
     // get the arguments
-    std::string mapstr = getArgument(args);
-    std::string xstr = getArgument(args);
-    std::string ystr = getArgument(args);
+    QString mapstr = getArgument(args);
+    QString xstr = getArgument(args);
+    QString ystr = getArgument(args);
 
     // if any of them are empty strings, no argument was given
-    if (mapstr.empty() || xstr.empty() || ystr.empty())
+    if (mapstr.isEmpty() || xstr.isEmpty() || ystr.isEmpty())
     {
         say("Invalid number of arguments given.", player);
         say("Usage: @warp <map> <x> <y>", player);
@@ -331,16 +330,15 @@ static void handleWarp(Entity *player, std::string &args)
     {
         if (mapstr[0] == '#')
         {
-            mapstr = mapstr.substr(1);
+            mapstr = mapstr.mid(1);
             // check for valid map id
-            int id;
-            if (!utils::isNumeric(mapstr))
+            bool wasNumeric;
+            int id = mapstr.toInt(&wasNumeric);
+            if (!wasNumeric)
             {
                 say("Invalid map", player);
                 return;
             }
-
-            id = utils::stringToInt(mapstr);
 
             // get the map
             map = MapManager::getMap(id);
@@ -362,48 +360,47 @@ static void handleWarp(Entity *player, std::string &args)
         }
     }
 
-    if (!utils::isNumeric(xstr))
+    bool xWasNumeric;
+    int x = xstr.toInt(&xWasNumeric);
+    if (!xWasNumeric)
     {
         say("Invalid x", player);
         return;
     }
 
-    if (!utils::isNumeric(ystr))
+    bool yWasNumeric;
+    int y = xstr.toInt(&yWasNumeric);
+    if (!yWasNumeric)
     {
         say("Invalid y", player);
         return;
     }
 
-    // change the x and y to integers
-    x = utils::stringToInt(xstr);
-    y = utils::stringToInt(ystr);
-
     // now warp the player
     GameState::warp(player, map, Point(x, y));
 
     // log transaction
-    std::stringstream ss;
-    ss << "User warped to " << map->getName() << " (" << x << ", " << y << ")";
+    QString logMessage =
+        "User warped to " + map->getName() + " (" + QString::number(x) + ", " + QString::number(y) + ")";
     int databaseId =
             player->getComponent<CharacterComponent>()->getDatabaseID();
-    accountHandler->sendTransaction(databaseId, TRANS_CMD_WARP,
-                                    ss.str());
+    accountHandler->sendTransaction(databaseId, TRANS_CMD_WARP, logMessage);
 }
 
-static void handleCharWarp(Entity *player, std::string &args)
+static void handleCharWarp(Entity *player, QString &args)
 {
-    int x, y;
     MapComposite *map;
     Entity *other;
 
     // get the arguments
-    std::string character = getArgument(args);
-    std::string mapstr = getArgument(args);
-    std::string xstr = getArgument(args);
-    std::string ystr = getArgument(args);
+    QString character = getArgument(args);
+    QString mapstr = getArgument(args);
+    QString xstr = getArgument(args);
+    QString ystr = getArgument(args);
 
     // if any of them are empty strings, no argument was given
-    if (character.empty() || mapstr.empty() || xstr.empty() || ystr.empty())
+    if (character.isEmpty() || mapstr.isEmpty() || xstr.isEmpty() ||
+        ystr.isEmpty())
     {
         say("Invalid number of arguments given.", player);
         say("Usage: @warp <character> <map> <x> <y>", player);
@@ -435,16 +432,15 @@ static void handleCharWarp(Entity *player, std::string &args)
     {
         if (mapstr[0] == '#')
         {
-            mapstr = mapstr.substr(1);
+            mapstr = mapstr.mid(1);
             // check for valid map id
-            int id;
-            if (!utils::isNumeric(mapstr))
+            bool wasNumeric;
+            int id = mapstr.toInt(&wasNumeric);
+            if (!wasNumeric)
             {
                 say("Invalid map", player);
                 return;
             }
-
-            id = utils::stringToInt(mapstr);
 
             // get the map
             map = MapManager::getMap(id);
@@ -466,47 +462,48 @@ static void handleCharWarp(Entity *player, std::string &args)
         }
     }
 
-    if (!utils::isNumeric(xstr))
+    bool wasXNumeric;
+    int x = xstr.toInt(&wasXNumeric);
+    if (!wasXNumeric)
     {
         say("Invalid x", player);
         return;
     }
 
-    if (!utils::isNumeric(ystr))
+    bool wasYNumeric;
+    int y = ystr.toInt(&wasYNumeric);
+    if (!wasYNumeric)
     {
         say("Invalid y", player);
         return;
     }
 
-    // change the x and y to integers
-    x = utils::stringToInt(xstr);
-    y = utils::stringToInt(ystr);
-
     // now warp the player
     GameState::warp(other, map, Point(x, y));
 
     // log transaction
-    std::stringstream ss;
-    ss << "User warped " << other->getComponent<BeingComponent>()->getName()
-            << " to " << map->getName() << " (" << x << ", " << y << ")";
+    QString logMessage = "User warped " +
+                         other->getComponent<BeingComponent>()->getName() +
+                         " to " + map->getName() + " (" + QString::number(x) +
+                         ", " + QString::number(y) + ")";
     int databaseId =
             player->getComponent<CharacterComponent>()->getDatabaseID();
-    accountHandler->sendTransaction(databaseId, TRANS_CMD_WARP, ss.str());
+    accountHandler->sendTransaction(databaseId, TRANS_CMD_WARP, logMessage);
 }
 
-static void handleItem(Entity *player, std::string &args)
+static void handleItem(Entity *player, QString &args)
 {
     Entity *other;
     ItemClass *ic;
     int value = 0;
 
     // get arguments
-    std::string character = getArgument(args);
-    std::string itemclass = getArgument(args);
-    std::string valuestr = getArgument(args);
+    QString character = getArgument(args);
+    QString itemclass = getArgument(args);
+    QString valuestr = getArgument(args);
 
     // check all arguments are there
-    if (character.empty() || itemclass.empty())
+    if (character.isEmpty() || itemclass.isEmpty())
     {
         say("Invalid number of arguments given.", player);
         say("Usage: @item <character> <item> [amount]", player);
@@ -530,10 +527,11 @@ static void handleItem(Entity *player, std::string &args)
     }
 
     // identify the item type
-    if (utils::isNumeric(itemclass))
+    bool wasNumeric;
+    int itemId = itemclass.toInt(&wasNumeric);
+    if (wasNumeric)
     {
-        int id = utils::stringToInt(itemclass);
-        ic = itemManager->getItem(id);
+        ic = itemManager->getItem(itemId);
     }
     else
     {
@@ -546,13 +544,13 @@ static void handleItem(Entity *player, std::string &args)
     }
 
     //identify the amount
-    if  (valuestr.empty())
+    if (valuestr.isEmpty())
     {
         value = 1;
     }
-    else if (utils::isNumeric(valuestr))
+    else
     {
-        value = utils::stringToInt(valuestr);
+        value = valuestr.toInt();
     }
     // check for valid amount
     if (value <= 0)
@@ -565,24 +563,23 @@ static void handleItem(Entity *player, std::string &args)
     Inventory(other).insert(ic->getDatabaseID(), value);
 
     // log transaction
-    std::stringstream str;
-    str << "User created item " << ic->getDatabaseID();
+    QString str =  "User created item " + QString::number(ic->getDatabaseID());
     int databaseId =
             player->getComponent<CharacterComponent>()->getDatabaseID();
-    accountHandler->sendTransaction(databaseId, TRANS_CMD_ITEM, str.str());
+    accountHandler->sendTransaction(databaseId, TRANS_CMD_ITEM, str);
 }
 
-static void handleDrop(Entity *player, std::string &args)
+static void handleDrop(Entity *player, QString &args)
 {
     ItemClass *ic;
     int amount = 0;
 
     // get arguments
-    std::string itemclass = getArgument(args);
-    std::string amountstr = getArgument(args);
+    QString itemclass = getArgument(args);
+    QString amountstr = getArgument(args);
 
     // check all arguments are there
-    if (itemclass.empty())
+    if (itemclass.isEmpty())
     {
         say("Invalid number of arguments given.", player);
         say("Usage: @drop <item> [amount]", player);
@@ -590,10 +587,11 @@ static void handleDrop(Entity *player, std::string &args)
     }
 
     // identify the item type
-    if (utils::isNumeric(itemclass))
+    bool wasNumeric;
+    int itemId = itemclass.toInt(&wasNumeric);
+    if (wasNumeric)
     {
-        int id = utils::stringToInt(itemclass);
-        ic = itemManager->getItem(id);
+        ic = itemManager->getItem(itemId);
     }
     else
     {
@@ -606,13 +604,13 @@ static void handleDrop(Entity *player, std::string &args)
     }
 
     // identify the amount
-    if (amountstr.empty())
+    if (amountstr.isEmpty())
     {
         amount = 1;
     }
-    else if (utils::isNumeric(amountstr))
+    else
     {
-        amount = utils::stringToInt(amountstr);
+        amount = amountstr.toInt();
     }
     // check for valid amount
     if (amount <= 0)
@@ -628,24 +626,22 @@ static void handleDrop(Entity *player, std::string &args)
     GameState::insertOrDelete(item);
 
     // log transaction
-    std::stringstream str;
-    str << "User created item " << ic->getDatabaseID();
+    QString str ="User created item " + QString::number(ic->getDatabaseID());
     int databaseId =
             player->getComponent<CharacterComponent>()->getDatabaseID();
-    accountHandler->sendTransaction(databaseId, TRANS_CMD_DROP, str.str());
+    accountHandler->sendTransaction(databaseId, TRANS_CMD_DROP, str);
 }
 
-static void handleMoney(Entity *player, std::string &args)
+static void handleMoney(Entity *player, QString &args)
 {
     Entity *other;
-    int value;
 
     // get arguments
-    std::string character = getArgument(args);
-    std::string valuestr = getArgument(args);
+    QString character = getArgument(args);
+    QString valuestr = getArgument(args);
 
     // check all arguments are there
-    if (character.empty() || valuestr.empty())
+    if (character.isEmpty() || valuestr.isEmpty())
     {
         say("Invalid number of arguments given", player);
         say("Usage: @money <character> <amount>", player);
@@ -669,14 +665,13 @@ static void handleMoney(Entity *player, std::string &args)
     }
 
     // check value is an integer
-    if (!utils::isNumeric(valuestr))
+    bool wasNumeric;
+    int value = valuestr.toInt(&wasNumeric);
+    if (!wasNumeric)
     {
         say("Invalid argument", player);
         return;
     }
-
-    // change value into an integer
-    value = utils::stringToInt(valuestr);
 
     auto *beingComponent = other->getComponent<BeingComponent>();
 
@@ -687,13 +682,13 @@ static void handleMoney(Entity *player, std::string &args)
     beingComponent->setAttribute(*player, moneyAttribute , previousMoney + value);
 
     // log transaction
-    std::string msg = "User created " + valuestr + " money";
+    QString msg = "User created " + valuestr + " money";
     int databaseId =
             player->getComponent<CharacterComponent>()->getDatabaseID();
     accountHandler->sendTransaction(databaseId, TRANS_CMD_MONEY, msg);
 }
 
-static void handleSpawn(Entity *player, std::string &args)
+static void handleSpawn(Entity *player, QString &args)
 {
     MonsterClass *mc;
     MapComposite *map = player->getMap();
@@ -701,11 +696,11 @@ static void handleSpawn(Entity *player, std::string &args)
     int value = 0;
 
     // get the arguments
-    std::string monsterclass = getArgument(args);
-    std::string valuestr = getArgument(args);
+    QString monsterclass = getArgument(args);
+    QString valuestr = getArgument(args);
 
     // check all arguments are there
-    if (monsterclass.empty())
+    if (monsterclass.isEmpty())
     {
         say("Invalid amount of arguments given.", player);
         say("Usage: @spawn <monster> [number]", player);
@@ -713,10 +708,11 @@ static void handleSpawn(Entity *player, std::string &args)
     }
 
     // identify the monster type
-    if (utils::isNumeric(monsterclass))
+    bool wasMonsterIdNumeric;
+    int monsterId = monsterclass.toInt(&wasMonsterIdNumeric);
+    if (wasMonsterIdNumeric)
     {
-        int id = utils::stringToInt(monsterclass);
-        mc = monsterManager->getMonster(id);
+        mc = monsterManager->getMonster(monsterId);
     }
     else
     {
@@ -730,13 +726,13 @@ static void handleSpawn(Entity *player, std::string &args)
     }
 
     //identify the amount
-    if  (valuestr.empty())
+    if  (valuestr.isEmpty())
     {
         value = 1;
     }
-    else if (utils::isNumeric(valuestr))
+    else
     {
-        value = utils::stringToInt(valuestr);
+        value = valuestr.toInt();
     }
     // check for valid amount
     if (value <= 0)
@@ -762,7 +758,7 @@ static void handleSpawn(Entity *player, std::string &args)
         }
 
         // log transaction
-        std::string msg = "User created monster " +
+        QString msg = "User created monster " +
                 monster->getComponent<BeingComponent>()->getName();
         int databaseId =
                 player->getComponent<CharacterComponent>()->getDatabaseID();
@@ -770,15 +766,15 @@ static void handleSpawn(Entity *player, std::string &args)
     }
 }
 
-static void handleGoto(Entity *player, std::string &args)
+static void handleGoto(Entity *player, QString &args)
 {
     Entity *other;
 
     // get the arguments
-    std::string character = getArgument(args);
+    QString character = getArgument(args);
 
     // check all arguments are there
-    if (character.empty())
+    if (character.isEmpty())
     {
         say("Invalid amount of arguments given.", player);
         say("Usage: @goto <character>", player);
@@ -799,23 +795,22 @@ static void handleGoto(Entity *player, std::string &args)
     GameState::warp(player, map, pos);
 
     // log transaction
-    std::stringstream msg;
-    msg << "User warped own character to "
-            << other->getComponent<BeingComponent>()->getName();
+    QString msg = "User warped own character to " +
+                  other->getComponent<BeingComponent>()->getName();
     int databaseId =
             player->getComponent<CharacterComponent>()->getDatabaseID();
-    accountHandler->sendTransaction(databaseId, TRANS_CMD_GOTO, msg.str());
+    accountHandler->sendTransaction(databaseId, TRANS_CMD_GOTO, msg);
 }
 
-static void handleRecall(Entity *player, std::string &args)
+static void handleRecall(Entity *player, QString &args)
 {
     Entity *other;
 
     // get the arguments
-    std::string character = getArgument(args);
+    QString character = getArgument(args);
 
     // check all arguments are there
-    if (character.empty())
+    if (character.isEmpty())
     {
         say("Invalid amount of arguments given.", player);
         say("Usage: @recall <character>", player);
@@ -836,25 +831,25 @@ static void handleRecall(Entity *player, std::string &args)
     GameState::warp(other, map, pos);
 }
 
-static void handleReload(Entity *, std::string &)
+static void handleReload(Entity *, QString &)
 {
     // reload the items and monsters
     itemManager->reload();
     monsterManager->reload();
 }
 
-static void handleBan(Entity *player, std::string &args)
+static void handleBan(Entity *player, QString &args)
 {
     Entity *other;
     int length;
     int lengthMutiplier = 0;
 
     // get arguments
-    std::string character = getArgument(args);
-    std::string valuestr = getArgument(args);
+    QString character = getArgument(args);
+    QString valuestr = getArgument(args);
 
     // check all arguments are there
-    if (character.empty() || valuestr.empty())
+    if (character.isEmpty() || valuestr.isEmpty())
     {
         say("Invalid number of arguments given.", player);
         say("Usage: @ban <character> <duration>", player);
@@ -870,8 +865,8 @@ static void handleBan(Entity *player, std::string &args)
     }
 
     // get the unit
-    char unit = valuestr.at(valuestr.length()-1);
-    switch (unit)
+    QChar unit = valuestr.at(valuestr.length()-1);
+    switch (unit.toLatin1())
     {
         case 'm':
             lengthMutiplier = 1;
@@ -889,11 +884,11 @@ static void handleBan(Entity *player, std::string &args)
             lengthMutiplier = 60 * 24 * 365;
             break;
     }
-    length = utils::stringToInt(valuestr.substr(0, valuestr.length()-1));
+    length = valuestr.mid(0, valuestr.length() - 1).toInt();
     length = length * lengthMutiplier;
     if (length <= 0)
     {
-        std::string errmsg;
+        QString errmsg;
         errmsg += "Invalid length. Please enter a positive number ";
         errmsg += "followed by the letter m, h, d, w or y for minutes ";
         errmsg += ", hours, days, weeks or years.";
@@ -911,19 +906,20 @@ static void handleBan(Entity *player, std::string &args)
     characterComponent->getClient()->disconnect(kickmsg);
 
     // feedback for command user
-    std::string otherName = other->getComponent<BeingComponent>()->getName();
-    std::string msg = "You've banned " + otherName + " for " + utils::toString(length) + " minutes";
+    QString otherName = other->getComponent<BeingComponent>()->getName();
+    QString msg = "You've banned " + otherName + " for " +
+                  QString::number(length) + " minutes";
     say(msg, player);
     // log transaction
-    msg = "User banned " + otherName + " for " + utils::toString(length) + " minutes";
+    msg = "User banned " + otherName + " for " + QString::number(length) + " minutes";
     accountHandler->sendTransaction(characterComponent->getDatabaseID(),
                                     TRANS_CMD_BAN, msg);
 }
 
-static void handlePermissions(Entity *player, std::string &args)
+static void handlePermissions(Entity *player, QString &args)
 {
-    std::string character = getArgument(args);
-    if (character.empty())
+    QString character = getArgument(args);
+    if (character.isEmpty())
     {
         say("Invaild number of arguments given.", player);
         say("Usage: @permissions <character>", player);
@@ -941,16 +937,16 @@ static void handlePermissions(Entity *player, std::string &args)
         playerRights(other), player);
 }
 
-static void handleGivePermission(Entity *player, std::string &args)
+static void handleGivePermission(Entity *player, QString &args)
 {
     Entity *other;
 
     // get the arguments
-    std::string character = getArgument(args);
-    std::string strPermission = getArgument(args);
+    QString character = getArgument(args);
+    QString strPermission = getArgument(args);
 
     // check all arguments are there
-    if (character.empty() || strPermission.empty())
+    if (character.isEmpty() || strPermission.isEmpty())
     {
         say("Invalid number of arguments given.", player);
         say("Usage: @givepermission <character> <permission class>", player);
@@ -997,7 +993,7 @@ static void handleGivePermission(Entity *player, std::string &args)
         accountHandler->changeAccountLevel(other, permission);
 
         // log transaction
-        std::string msg = "User gave right " + strPermission + " to " +
+        QString msg = "User gave right " + strPermission + " to " +
                 other->getComponent<BeingComponent>()->getName();
         accountHandler->sendTransaction(characterComponent->getDatabaseID(),
                                         TRANS_CMD_SETGROUP, msg);
@@ -1009,16 +1005,16 @@ static void handleGivePermission(Entity *player, std::string &args)
     }
 }
 
-static void handleTakePermission(Entity *player, std::string &args)
+static void handleTakePermission(Entity *player, QString &args)
 {
     Entity *other;
 
     // get the arguments
-    std::string character = getArgument(args);
-    std::string strPermission = getArgument(args);
+    QString character = getArgument(args);
+    QString strPermission = getArgument(args);
 
     // check all arguments are there
-    if (character.empty() || strPermission.empty())
+    if (character.isEmpty() || strPermission.isEmpty())
     {
         say("Invalid number of arguments given.", player);
         say("Usage: @takepermission <character> <permission class>", player);
@@ -1063,7 +1059,7 @@ static void handleTakePermission(Entity *player, std::string &args)
         accountHandler->changeAccountLevel(other, permission);
 
         // log transaction
-        std::string msg = "User took right " + strPermission + " from "
+        QString msg = "User took right " + strPermission + " from "
                 + other->getComponent<BeingComponent>()->getName();
         accountHandler->sendTransaction(characterComponent->getDatabaseID(),
                                         TRANS_CMD_SETGROUP, msg);
@@ -1073,17 +1069,17 @@ static void handleTakePermission(Entity *player, std::string &args)
 }
 
 
-static void handleAttribute(Entity *player, std::string &args)
+static void handleAttribute(Entity *player, QString &args)
 {
     Entity *other;
 
     // get arguments
-    std::string character = getArgument(args);
-    std::string attribute = getArgument(args);
-    std::string valuestr = getArgument(args);
+    QString character = getArgument(args);
+    QString attribute = getArgument(args);
+    QString valuestr = getArgument(args);
 
     // check all arguments are there
-    if (character.empty() || valuestr.empty() || attribute.empty())
+    if (character.isEmpty() || valuestr.isEmpty() || attribute.isEmpty())
     {
         say("Invalid number of arguments given.", player);
         say("Usage: @attribute <character> <attribute> <value>", player);
@@ -1107,17 +1103,20 @@ static void handleAttribute(Entity *player, std::string &args)
     }
 
     // check they are really integers
-    if (!utils::isNumeric(valuestr))
+    bool wasValueNumeric;
+    int value = valuestr.toInt(&wasValueNumeric);
+    if (!wasValueNumeric)
     {
         say("Invalid argument", player);
         return;
     }
 
     AttributeInfo *attributeInfo;
-    if (utils::isNumeric(attribute))
+    bool wasAttributeNumeric;
+    const int attributeId = attribute.toInt(&wasAttributeNumeric);
+    if (wasAttributeNumeric)
     {
-        const int id = utils::stringToInt(attribute);
-        attributeInfo = attributeManager->getAttributeInfo(id);
+        attributeInfo = attributeManager->getAttributeInfo(attributeId);
     }
     else
     {
@@ -1129,9 +1128,6 @@ static void handleAttribute(Entity *player, std::string &args)
         say("Invalid Attribute", player);
         return;
     }
-
-    // put the value into an integer
-    int value = utils::stringToInt(valuestr);
 
     if (value < 0)
     {
@@ -1151,20 +1147,19 @@ static void handleAttribute(Entity *player, std::string &args)
     beingComponent->setAttribute(*other, attributeInfo, value);
 
     // log transaction
-    std::stringstream msg;
-    msg << "User changed attribute " << attributeInfo->id << " of player "
-        << beingComponent->getName()
-        << " to " << value;
+    QString msg = "User changed attribute " +
+                  QString::number(attributeInfo->id) + " of player " +
+                  beingComponent->getName() + " to " + value;
     int databaseId =
             player->getComponent<CharacterComponent>()->getDatabaseID();
-    accountHandler->sendTransaction(databaseId, TRANS_CMD_ATTRIBUTE, msg.str());
+    accountHandler->sendTransaction(databaseId, TRANS_CMD_ATTRIBUTE, msg);
 }
 
-static void handleReport(Entity *player, std::string &args)
+static void handleReport(Entity *player, QString &args)
 {
-    std::string bugReport = getArgument(args);
+    QString bugReport = getArgument(args);
 
-    if (bugReport.empty())
+    if (bugReport.isEmpty())
     {
         say("Invalid number of arguments given.", player);
         say("Usage: @report <message>", player);
@@ -1174,9 +1169,9 @@ static void handleReport(Entity *player, std::string &args)
     // TODO: Send the report to a developer or something
 }
 
-static void handleAnnounce(Entity *player, std::string &args)
+static void handleAnnounce(Entity *player, QString &args)
 {
-    if (args.empty())
+    if (args.isEmpty())
     {
         say("Invalid number of arguments given.", player);
         say("Usage: @announce <message>", player);
@@ -1191,39 +1186,35 @@ static void handleAnnounce(Entity *player, std::string &args)
     accountHandler->send(msg);
 }
 
-static void handleWhere(Entity *player, std::string &)
+static void handleWhere(Entity *player, QString &)
 {
     const Point &position =
             player->getComponent<ActorComponent>()->getPosition();
-    std::stringstream str;
-    str << "Your current location is map "
-        << player->getMap()->getID()
-        << " ["
-        << position.x
-        << ":"
-        << position.y
-        << "]";
-    say (str.str(), player);
+    QString str = "Your current location is map " +
+                  QString::number(player->getMap()->getID()) + " [" +
+                  QString::number(position.x) + ":" +
+                  QString::number(position.y) + "]";
+    say(str, player);
 }
 
-static void handleRights(Entity *player, std::string &)
+static void handleRights(Entity *player, QString &)
 {
     say("Your rights level is: " + playerRights(player), player);
 }
 
-static void handleHistory(Entity *, std::string &)
+static void handleHistory(Entity *, QString &)
 {
     // TODO: Get args number of transactions and show them to the player
 }
 
-static void handleMute(Entity *player, std::string &args)
+static void handleMute(Entity *player, QString &args)
 {
     Entity *other;
     int length;
 
     // Get arguments.
-    std::string character = getArgument(args);
-    std::string valuestr = getArgument(args);
+    QString character = getArgument(args);
+    QString valuestr = getArgument(args);
 
 
     // Check for a valid player.
@@ -1235,12 +1226,12 @@ static void handleMute(Entity *player, std::string &args)
     }
 
     // Turn the length back to an integer.
-    if (valuestr.empty())
+    if (valuestr.isEmpty())
         length = mConfiguration->getValue("command_defaultMuteLength", 60);
     else
-        length = utils::stringToInt(valuestr);
+        length = valuestr.toInt();
 
-    if (length < 0)
+    if (length <= 0)
     {
         say("Invalid length, using default", player);
         length = mConfiguration->getValue("command_defaultMuteLength", 60);
@@ -1249,14 +1240,14 @@ static void handleMute(Entity *player, std::string &args)
     // Mute the player.
     other->getComponent<CharacterComponent>()->mute(length);
 
-    const std::string &playerName =
+    const QString &playerName =
             player->getComponent<BeingComponent>()->getName();
-    const std::string &otherName =
+    const QString &otherName =
             other->getComponent<BeingComponent>()->getName();
 
     // Feedback.
-    std::stringstream targetMsg;
-    std::stringstream userMsg;
+    QTextStream targetMsg;
+    QTextStream userMsg;
     if (length > 0)
     {
         targetMsg << playerName << " muted you for "
@@ -1270,11 +1261,11 @@ static void handleMute(Entity *player, std::string &args)
         targetMsg << playerName << " unmuted you.";
         userMsg << "You unmuted " << otherName << ".";
     }
-    say(targetMsg.str(), other);
-    say(userMsg.str(), player);
+    say(targetMsg.readAll(), other);
+    say(userMsg.readAll(), player);
 
     // log transaction
-    std::stringstream msg;
+    QTextStream msg;
     if (length > 0)
     {
         msg << "User muted " << otherName << " for " << length << " seconds.";
@@ -1283,22 +1274,22 @@ static void handleMute(Entity *player, std::string &args)
     }
     int databaseId =
             player->getComponent<CharacterComponent>()->getDatabaseID();
-    accountHandler->sendTransaction(databaseId, TRANS_CMD_MUTE, msg.str());
+    accountHandler->sendTransaction(databaseId, TRANS_CMD_MUTE, msg.readAll());
 }
 
-static void handleDie(Entity *player, std::string &)
+static void handleDie(Entity *player, QString &)
 {
     auto *hpAttribute = attributeManager->getAttributeInfo(ATTR_HP);
     player->getComponent<BeingComponent>()->setAttribute(*player, hpAttribute, 0);
     say("You've killed yourself.", player);
 }
 
-static void handleKill(Entity *player, std::string &args)
+static void handleKill(Entity *player, QString &args)
 {
     Entity *other;
 
     // get arguments
-    std::string character = getArgument(args);
+    QString character = getArgument(args);
 
     // check for valid player
     other = gameHandler->getCharacterByNameSlow(character);
@@ -1313,30 +1304,30 @@ static void handleKill(Entity *player, std::string &args)
     other->getComponent<BeingComponent>()->setAttribute(*player, hpAttribute, 0);
 
     // feedback
-    std::stringstream targetMsg;
-    std::stringstream userMsg;
+    QTextStream targetMsg;
+    QTextStream userMsg;
     targetMsg << "You were killed by server command from "
               << player->getComponent<BeingComponent>()->getName() << ".";
     userMsg << "You killed "
             << other->getComponent<BeingComponent>()->getName() << ".";
-    say(targetMsg.str(), other);
-    say(userMsg.str(), player);
+    say(targetMsg.readAll(), other);
+    say(userMsg.readAll(), player);
 
     // log transaction
-    std::stringstream logMsg;
+    QTextStream logMsg;
     logMsg << "User killed "
            << other->getComponent<BeingComponent>()->getName();
     int databaseId =
             player->getComponent<CharacterComponent>()->getDatabaseID();
-    accountHandler->sendTransaction(databaseId, TRANS_CMD_KILL, logMsg.str());
+    accountHandler->sendTransaction(databaseId, TRANS_CMD_KILL, logMsg.readAll());
 }
 
-static void handleKick(Entity *player, std::string &args)
+static void handleKick(Entity *player, QString &args)
 {
     Entity *other;
 
     // get arguments
-    std::string character = getArgument(args);
+    QString character = getArgument(args);
 
     // check for valid player
     other = gameHandler->getCharacterByNameSlow(character);
@@ -1347,10 +1338,10 @@ static void handleKick(Entity *player, std::string &args)
     }
 
     // send feedback
-    std::stringstream userMsg;
+    QTextStream userMsg;
     userMsg << "You kicked "
             << other->getComponent<BeingComponent>()->getName() << ".";
-    say(userMsg.str(), player);
+    say(userMsg.readAll(), player);
 
 
     auto *characterComponent =
@@ -1362,18 +1353,18 @@ static void handleKick(Entity *player, std::string &args)
     characterComponent->getClient()->disconnect(msg);
 
     // log transaction
-    std::stringstream logMsg;
+    QTextStream logMsg;
     logMsg << "User kicked "
            << other->getComponent<BeingComponent>()->getName();
     int databaseId =
             player->getComponent<CharacterComponent>()->getDatabaseID();
-    accountHandler->sendTransaction(databaseId, TRANS_CMD_KICK, logMsg.str());
+    accountHandler->sendTransaction(databaseId, TRANS_CMD_KICK, logMsg.readAll());
 }
 
 
-static void handleLog(Entity *player, std::string &msg)
+static void handleLog(Entity *player, QString &msg)
 {
-    if (msg.empty())
+    if (msg.isEmpty())
     {
         say("Invalid number of arguments given.", player);
         say("Usage: @log <message>", player);
@@ -1381,7 +1372,7 @@ static void handleLog(Entity *player, std::string &msg)
     }
 
     // log transaction
-    std::string logmsg = "[silent] " + msg;
+    QString logmsg = "[silent] " + msg;
     int databaseId =
             player->getComponent<CharacterComponent>()->getDatabaseID();
     accountHandler->sendTransaction(databaseId, TRANS_CMD_LOG, logmsg);
@@ -1390,9 +1381,9 @@ static void handleLog(Entity *player, std::string &msg)
     say("Message logged", player);
 }
 
-static void handleLogsay(Entity *player, std::string &msg)
+static void handleLogsay(Entity *player, QString &msg)
 {
-    if (msg.empty())
+    if (msg.isEmpty())
     {
         say("Invalid number of arguments given.", player);
         say("Usage: @logsay <message>", player);
@@ -1402,7 +1393,7 @@ static void handleLogsay(Entity *player, std::string &msg)
     GameState::sayAround(player, msg);
 
     // log transaction
-    std::string logmsg = "[public] " + msg;
+    QString logmsg = "[public] " + msg;
     int databaseId =
             player->getComponent<CharacterComponent>()->getDatabaseID();
     accountHandler->sendTransaction(databaseId, TRANS_CMD_LOG, logmsg);
@@ -1411,7 +1402,7 @@ static void handleLogsay(Entity *player, std::string &msg)
     say("Message logged", player);
 }
 
-static void handleKillMonsters(Entity *player, std::string &)
+static void handleKillMonsters(Entity *player, QString &)
 {
     const MapComposite *map = player->getMap();
     int count = 0;
@@ -1426,33 +1417,33 @@ static void handleKillMonsters(Entity *player, std::string &)
         }
     }
 
-    std::stringstream ss;
-    ss << "You killed " << count << " monster" << (count > 1 ? "s." : ".");
-    say(ss.str(), player);
+    QTextStream message;
+    message << "You killed " << count << " monster" << (count > 1 ? "s." : ".");
+    say(message.readAll(), player);
 
     // log transaction
-    std::string msg = "User killed all monsters on map " + map->getName();
+    QString msg = "User killed all monsters on map " + map->getName();
     int databaseId =
             player->getComponent<CharacterComponent>()->getDatabaseID();
     accountHandler->sendTransaction(databaseId, TRANS_CMD_KILLMONSTERS, msg);
 }
 
-static void handleCraft(Entity *player, std::string &args)
+static void handleCraft(Entity *player, QString &args)
 {
-    std::stringstream errMsg;
+    QTextStream errMsg;
     std::list<InventoryItem> recipe;
     Inventory playerInventory(player);
 
     while (true)
     {
         // parsing
-        std::string strItem = getArgument(args);
+        QString strItem = getArgument(args);
         ItemClass* item = itemManager->getItemByName(strItem);
-        std::string strAmount = getArgument(args);
-        int amount = utils::stringToInt(strAmount);
+        QString strAmount = getArgument(args);
+        int amount = strAmount.toInt();
 
         // syntax error checking
-        if (strItem.empty())
+        if (strItem.isEmpty())
         {
             // the item list has ended
             break;
@@ -1464,7 +1455,7 @@ static void handleCraft(Entity *player, std::string &args)
             break;
         }
 
-        if (strAmount.empty())
+        if (strAmount.isEmpty())
         {
             // the last item in the list has no amount defined
             errMsg << "No amount given for \"" << strItem << "\".";
@@ -1496,10 +1487,10 @@ static void handleCraft(Entity *player, std::string &args)
         recipe.push_back(recipeItem);
     }
 
-    if (!errMsg.str().empty())
+    if (!errMsg.readAll().isEmpty())
     {
         // when an error occured, output the error
-        say(errMsg.str(), player);
+        say(errMsg.readAll(), player);
         return;
     } else {
         // pass to script engine. The engine is responsible for all
@@ -1509,10 +1500,10 @@ static void handleCraft(Entity *player, std::string &args)
     }
 }
 
-static void handleGetPos(Entity *player, std::string &args)
+static void handleGetPos(Entity *player, QString &args)
 {
-    std::string character = getArgument(args);
-    if (character.empty())
+    QString character = getArgument(args);
+    if (character.isEmpty())
     {
         say("Invalid amount of arguments given.", player);
         say("Usage: @getpos <character>", player);
@@ -1526,7 +1517,7 @@ static void handleGetPos(Entity *player, std::string &args)
         return;
     }
     const Point &pos = other->getComponent<ActorComponent>()->getPosition();
-    std::stringstream str;
+    QTextStream str;
     str << "The current location of "
         << character
         << " is map "
@@ -1536,13 +1527,13 @@ static void handleGetPos(Entity *player, std::string &args)
         << ":"
         << pos.y
         << "]";
-    say(str.str(), player);
+    say(str.readAll(), player);
 }
 
-static void handleEffect(Entity *player, std::string &args)
+static void handleEffect(Entity *player, QString &args)
 {
-    std::vector<std::string> arguments;
-    for (std::string arg = getArgument(args); !arg.empty();
+    std::vector<QString> arguments;
+    for (QString arg = getArgument(args); !arg.isEmpty();
          arg = getArgument(args))
     {
         arguments.push_back(arg);
@@ -1550,12 +1541,12 @@ static void handleEffect(Entity *player, std::string &args)
 
     if (arguments.size() == 1)
     {
-        int id = utils::stringToInt(arguments[0]);
+        int id = arguments[0].toInt();
         Effects::show(id, player);
     }
     else if (arguments.size() == 2)
     {
-        int id = utils::stringToInt(arguments[0]);
+        int id = arguments[0].toInt();
         Entity *p = gameHandler->getCharacterByNameSlow(arguments[1]);
         if (!p)
         {
@@ -1566,9 +1557,9 @@ static void handleEffect(Entity *player, std::string &args)
     }
     else if (arguments.size() == 3)
     {
-        int id = utils::stringToInt(arguments[0]);
-        int x = utils::stringToInt(arguments[1]);
-        int y = utils::stringToInt(arguments[2]);
+        int id = arguments[0].toInt();
+        int x = arguments[1].toInt();
+        int y = arguments[2].toInt();
         Effects::show(id, player->getMap(), Point(x, y));
     }
     else
@@ -1579,11 +1570,11 @@ static void handleEffect(Entity *player, std::string &args)
     }
 }
 
-static void handleGiveAbility(Entity *player, std::string &args)
+static void handleGiveAbility(Entity *player, QString &args)
 {
-    std::string character = getArgument(args);
-    std::string ability = getArgument(args);
-    if (character.empty() || ability.empty())
+    QString character = getArgument(args);
+    QString ability = getArgument(args);
+    if (character.isEmpty() || ability.isEmpty())
     {
         say("Invalid amount of arguments given.", player);
         say("Usage: @giveability <character> <ability>", player);
@@ -1602,10 +1593,9 @@ static void handleGiveAbility(Entity *player, std::string &args)
         return;
     }
 
-    int abilityId;
-    if (utils::isNumeric(ability))
-        abilityId = utils::stringToInt(ability);
-    else
+    bool wasAbilityNumeric;
+    int abilityId = ability.toInt(&wasAbilityNumeric);
+    if (!wasAbilityNumeric)
         abilityId = abilityManager->getId(ability);
 
     if (abilityId <= 0 ||
@@ -1616,11 +1606,11 @@ static void handleGiveAbility(Entity *player, std::string &args)
     }
 }
 
-static void handleTakeAbility(Entity *player, std::string &args)
+static void handleTakeAbility(Entity *player, QString &args)
 {
-    std::string character = getArgument(args);
-    std::string ability = getArgument(args);
-    if (character.empty() || ability.empty())
+    QString character = getArgument(args);
+    QString ability = getArgument(args);
+    if (character.isEmpty() || ability.isEmpty())
     {
         say("Invalid amount of arguments given.", player);
         say("Usage: @takeability <character> <ability>", player);
@@ -1639,10 +1629,9 @@ static void handleTakeAbility(Entity *player, std::string &args)
         return;
     }
 
-    int abilityId;
-    if (utils::isNumeric(ability))
-        abilityId = utils::stringToInt(ability);
-    else
+    bool wasAbilityIdNumeric;
+    int abilityId = ability.toInt(&wasAbilityIdNumeric);
+    if (!wasAbilityIdNumeric)
         abilityId = abilityManager->getId(ability);
 
     if (abilityId <= 0)
@@ -1657,12 +1646,12 @@ static void handleTakeAbility(Entity *player, std::string &args)
     }
 }
 
-static void handleRechargeAbility(Entity *player, std::string &args)
+static void handleRechargeAbility(Entity *player, QString &args)
 {
-    std::string character = getArgument(args);
-    std::string ability = getArgument(args);
-    std::string newMana = getArgument(args);
-    if (character.empty() || ability.empty())
+    QString character = getArgument(args);
+    QString ability = getArgument(args);
+    QString newMana = getArgument(args);
+    if (character.isEmpty() || ability.isEmpty())
     {
         say("Invalid amount of arguments given.", player);
         say("Usage: @rechargeability <character> <ability>", player);
@@ -1681,10 +1670,9 @@ static void handleRechargeAbility(Entity *player, std::string &args)
         return;
     }
 
-    int abilityId;
-    if (utils::isNumeric(ability))
-        abilityId = utils::stringToInt(ability);
-    else
+    bool wasAbilityIdNumeric;
+    int abilityId = ability.toInt(&wasAbilityIdNumeric);
+    if (!wasAbilityIdNumeric)
         abilityId = abilityManager->getId(ability);
 
     const AbilityManager::AbilityInfo *info =
@@ -1698,10 +1686,10 @@ static void handleRechargeAbility(Entity *player, std::string &args)
     other->getComponent<AbilityComponent>()->setAbilityCooldown(abilityId, 0);
 }
 
-static void handleListAbility(Entity *player, std::string &args)
+static void handleListAbility(Entity *player, QString &args)
 {
-    std::string character = getArgument(args);
-    if (character.empty())
+    QString character = getArgument(args);
+    if (character.isEmpty())
     {
         say("Invalid amount of arguments given.", player);
         say("Usage: @listabilities <character>", player);
@@ -1727,17 +1715,17 @@ static void handleListAbility(Entity *player, std::string &args)
     for (auto &abilityIt : abilityComponent->getAbilities())
     {
         const AbilityValue &info = abilityIt.second;
-        std::stringstream str;
+        QTextStream str;
         str << info.abilityInfo->id << ": " << info.abilityInfo->name;
-        say(str.str(), player);
+        say(str.readAll(), player);
     }
 }
 
-static void handleSetAttributePoints(Entity *player, std::string &args)
+static void handleSetAttributePoints(Entity *player, QString &args)
 {
-    std::string character = getArgument(args);
-    std::string attributePoints = getArgument(args);
-    if (character.empty())
+    QString character = getArgument(args);
+    QString attributePointsString = getArgument(args);
+    if (character.isEmpty())
     {
         say("Invalid amount of arguments given.", player);
         say("Usage: @setattributepoints <character> <point>", player);
@@ -1756,7 +1744,9 @@ static void handleSetAttributePoints(Entity *player, std::string &args)
         return;
     }
 
-    if (!utils::isNumeric(attributePoints))
+    bool wasNumeric;
+    int attributePoints = attributePointsString.toInt(&wasNumeric);
+    if (!wasNumeric)
     {
         say("Invalid character, or player is offline.", player);
         return;
@@ -1764,14 +1754,14 @@ static void handleSetAttributePoints(Entity *player, std::string &args)
 
     auto *characterComponent = other->getComponent<CharacterComponent>();
 
-    characterComponent->setAttributePoints(utils::stringToInt(attributePoints));
+    characterComponent->setAttributePoints(attributePoints);
 }
 
-static void handleSetCorrectionPoints(Entity *player, std::string &args)
+static void handleSetCorrectionPoints(Entity *player, QString &args)
 {
-    std::string character = getArgument(args);
-    std::string correctionPoints = getArgument(args);
-    if (character.empty())
+    QString character = getArgument(args);
+    QString correctionPointsString = getArgument(args);
+    if (character.isEmpty())
     {
         say("Invalid amount of arguments given.", player);
         say("Usage: @setcorrectionpoints <character> <point>", player);
@@ -1790,25 +1780,27 @@ static void handleSetCorrectionPoints(Entity *player, std::string &args)
         return;
     }
 
-    if (!utils::isNumeric(correctionPoints))
+    bool wasNumeric;
+    int correctionPoints = correctionPointsString.toInt(&wasNumeric);
+    if (!wasNumeric)
     {
-        say("Invalid character, or player is offline.", player);
+        say("Invalid point value.", player);
         return;
     }
 
     auto *characterComponent = other->getComponent<CharacterComponent>();
 
-    characterComponent->setCorrectionPoints(utils::stringToInt(correctionPoints));
+    characterComponent->setCorrectionPoints(correctionPoints);
 }
 
 void CommandHandler::handleCommand(Entity *player,
-                                   const std::string &command)
+                                   const QString &command)
 {
     // get command type, and arguments
     // remove first character (the @)
-    std::string::size_type pos = command.find(' ');
-    std::string type(command, 1, pos == std::string::npos ? pos : pos - 1);
-    std::string args(command, pos == std::string::npos ? command.size() : pos + 1);
+    int pos = command.indexOf(' ');
+    QString type = pos == -1 ? command.mid(1) : command.mid(1, pos - 1);
+    QString args = pos == -1 ? QString() : command.mid(pos + 1);
 
     PermissionManager::Result r = PermissionManager::checkPermission(player, "@"+type);
     switch (r)

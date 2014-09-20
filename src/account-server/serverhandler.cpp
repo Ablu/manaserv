@@ -65,8 +65,8 @@ struct GameServer: NetComputer
 {
     GameServer(ENetPeer *peer): NetComputer(peer), server(0), port(0) {}
 
-    std::string name;
-    std::string address;
+    QString name;
+    QString address;
     NetComputer *server;
     ServerStatistics maps;
     short port;
@@ -114,7 +114,7 @@ private:
 static ServerHandler *serverHandler;
 
 bool GameServerHandler::initialize(int port,
-                                   const std::string &host,
+                                   const QString &host,
                                    IConfiguration *configuration,
                                    IStorage *storage)
 {
@@ -163,7 +163,7 @@ static GameServer *getGameServerFromMap(int mapId)
 }
 
 bool GameServerHandler::getGameServerFromMap(int mapId,
-                                             std::string &address,
+                                             QString &address,
                                              int &port)
 {
     if (GameServer *s = ::getGameServerFromMap(mapId))
@@ -175,7 +175,7 @@ bool GameServerHandler::getGameServerFromMap(int mapId,
     return false;
 }
 
-static void registerGameClient(GameServer *s, const std::string &token,
+static void registerGameClient(GameServer *s, const QString &token,
                                CharacterData &ptr)
 {
     MessageOut msg(AGMSG_PLAYER_ENTER);
@@ -186,7 +186,7 @@ static void registerGameClient(GameServer *s, const std::string &token,
     s->send(msg);
 }
 
-void GameServerHandler::registerClient(const std::string &token,
+void GameServerHandler::registerClient(const QString &token,
                                        CharacterData &ptr)
 {
     GameServer *s = ::getGameServerFromMap(ptr.getMapId());
@@ -207,7 +207,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
             server->name = msg.readString();
             server->address = msg.readString();
             server->port = msg.readInt16();
-            const std::string password = msg.readString();
+            const QString password = msg.readString();
 
             // checks the version of the remote item database with our local copy
             unsigned dbversion = msg.readInt32();
@@ -231,7 +231,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
                 outMsg.writeInt16(PASSWORD_OK);
 
                 // transmit global world state variables
-                std::map<std::string, std::string> variables;
+                std::map<QString, QString> variables;
                 variables = mStorage->getAllWorldStateVars(IStorage::WorldMap);
 
                 for (auto &variableIt : variables)
@@ -254,12 +254,12 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
             LOG_INFO("Game server " << server->address << ':' << server->port
                      << " asks for maps to activate.");
 
-            const std::map<int, std::string> &maps = MapManager::getMaps();
-            for (std::map<int, std::string>::const_iterator it = maps.begin(),
+            const std::map<int, QString> &maps = MapManager::getMaps();
+            for (std::map<int, QString>::const_iterator it = maps.begin(),
                  it_end = maps.end(); it != it_end; ++it)
             {
                 int id = it->first;
-                const std::string &reservedServer = it->second;
+                const QString &reservedServer = it->second;
                 if (reservedServer == server->name)
                 {
                     MessageOut outMsg(AGMSG_ACTIVE_MAP);
@@ -269,7 +269,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
                     LOG_DEBUG("Issued server " << server->name << "("
                               << server->address << ":" << server->port << ") "
                               << "to enable map " << id);
-                    std::map<std::string, std::string> variables;
+                    std::map<QString, QString> variables;
                     variables = mStorage->getAllWorldStateVars(id);
 
                      // Map vars number
@@ -331,7 +331,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
         {
             LOG_DEBUG("GAMSG_REDIRECT");
             int id = msg.readInt32();
-            std::string magic_token(utils::getMagicToken());
+            QString magic_token(utils::getMagicToken());
             if (auto ptr = mStorage->getCharacter(id, nullptr))
             {
                 int mapId = ptr->getMapId();
@@ -362,7 +362,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
         {
             LOG_DEBUG("GAMSG_PLAYER_RECONNECT");
             int id = msg.readInt32();
-            std::string magic_token = msg.readString(MAGIC_TOKEN_LENGTH);
+            QString magic_token = msg.readString(MAGIC_TOKEN_LENGTH);
 
             if (auto ptr = mStorage->getCharacter(id, nullptr))
             {
@@ -379,8 +379,8 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
         case GAMSG_GET_VAR_CHR:
         {
             int id = msg.readInt32();
-            std::string name = msg.readString();
-            std::string value = mStorage->getQuestVar(id, name);
+            QString name = msg.readString();
+            QString value = mStorage->getQuestVar(id, name);
             MessageOut result(AGMSG_GET_VAR_CHR_RESPONSE);
             result.writeInt32(id);
             result.writeString(name);
@@ -391,15 +391,15 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
         case GAMSG_SET_VAR_CHR:
         {
             int id = msg.readInt32();
-            std::string name = msg.readString();
-            std::string value = msg.readString();
+            QString name = msg.readString();
+            QString value = msg.readString();
             mStorage->setQuestVar(id, name, value);
         } break;
 
         case GAMSG_SET_VAR_WORLD:
         {
-            std::string name = msg.readString();
-            std::string value = msg.readString();
+            QString name = msg.readString();
+            QString value = msg.readString();
             // save the new value to the database
             mStorage->setWorldStateVar(name, value, IStorage::WorldMap);
             // relay the new value to all gameservers
@@ -415,8 +415,8 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
         case GAMSG_SET_VAR_MAP:
         {
             int mapid = msg.readInt32();
-            std::string name = msg.readString();
-            std::string value = msg.readString();
+            QString name = msg.readString();
+            QString value = msg.readString();
             mStorage->setWorldStateVar(name, value, mapid);
         } break;
 
@@ -523,7 +523,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
 
             // get the sender and receiver
             int senderId = msg.readInt32();
-            std::string receiverName = msg.readString();
+            QString receiverName = msg.readString();
 
             // for sending it back
             result.writeInt32(senderId);
@@ -540,7 +540,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
             }
 
             // get the letter contents
-            std::string contents = msg.readString();
+            QString contents = msg.readString();
 
             std::vector< std::pair<int, int> > items;
             while (msg.getUnreadLength())
@@ -576,7 +576,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
             LOG_DEBUG("TRANSACTION");
             int id = msg.readInt32();
             int action = msg.readInt32();
-            std::string message = msg.readString();
+            QString message = msg.readString();
 
             Transaction trans;
             trans.mCharacterId = id;
@@ -619,9 +619,9 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
 
         case GAMSG_ANNOUNCE:
         {
-            const std::string message = msg.readString();
+            const QString message = msg.readString();
             const int senderId = msg.readInt16();
-            const std::string senderName = msg.readString();
+            const QString senderName = msg.readString();
             chatHandler->handleAnnounce(message, senderId, senderName);
         } break;
 
@@ -644,7 +644,7 @@ void GameServerHandler::dumpStatistics(std::ostream &os)
         if (!server->port)
             continue;
 
-        os << "<gameserver address=\"" << server->address << "\" port=\""
+        os << "<gameserver address=\"" << server->address.toStdString() << "\" port=\""
            << server->port << "\">\n";
 
         for (ServerStatistics::const_iterator j = server->maps.begin(),

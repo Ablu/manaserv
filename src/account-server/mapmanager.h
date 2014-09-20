@@ -22,7 +22,7 @@
 #ifndef MAPMANAGER_H
 #define MAPMANAGER_H
 
-#include <string>
+#include <QString>
 #include <map>
 
 namespace MapManager
@@ -30,13 +30,13 @@ namespace MapManager
     /**
      * Loads map reference file
      */
-    void initialize(const std::string &mapReferenceFile);
+    void initialize(const QString &mapReferenceFile);
 
     /**
      * Returns a map of all maps
      * @return a map of mapid + name of reserved server.
      */
-    std::map<int, std::string> &getMaps();
+    std::map<int, QString> &getMaps();
 }
 
 #endif // MAPMANAGER_H

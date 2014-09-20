@@ -48,7 +48,6 @@
 #include "utils/logger.h"
 #include "utils/processorutils.h"
 #include "utils/stringfilter.h"
-#include "utils/time.h"
 #include "utils/timer.h"
 
 #include <cstdlib>
@@ -58,6 +57,8 @@
 #include <fstream>
 #include <physfs.h>
 #include <enet/enet.h>
+
+#include <QTime>
 
 using utils::Logger;
 
@@ -70,7 +71,7 @@ static bool running = true;        /**< Determines if server keeps running */
 
 utils::StringFilter *stringFilter; /**< Slang's Filter */
 
-static std::string statisticsFile = std::string();
+static QString statisticsFile = QString();
 
 /** Database handler. */
 SqlStorage *storage;
@@ -103,7 +104,7 @@ static void initialize()
     signal(SIGINT, closeGracefully);
     signal(SIGTERM, closeGracefully);
 
-    std::string logFile = configuration->getValue("log_accountServerFile",
+    QString logFile = configuration->getValue("log_accountServerFile",
                                                   DEFAULT_LOG_FILE);
 
     // Initialize PhysicsFS
@@ -125,7 +126,7 @@ static void initialize()
         storage = new SqlStorage();
         storage->open();
     }
-    catch (std::string &error)
+    catch (QString &error)
     {
         LOG_FATAL("Error opening the database: " << error);
         exit(EXIT_DB_EXCEPTION);
@@ -193,18 +194,20 @@ static void deinitializeServer()
 /**
  * Dumps statistics.
  */
-static void dumpStatistics(std::string accountAddress, int accountClientPort,
+static void dumpStatistics(QString accountAddress, int accountClientPort,
                            int accountGamePort, int chatClientPort)
 {
-    std::ofstream os(statisticsFile.c_str());
+    std::ofstream os(statisticsFile.toStdString().c_str());
     os << "<statistics>\n";
     // Print last heartbeat
-    os << "<heartbeat=\"" << utils::getCurrentDate() << "_"
-    << utils::getCurrentTime() << "\" />\n";
+    os << "<heartbeat=\"" << QDateTime::currentDateTime()
+                                 .toString("yyyy-MM-dd_hh:mm:ss")
+                                 .toStdString() << "\" />\n";
     // Add account server information
-    os << "<accountserver address=\"" << accountAddress << "\" clientport=\""
-    << accountClientPort << "\" gameport=\"" << accountGamePort
-    << "\" chatclientport=\"" << chatClientPort << "\" />\n";
+    os << "<accountserver address=\"" << accountAddress.toStdString()
+       << "\" clientport=\"" << accountClientPort << "\" gameport=\""
+       << accountGamePort << "\" chatclientport=\"" << chatClientPort
+       << "\" />\n";
     // Add game servers information
     GameServerHandler::dumpStatistics(os);
     os << "</statistics>\n";
@@ -239,7 +242,7 @@ struct CommandLineOptions
         portChanged(false)
     {}
 
-    std::string configPath;
+    QString configPath;
 
     Logger::Level verbosity;
     bool verbosityChanged;
@@ -314,7 +317,7 @@ int main(int argc, char *argv[])
     }
 
     // Check inter-server password.
-    if (configuration->getValue("net_password", std::string()).empty())
+    if (configuration->getValue("net_password", QString()).isEmpty())
     {
         LOG_FATAL("SECURITY WARNING: 'net_password' not set!");
         exit(EXIT_BAD_CONFIG_PARAMETER);
@@ -339,12 +342,12 @@ int main(int argc, char *argv[])
                                                     options.verbosity) );
     Logger::setVerbosity(options.verbosity);
 
-    std::string accountHost = configuration->getValue("net_accountHost",
+    QString accountHost = configuration->getValue("net_accountHost",
                                                       "localhost");
 
     // We separate the chat host as the chat server will be separated out
     // from the account server.
-    std::string chatHost = configuration->getValue("net_chatHost",
+    QString chatHost = configuration->getValue("net_chatHost",
                                                    "localhost");
 
     // Setting the listen ports
@@ -382,9 +385,9 @@ int main(int argc, char *argv[])
     banTimer.start();
 
     // Write startup time to database as system world state variable
-    std::stringstream timestamp;
-    timestamp << time(nullptr);
-    storage->setWorldStateVar("accountserver_startup", timestamp.str(),
+    unsigned timeStamp = QDateTime::currentDateTime().toTime_t();
+    storage->setWorldStateVar("accountserver_startup",
+                              QString::number(timeStamp),
                               SqlStorage::SystemMap);
 
     while (running)

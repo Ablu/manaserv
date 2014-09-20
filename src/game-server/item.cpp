@@ -30,7 +30,7 @@
 #include "scripting/scriptmanager.h"
 
 #include <map>
-#include <string>
+#include <QString>
 
 bool ItemEffectAttrMod::apply(Entity *itemUser)
 {
@@ -61,7 +61,7 @@ ItemEffectScript::~ItemEffectScript()
 
 bool ItemEffectScript::apply(Entity *itemUser)
 {
-    if (mActivateEventName.empty())
+    if (mActivateEventName.isEmpty())
         return false;
 
     Script::Ref function = mItemClass->getEventCallback(mActivateEventName);
@@ -80,7 +80,7 @@ bool ItemEffectScript::apply(Entity *itemUser)
 
 void ItemEffectScript::dispell(Entity *itemUser)
 {
-    if (mDispellEventName.empty())
+    if (mDispellEventName.isEmpty())
         return;
 
     Script::Ref function = mItemClass->getEventCallback(mDispellEventName);

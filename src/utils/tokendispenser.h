@@ -23,7 +23,7 @@
 
 #define MAGIC_TOKEN_LENGTH 32
 
-#include <string>
+#include <QString>
 
 namespace utils
 {
@@ -38,7 +38,7 @@ namespace utils
      * NOTE: Store the token in a variable in this namespace if you want to
      *       avoid 1 copy operation per use.
      */
-    std::string getMagicToken();
+    QString getMagicToken();
 
 } // namespace utils
 

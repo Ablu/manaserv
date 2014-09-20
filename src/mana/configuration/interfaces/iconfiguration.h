@@ -22,7 +22,7 @@
 #ifndef CONFIGURATION_H
 #define CONFIGURATION_H
 
-#include <string>
+#include <QString>
 
 class IConfiguration
 {
@@ -37,7 +37,7 @@ public:
      *                 config file 'manaserv.xml' is used.
      * @return whether the configuration file could be read
      */
-    virtual bool initialize(const std::string &fileName = std::string()) = 0;
+    virtual bool initialize(const QString &fileName = QString()) = 0;
 
     virtual void deinitialize() = 0;
 
@@ -46,21 +46,21 @@ public:
      * @param key option identifier.
      * @param deflt default value.
      */
-    virtual std::string getValue(const std::string &key, const std::string &deflt) = 0;
+    virtual QString getValue(const QString &key, const QString &deflt) = 0;
 
     /**
      * Gets an option as an integer.
      * @param key option identifier.
      * @param deflt default value.
      */
-    virtual int getValue(const std::string &key, int deflt) = 0;
+    virtual int getValue(const QString &key, int deflt) = 0;
 
     /**
      * Gets an option as a boolean.
      * @param key option identifier.
      * @param deflt default value.
      */
-    virtual bool getBoolValue(const std::string &key, bool deflt) = 0;
+    virtual bool getBoolValue(const QString &key, bool deflt) = 0;
 };
 
 #ifndef DEFAULT_SERVER_PORT

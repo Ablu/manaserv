@@ -31,7 +31,7 @@ extern "C" {
 #include <lauxlib.h>
 }
 
-#include <string>
+#include <QString>
 #include <list>
 #include <map>
 #include <set>
@@ -225,9 +225,9 @@ inline void push(lua_State *s, int val)
     lua_pushinteger(s, val);
 }
 
-inline void push(lua_State *s, const std::string &val)
+inline void push(lua_State *s, const QString &val)
 {
-    lua_pushlstring(s, val.c_str(), val.length());
+    lua_pushlstring(s, val.toStdString().c_str(), val.length());
 }
 
 inline void push(lua_State *s, Entity *val)

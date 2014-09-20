@@ -23,7 +23,7 @@
 
 #include <list>
 #include <map>
-#include <string>
+#include <QString>
 #include <vector>
 
 #include "utils/logger.h"
@@ -64,14 +64,14 @@ class MapObject
 {
 public:
     MapObject(const Rectangle &bounds,
-              const std::string &name,
-              const std::string &type)
+              const QString &name,
+              const QString &type)
         : mBounds(bounds),
           mName(name),
           mType(type)
     { }
 
-    void addProperty(const std::string &key, const std::string &value)
+    void addProperty(const QString &key, const QString &value)
     {
         if (mProperties.contains(key))
             LOG_WARN("Duplicate property " << key <<
@@ -80,16 +80,16 @@ public:
             mProperties.insert(key, value);
     }
 
-    const std::string &getProperty(const std::string &key) const
+    const QString &getProperty(const QString &key) const
     { return mProperties.value(key); }
 
-    bool hasProperty(const std::string &key) const
+    bool hasProperty(const QString &key) const
     { return mProperties.contains(key); }
 
-    const std::string &getName() const
+    const QString &getName() const
     { return mName; }
 
-    const std::string &getType() const
+    const QString &getType() const
     { return mType; }
 
     const Rectangle &getBounds() const
@@ -100,9 +100,9 @@ public:
 
 private:
     Rectangle mBounds;
-    std::string mName;
-    std::string mType;
-    utils::NameMap<std::string> mProperties;
+    QString mName;
+    QString mType;
+    utils::NameMap<QString> mProperties;
 };
 
 
@@ -173,12 +173,12 @@ public:
     /**
      * Returns a general map property defined in the map file
      */
-    const std::string &getProperty(const std::string &key) const;
+    const QString &getProperty(const QString &key) const;
 
     /**
     * Sets a map property
     */
-    void setProperty(const std::string &key, const std::string &val)
+    void setProperty(const QString &key, const QString &val)
     { mProperties[key] = val; }
 
     /**
@@ -212,7 +212,7 @@ private:
     // map properties
     int mWidth, mHeight;
     int mTileWidth, mTileHeight;
-    std::map<std::string, std::string> mProperties;
+    std::map<QString, QString> mProperties;
 
     std::vector<MetaTile> mMetaTiles;
     std::vector<MapObject*> mMapObjects;

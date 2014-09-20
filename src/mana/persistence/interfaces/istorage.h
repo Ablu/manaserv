@@ -93,7 +93,7 @@ public:
      *
      * @return the character associated to the name
      */
-    virtual std::unique_ptr<CharacterData> getCharacter(const std::string &name) = 0;
+    virtual std::unique_ptr<CharacterData> getCharacter(const QString &name) = 0;
 
     /**
      * Gets the id of a character by its name.
@@ -102,7 +102,7 @@ public:
      *
      * @return the id of the character
      */
-    virtual unsigned getCharacterId(const std::string &name) = 0;
+    virtual unsigned getCharacterId(const QString &name) = 0;
 
     /**
      * Add an account to the database.
@@ -200,7 +200,7 @@ public:
      *
      * @return true if the user name exists.
      */
-    virtual bool doesUserNameExist(const std::string &name) = 0;
+    virtual bool doesUserNameExist(const QString &name) = 0;
 
     /**
      * Tells if the email address already exists.
@@ -209,7 +209,7 @@ public:
      *
      * @return true if the email address exists.
      */
-    virtual bool doesEmailAddressExist(const std::string &email) = 0;
+    virtual bool doesEmailAddressExist(const QString &email) = 0;
 
     /**
      * Tells if the character's name already exists.
@@ -218,7 +218,7 @@ public:
      *
      * @return true if character's name exists.
      */
-    virtual bool doesCharacterNameExist(const std::string &name) = 0;
+    virtual bool doesCharacterNameExist(const QString &name) = 0;
 
     /**
      * Updates the data for a single character,
@@ -323,7 +323,7 @@ public:
      * @param id character id.
      * @param name quest var name to get.
      */
-    virtual std::string getQuestVar(int id, const std::string &) = 0;
+    virtual QString getQuestVar(int id, const QString &) = 0;
 
     /**
      * Sets the value of a quest variable.
@@ -332,7 +332,7 @@ public:
      * @param name quest var name to set.
      * @param value value to set.
      */
-    virtual void setQuestVar(int id, const std::string &, const std::string &) = 0;
+    virtual void setQuestVar(int id, const QString &, const QString &) = 0;
 
     enum SpecialMapId {
         WorldMap = 0,
@@ -346,7 +346,7 @@ public:
      * @param name  Name of the requested world variable.
      * @param mapId ID of the specific map.
      */
-    virtual QString getWorldStateVar(const std::string &name, int mapId) = 0;
+    virtual QString getWorldStateVar(const QString &name, int mapId) = 0;
 
     /**
      * Sets the value of a world state variable. The \a mapId should be a
@@ -355,8 +355,8 @@ public:
      * @param name  Name of the world vairable.
      * @param value New value of the world variable.
      */
-    virtual void setWorldStateVar(const std::string &name,
-                                  const std::string &value,
+    virtual void setWorldStateVar(const QString &name,
+                                  const QString &value,
                                   int mapId) = 0;
 
     /**
@@ -365,7 +365,7 @@ public:
      *
      * @param mapId ID of the specific map
      */
-    virtual std::map<std::string, std::string> getAllWorldStateVars(int mapId) = 0;
+    virtual std::map<QString, QString> getAllWorldStateVars(int mapId) = 0;
 
     /**
      * Set the level on an account.

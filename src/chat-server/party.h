@@ -21,7 +21,7 @@
 #ifndef PARTY_H
 #define PARTY_H
 
-#include <string>
+#include <QString>
 #include <vector>
 
 /**
@@ -30,20 +30,20 @@
 class Party
 {
 public:
-    typedef std::vector<std::string> PartyUsers;
+    typedef std::vector<QString> PartyUsers;
 
     Party();
 
     /**
      * Add user to party
      */
-    void addUser(const std::string &name,
-                 const std::string &inviter = std::string());
+    void addUser(const QString &name,
+                 const QString &inviter = QString());
 
     /**
      * Remove user from party
      */
-    void removeUser(const std::string &name);
+    void removeUser(const QString &name);
 
     /**
      * Return number of users in party

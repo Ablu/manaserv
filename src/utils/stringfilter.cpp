@@ -36,74 +36,34 @@ StringFilter::StringFilter(IConfiguration *configuration):
     loadSlangFilterList();
 }
 
-StringFilter::~StringFilter()
-{
-    writeSlangFilterList();
-}
-
 bool StringFilter::loadSlangFilterList()
 {
     mInitialized = false;
 
-    const std::string slangsList = mConfiguration->getValue("SlangsList",
-                                                            std::string());
-    if (!slangsList.empty()) {
-        std::istringstream iss(slangsList);
-        std::string tmp;
-        while (getline(iss, tmp, ','))
-            mSlangs.push_back(tmp);
+    const QString slangsList = mConfiguration->getValue("SlangsList",
+                                                            QString());
+    if (!slangsList.isEmpty()) {
+        mSlangs = slangsList.split(',');
         mInitialized = true;
     }
 
     return mInitialized;
 }
 
-void StringFilter::writeSlangFilterList()
-{
-    // Write the list to config
-    std::string slangsList;
-    for (SlangIterator i = mSlangs.begin(); i != mSlangs.end(); )
-    {
-        slangsList += *i;
-        ++i;
-        if (i != mSlangs.end()) slangsList += ",";
-    }
-    //mConfig->setValue("SlangsList", slangsList);
-}
-
-bool StringFilter::filterContent(const std::string &text) const
+bool StringFilter::filterContent(const QString &text) const
 {
     if (!mInitialized) {
         LOG_DEBUG("Slangs List is not initialized.");
         return true;
     }
 
-    bool isContentClean = true;
-    std::string upperCaseText = text;
-
-    std::transform(text.begin(), text.end(), upperCaseText.begin(),
-            (int(*)(int))std::toupper);
-
-    for (Slangs::const_iterator i = mSlangs.begin(); i != mSlangs.end(); ++i)
-    {
-        // We look for slangs into the sentence.
-        std::string upperCaseSlang = *i;
-        std::transform(upperCaseSlang.begin(), upperCaseSlang.end(),
-                upperCaseSlang.begin(), (int(*)(int))std::toupper);
-
-        if (upperCaseText.compare(upperCaseSlang)) {
-            isContentClean = false;
-            break;
-        }
-    }
-
-    return isContentClean;
+    return !mSlangs.contains(text, Qt::CaseInsensitive);
 }
 
-bool StringFilter::isEmailValid(const std::string &email) const
+bool StringFilter::isEmailValid(const QString &email) const
 {
-    unsigned min = mConfiguration->getValue("account_minEmailLength", 7);
-    unsigned max = mConfiguration->getValue("account_maxEmailLength", 128);
+    int min = mConfiguration->getValue("account_minEmailLength", 7);
+    int max = mConfiguration->getValue("account_maxEmailLength", 128);
 
     // Testing email validity
     if (email.length() < min || email.length() > max)
@@ -111,17 +71,14 @@ bool StringFilter::isEmailValid(const std::string &email) const
         return false;
     }
 
-    std::string::size_type atpos = email.find_first_of('@');
-
     // TODO Find some nice regex for this...
-    return (atpos != std::string::npos) &&
-        (email.find_first_of('.', atpos) != std::string::npos) &&
-        (email.find_first_of(' ') == std::string::npos);
+    return (email.indexOf('@') != -1) && (email.indexOf('.') != -1) &&
+           (email.indexOf(' ') == -1);
 }
 
-bool StringFilter::findDoubleQuotes(const std::string &text) const
+bool StringFilter::findDoubleQuotes(const QString &text) const
 {
-    return (text.find('"', 0) != std::string::npos);
+    return text.contains('"');
 }
 
 } // ::utils

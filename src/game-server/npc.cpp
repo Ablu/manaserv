@@ -120,7 +120,7 @@ void Npc::integerReceived(Entity *ch, int value)
     }
 }
 
-void Npc::stringReceived(Entity *ch, const std::string &value)
+void Npc::stringReceived(Entity *ch, const QString &value)
 {
     if (Script *script = prepareResume(ch, Script::ThreadExpectingString))
     {

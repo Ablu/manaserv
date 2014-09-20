@@ -24,7 +24,7 @@
 #include "utils/xml.h"
 #include "utils/string.h"
 
-#include <string>
+#include <QString>
 #include <map>
 #include <vector>
 
@@ -36,13 +36,13 @@ struct EquipSlotInfo
         slotId(0), slotCapacity(0), visibleSlot(false)
     {}
 
-    EquipSlotInfo(unsigned id, const std::string &name,
+    EquipSlotInfo(unsigned id, const QString &name,
                   unsigned capacity, bool visible):
         slotId(id), slotName(name), slotCapacity(capacity), visibleSlot(visible)
     {}
 
     unsigned slotId;
-    std::string slotName;
+    QString slotName;
     unsigned slotCapacity;
     bool visibleSlot;
 };
@@ -85,14 +85,14 @@ public:
      * Returns null when there is no item with such
      * a name.
      */
-    ItemClass *getItemByName(const std::string &name) const;
+    ItemClass *getItemByName(const QString &name) const;
 
     /**
      * Gets the version of the loaded item database.
      */
     unsigned getDatabaseVersion() const;
 
-    unsigned getEquipSlotIdFromName(const std::string &name) const;
+    unsigned getEquipSlotIdFromName(const QString &name) const;
 
     unsigned getEquipSlotCapacity(unsigned id) const;
 
@@ -101,7 +101,7 @@ public:
 
     bool isEquipSlotVisible(unsigned id) const;
 
-    void readItemNode(xmlNodePtr itemNode, const std::string &filename);
+    void readItemNode(xmlNodePtr itemNode, const QString &filename);
 
     void readEquipSlotNode(xmlNodePtr node);
 

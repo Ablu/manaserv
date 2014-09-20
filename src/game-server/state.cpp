@@ -74,7 +74,7 @@ static DelayedEvents delayedEvents;
 /**
  * Cached persistent script variables
  */
-static std::map< std::string, std::string > mScriptVariables;
+static std::map< QString, QString > mScriptVariables;
 
 static IConfiguration *mConfiguration;
 
@@ -833,7 +833,7 @@ void GameState::enqueueWarp(Entity *ptr,
     enqueueEvent(ptr, event);
 }
 
-void GameState::sayAround(Entity *entity, const std::string &text)
+void GameState::sayAround(Entity *entity, const QString &text)
 {
     Point speakerPosition = entity->getComponent<ActorComponent>()->getPosition();
     int visualRange = mConfiguration->getValue("game_visualRange", 448);
@@ -849,7 +849,7 @@ void GameState::sayAround(Entity *entity, const std::string &text)
     }
 }
 
-void GameState::sayTo(Entity *destination, Entity *source, const std::string &text)
+void GameState::sayTo(Entity *destination, Entity *source, const QString &text)
 {
     if (destination->getType() != OBJECT_CHARACTER)
         return; //only characters will read it anyway
@@ -872,7 +872,7 @@ void GameState::sayTo(Entity *destination, Entity *source, const std::string &te
     gameHandler->sendTo(destination, msg);
 }
 
-void GameState::sayToAll(const std::string &text)
+void GameState::sayToAll(const QString &text)
 {
     MessageOut msg(GPMSG_SAY);
 
@@ -885,17 +885,17 @@ void GameState::sayToAll(const std::string &text)
 }
 
 
-std::string GameState::getVariable(const std::string &key)
+QString GameState::getVariable(const QString &key)
 {
-    std::map<std::string, std::string>::iterator iValue =
+    std::map<QString, QString>::iterator iValue =
                                                      mScriptVariables.find(key);
     if (iValue != mScriptVariables.end())
         return iValue->second;
     else
-        return std::string();
+        return QString();
 }
 
-void GameState::setVariable(const std::string &key, const std::string &value)
+void GameState::setVariable(const QString &key, const QString &value)
 {
     if (mScriptVariables[key] == value)
         return;
@@ -904,8 +904,8 @@ void GameState::setVariable(const std::string &key, const std::string &value)
     callVariableCallbacks(key, value);
 }
 
-void GameState::setVariableFromDbserver(const std::string &key,
-                                        const std::string &value)
+void GameState::setVariableFromDbserver(const QString &key,
+                                        const QString &value)
 {
     if (mScriptVariables[key] == value)
         return;
@@ -913,8 +913,8 @@ void GameState::setVariableFromDbserver(const std::string &key,
     callVariableCallbacks(key, value);
 }
 
-void GameState::callVariableCallbacks(const std::string &key,
-                                      const std::string &value)
+void GameState::callVariableCallbacks(const QString &key,
+                                      const QString &value)
 {
     const MapManager::Maps &maps = MapManager::getMaps();
     for (MapManager::Maps::const_iterator m = maps.begin(),

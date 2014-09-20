@@ -99,8 +99,8 @@ void GameHandler::prepareServerChange(Entity *ch)
     client->status = CLIENT_CHANGE_SERVER;
 }
 
-void GameHandler::completeServerChange(int id, const std::string &token,
-                                       const std::string &address, int port)
+void GameHandler::completeServerChange(int id, const QString &token,
+                                       const QString &address, int port)
 {
     for (NetComputers::const_iterator i = clients.begin(),
          i_end = clients.end(); i != i_end; ++i)
@@ -183,7 +183,7 @@ void GameHandler::processMessage(NetComputer *computer, MessageIn &message)
         if (message.getId() != PGMSG_CONNECT)
             return;
 
-        std::string magic_token = message.readString(MAGIC_TOKEN_LENGTH);
+        QString magic_token = message.readString(MAGIC_TOKEN_LENGTH);
         client.status = CLIENT_QUEUED; // Before the addPendingClient
         mTokenCollector.addPendingClient(magic_token, &client);
         return;
@@ -317,7 +317,7 @@ void GameHandler::sendTo(GameClient *client, MessageOut &msg)
     client->send(msg);
 }
 
-void GameHandler::addPendingCharacter(const std::string &token, Entity *ch)
+void GameHandler::addPendingCharacter(const QString &token, Entity *ch)
 {
     /* First, check if the character is already on the map. This may happen if
        a client just lost its connection, and logged to the account server
@@ -408,7 +408,7 @@ void GameHandler::deletePendingConnect(Entity *character)
     delete character;
 }
 
-Entity *GameHandler::getCharacterByNameSlow(const std::string &name) const
+Entity *GameHandler::getCharacterByNameSlow(const QString &name) const
 {
     for (NetComputers::const_iterator i = clients.begin(),
          i_end = clients.end(); i != i_end; ++i)
@@ -426,8 +426,8 @@ Entity *GameHandler::getCharacterByNameSlow(const std::string &name) const
 
 void GameHandler::handleSay(GameClient &client, MessageIn &message)
 {
-    const std::string say = message.readString();
-    if (say.empty())
+    const QString say = message.readString();
+    if (say.isEmpty())
         return;
 
     if (say[0] == '@')
@@ -515,15 +515,14 @@ void GameHandler::handlePickup(GameClient &client, MessageIn &message)
                     }
 
                     // log transaction
-                    std::stringstream str;
-                    str << "User picked up item " << ic->getDatabaseID()
-                        << " at " << opos.x << "x" << opos.y;
-                    auto *characterComponent = client.character
-                            ->getComponent<CharacterComponent>();
+                    QString str = QStringLiteral("User picked up item ") +
+                                  ic->getDatabaseID() + QStringLiteral(" at ") +
+                                  opos.x + QStringLiteral("x") + opos.y;
+                    auto *characterComponent =
+                        client.character->getComponent<CharacterComponent>();
                     accountHandler->sendTransaction(
-                            characterComponent->getDatabaseID(),
-                            TRANS_ITEM_PICKUP, str.str()
-                                                   );
+                        characterComponent->getDatabaseID(), TRANS_ITEM_PICKUP,
+                        str);
                 }
                 break;
             }
@@ -544,13 +543,13 @@ void GameHandler::handleUseItem(GameClient &client, MessageIn &message)
     {
         if (ic->hasTrigger(ITT_ACTIVATE))
         {
-            std::stringstream str;
-            str << "User activated item " << ic->getDatabaseID()
-                << " from slot " << slot;
+            QString str = "User activated item " +
+                          QString::number(ic->getDatabaseID()) + " from slot " +
+                          QString::number(slot);
             auto *characterComponent = client.character
                     ->getComponent<CharacterComponent>();
             accountHandler->sendTransaction(characterComponent->getDatabaseID(),
-                                            TRANS_ITEM_USED, str.str());
+                                            TRANS_ITEM_USED, str);
             if (ic->useTrigger(client.character, ITT_ACTIVATE))
                 inv.removeFromSlot(slot, 1);
         }
@@ -590,13 +589,13 @@ void GameHandler::handleDrop(GameClient &client, MessageIn &message)
         }
 
         // log transaction
-        std::stringstream str;
-        str << "User dropped item " << ic->getDatabaseID()
-            << " at " << pos.x << "x" << pos.y;
+        QString str = "User dropped item " +
+                      QString::number(ic->getDatabaseID()) + " at " +
+                      QString::number(pos.x) + "x" + QString::number(pos.y);
         auto *characterComponent = client.character
                 ->getComponent<CharacterComponent>();
         accountHandler->sendTransaction(characterComponent->getDatabaseID(),
-                                        TRANS_ITEM_DROP, str.str());
+                                        TRANS_ITEM_DROP, str);
     }
 }
 
@@ -722,14 +721,14 @@ void GameHandler::handleActionChange(GameClient &client, MessageIn &message)
     if (logActionChange)
     {
         // log transaction
-        std::stringstream str;
-        str << "User changed action from " << current << " to " << action;
+        QString str = "User changed action from " + QString::number(current) + " to " +
+                      QString::number(action);
 
         auto *characterComponent =
                 client.character->getComponent<CharacterComponent>();
 
         accountHandler->sendTransaction(characterComponent->getDatabaseID(),
-                                        TRANS_ACTION_CHANGE, str.str());
+                                        TRANS_ACTION_CHANGE, str);
     }
 
 }
@@ -753,7 +752,7 @@ void GameHandler::handleDisconnect(GameClient &client, MessageIn &message)
 
     if (reconnectAccount)
     {
-        std::string magic_token(utils::getMagicToken());
+        QString magic_token(utils::getMagicToken());
         result.writeString(magic_token, MAGIC_TOKEN_LENGTH);
         // No accountserver data, the client should remember that
         accountHandler->playerReconnectAccount(
@@ -791,7 +790,7 @@ void GameHandler::handleTradeRequest(GameClient &client, MessageIn &message)
     new Trade(client.character, q);
 
     // log transaction
-    std::string str;
+    QString str;
     str = "User requested trade with " + q->getComponent<BeingComponent>()
             ->getName();
     accountHandler->sendTransaction(characterComponent->getDatabaseID(),
@@ -805,7 +804,7 @@ void GameHandler::handleTrade(GameClient &client, MessageIn &message)
 
     int databaseId = characterComponent->getDatabaseID();
 
-    std::stringstream str;
+    QString str;
     Trade *t = characterComponent->getTrading();
     if (!t)
         return;
@@ -830,18 +829,18 @@ void GameHandler::handleTrade(GameClient &client, MessageIn &message)
             int money = message.readInt32();
             t->setMoney(client.character, money);
             // log transaction
-            str << "User added " << money << " money to trade.";
+            str += "User added " + QString::number(money) + " money to trade.";
             accountHandler->sendTransaction(databaseId,
-                                            TRANS_TRADE_MONEY, str.str());
+                                            TRANS_TRADE_MONEY, str);
         } break;
         case PGMSG_TRADE_ADD_ITEM:
         {
             int slot = message.readInt8();
             t->addItem(client.character, slot, message.readInt8());
             // log transaction
-            str << "User add item from slot " << slot;
+            str += "User add item from slot " + QString::number(slot);
             accountHandler->sendTransaction(databaseId,
-                                            TRANS_TRADE_ITEM, str.str());
+                                            TRANS_TRADE_ITEM, str);
         } break;
     }
 }
@@ -885,10 +884,9 @@ void GameHandler::handleRaiseAttribute(GameClient &client, MessageIn &message)
                 characterComponent->getCorrectionPoints());
 
         // log transaction
-        std::stringstream str;
-        str << "User increased attribute " << attribute;
+        QString str = "User increased attribute " + attribute->name;
         accountHandler->sendTransaction(characterComponent->getDatabaseID(),
-                                        TRANS_ATTR_INCREASE, str.str());
+                                        TRANS_ATTR_INCREASE, str);
     }
 }
 
@@ -921,10 +919,9 @@ void GameHandler::handleLowerAttribute(GameClient &client, MessageIn &message)
                 characterComponent->getCorrectionPoints());
 
         // log transaction
-        std::stringstream str;
-        str << "User decreased attribute " << attribute;
+        QString str = "User decreased attribute " + attribute->name;
         accountHandler->sendTransaction(characterComponent->getDatabaseID(),
-                                        TRANS_ATTR_DECREASE, str.str());
+                                        TRANS_ATTR_DECREASE, str);
     }
 }
 
@@ -939,7 +936,7 @@ void GameHandler::handlePartyInvite(GameClient &client, MessageIn &message)
 {
     MapComposite *map = client.character->getMap();
     const int visualRange = mConfiguration->getValue("game_visualRange", 448);
-    std::string invitee = message.readString();
+    QString invitee = message.readString();
 
     if (invitee == client.character->getComponent<BeingComponent>()->getName())
         return;
@@ -984,7 +981,7 @@ void GameHandler::handleTriggerEmoticon(GameClient &client, MessageIn &message)
 }
 
 void GameHandler::sendNpcError(GameClient &client, int id,
-                               const std::string &errorMsg)
+                               const QString &errorMsg)
 {
     MessageOut msg(GPMSG_NPC_ERROR);
     msg.writeInt16(id);

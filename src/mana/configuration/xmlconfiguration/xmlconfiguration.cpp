@@ -36,9 +36,9 @@
 #define DEFAULT_CONFIG_FILE       "manaserv.xml"
 
 /**< Persistent configuration. */
-static std::map< std::string, std::string > options;
+static std::map< QString, QString > options;
 /**< Location of config file. */
-static std::string configPath;
+static QString configPath;
 static std::set<QString> processedFiles;
 
 static bool readFile(const QString &fileName)
@@ -86,7 +86,7 @@ static bool readFile(const QString &fileName)
             QString value = attributes.value("value").toString();
             if (!key.isEmpty())
             {
-                options[key.toStdString()] = value.toStdString();
+                options[key] = value;
             }
         }
 
@@ -97,16 +97,16 @@ static bool readFile(const QString &fileName)
     return true;
 }
 
-bool XmlConfiguration::initialize(const std::string &fileName)
+bool XmlConfiguration::initialize(const QString &fileName)
 {
-    if (fileName.empty())
+    if (fileName.isEmpty())
         configPath = DEFAULT_CONFIG_FILE;
     else
         configPath = fileName;
 
-    const bool success = readFile(QString::fromStdString(configPath));
+    const bool success = readFile(configPath);
 
-    qDebug() << "Using config file: " << configPath.c_str();
+    qDebug() << "Using config file: " << configPath;
 
     return success;
 }
@@ -116,27 +116,27 @@ void XmlConfiguration::deinitialize()
     processedFiles.clear();
 }
 
-std::string XmlConfiguration::getValue(const std::string &key,
-                                    const std::string &deflt)
+QString XmlConfiguration::getValue(const QString &key,
+                                    const QString &deflt)
 {
-    std::map<std::string, std::string>::iterator iter = options.find(key);
+    std::map<QString, QString>::iterator iter = options.find(key);
     if (iter == options.end())
         return deflt;
     return iter->second;
 }
 
-int XmlConfiguration::getValue(const std::string &key, int deflt)
+int XmlConfiguration::getValue(const QString &key, int deflt)
 {
-    std::map<std::string, std::string>::iterator iter = options.find(key);
+    std::map<QString, QString>::iterator iter = options.find(key);
     if (iter == options.end())
         return deflt;
-    return atoi(iter->second.c_str());
+    return iter->second.toInt();
 }
 
-bool XmlConfiguration::getBoolValue(const std::string &key, bool deflt)
+bool XmlConfiguration::getBoolValue(const QString &key, bool deflt)
 {
-    std::map<std::string, std::string>::iterator iter = options.find(key);
+    std::map<QString, QString>::iterator iter = options.find(key);
     if (iter == options.end())
         return deflt;
-    return utils::stringToBool(iter->second.c_str(), deflt);
+    return utils::stringToBool(iter->second, deflt);
 }

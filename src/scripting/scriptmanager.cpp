@@ -33,7 +33,7 @@ static IConfiguration *mConfiguration; // TODO: make this a class and hide it
 void ScriptManager::initialize(IConfiguration *configuration)
 {
     mConfiguration = configuration;
-    const std::string engine = mConfiguration->getValue("script_engine", "lua");
+    const QString engine = mConfiguration->getValue("script_engine", "lua");
     _currentState = Script::create(engine);
 }
 
@@ -43,7 +43,7 @@ void ScriptManager::deinitialize()
     _currentState = 0;
 }
 
-bool ScriptManager::loadMainScript(const std::string &file)
+bool ScriptManager::loadMainScript(const QString &file)
 {
     return _currentState->loadFile(file);
 }

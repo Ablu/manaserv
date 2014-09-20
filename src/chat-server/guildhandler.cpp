@@ -38,9 +38,9 @@
 
 using namespace ManaServ;
 
-void ChatHandler::sendGuildInvite(const std::string &invitedName,
-                                  const std::string &inviterName,
-                                  const std::string &guildName)
+void ChatHandler::sendGuildInvite(const QString &invitedName,
+                                  const QString &inviterName,
+                                  const QString &guildName)
 {
     MessageOut msg(CPMSG_GUILD_INVITED);
     msg.writeString(inviterName);
@@ -67,7 +67,7 @@ void ChatHandler::sendGuildRejoin(ChatClient &client)
         Guild *guild = *it;
 
         const int permissions = guild->getUserPermissions(client.characterId);
-        const std::string guildName = guild->getName();
+        const QString guildName = guild->getName();
 
         // Tell the client what guilds the character belongs to
         // and their permissions
@@ -90,7 +90,7 @@ void ChatHandler::sendGuildRejoin(ChatClient &client)
     }
 }
 
-ChatChannel *ChatHandler::joinGuildChannel(const std::string &guildName, ChatClient &client)
+ChatChannel *ChatHandler::joinGuildChannel(const QString &guildName, ChatClient &client)
 {
     // Automatically make the character join the guild chat channel
     ChatChannel *channel = chatChannelManager->getChannel(guildName);
@@ -98,7 +98,7 @@ ChatChannel *ChatHandler::joinGuildChannel(const std::string &guildName, ChatCli
     {
         // Channel doesnt exist so create it
         int channelId = chatChannelManager->createNewChannel(
-                    guildName, "Guild Channel", std::string(), false);
+                    guildName, "Guild Channel", QString(), false);
         channel = chatChannelManager->getChannel(channelId);
     }
 
@@ -115,7 +115,7 @@ ChatChannel *ChatHandler::joinGuildChannel(const std::string &guildName, ChatCli
 }
 
 void ChatHandler::sendGuildListUpdate(Guild *guild,
-                                      const std::string &characterName,
+                                      const QString &characterName,
                                       char eventId)
 {
     MessageOut msg(CPMSG_GUILD_UPDATE_LIST);
@@ -123,7 +123,7 @@ void ChatHandler::sendGuildListUpdate(Guild *guild,
     msg.writeInt16(guild->getId());
     msg.writeString(characterName);
     msg.writeInt8(eventId);
-    std::map<std::string, ChatClient*>::const_iterator chr;
+    std::map<QString, ChatClient*>::const_iterator chr;
     std::list<GuildMember*> members = guild->getMembers();
 
     for (std::list<GuildMember*>::const_iterator itr = members.begin();
@@ -143,7 +143,7 @@ void ChatHandler::handleGuildCreate(ChatClient &client, MessageIn &msg)
     MessageOut reply(CPMSG_GUILD_CREATE_RESPONSE);
 
     // Check if guild already exists and if so, return error
-    std::string guildName = msg.readString();
+    QString guildName = msg.readString();
     if (!guildManager->doesExist(guildName))
     {
         if ((int)client.guilds.size() >=
@@ -182,7 +182,7 @@ void ChatHandler::handleGuildInvite(ChatClient &client, MessageIn &msg)
 
     // send an invitation from sender to character to join guild
     int guildId = msg.readInt16();
-    std::string character = msg.readString();
+    QString character = msg.readString();
 
     // get the chat client and the guild
     ChatClient *invitedClient = getClient(character);
@@ -209,8 +209,8 @@ void ChatHandler::handleGuildInvite(ChatClient &client, MessageIn &msg)
             {
                 // send the name of the inviter and the name of the guild
                 // that the character has been invited to join
-                std::string senderName = client.characterName;
-                std::string guildName = guild->getName();
+                QString senderName = client.characterName;
+                QString guildName = guild->getName();
                 invite.writeString(senderName);
                 invite.writeString(guildName);
                 invite.writeInt16(guildId);
@@ -296,7 +296,7 @@ void ChatHandler::handleGuildGetMembers(ChatClient &client, MessageIn &msg)
                  itr != itr_end; ++itr)
             {
                 auto character = mStorage->getCharacter((*itr)->mId, nullptr);
-                std::string memberName = character->getName();
+                QString memberName = character->getName();
                 reply.writeString(memberName);
                 reply.writeInt8(mPlayerMap.find(memberName) != mPlayerMap.end());
             }
@@ -317,7 +317,7 @@ void ChatHandler::handleGuildMemberLevelChange(ChatClient &client,
     // check theyre valid, and then change them
     MessageOut reply(CPMSG_GUILD_PROMOTE_MEMBER_RESPONSE);
     short guildId = msg.readInt16();
-    std::string user = msg.readString();
+    QString user = msg.readString();
     short level = msg.readInt8();
     Guild *guild = guildManager->findById(guildId);
     auto character = mStorage->getCharacter(user);
@@ -341,7 +341,7 @@ void ChatHandler::handleGuildKickMember(ChatClient &client, MessageIn &msg)
 {
     MessageOut reply(CPMSG_GUILD_KICK_MEMBER_RESPONSE);
     short guildId = msg.readInt16();
-    std::string otherCharName = msg.readString();
+    QString otherCharName = msg.readString();
 
     Guild *guild = guildManager->findById(guildId);
 
@@ -411,7 +411,7 @@ void ChatHandler::handleGuildQuit(ChatClient &client, MessageIn &msg)
 }
 
 void ChatHandler::guildChannelTopicChange(ChatChannel *channel, int playerId,
-                                          const std::string &topic)
+                                          const QString &topic)
 {
     Guild *guild = guildManager->findByName(channel->getName());
     if (guild && guild->getUserPermissions(playerId) & GAL_TOPIC_CHANGE)

@@ -44,9 +44,9 @@ public:
      *
      * @return the ID of the registered channel
      */
-    int createNewChannel(const std::string &channelName,
-                         const std::string &channelAnnouncement,
-                         const std::string &channelPassword,
+    int createNewChannel(const QString &channelName,
+                         const QString &channelAnnouncement,
+                         const QString &channelPassword,
                          bool joinable);
 
     /**
@@ -54,7 +54,7 @@ public:
      *
      * @return true if created successfully, false otherwise.
      */
-    bool tryNewPublicChannel(const std::string &name);
+    bool tryNewPublicChannel(const QString &name);
 
     /**
      * Remove a channel.
@@ -73,7 +73,7 @@ public:
      *
      * @return the id of the channel, 0 if it was unsuccessful.
      */
-    int getChannelId(const std::string &channelName) const;
+    int getChannelId(const QString &channelName) const;
 
     /**
      * Returns the chat channel with the given channel ID.
@@ -87,7 +87,7 @@ public:
      *
      * @return The chat channel, or nullptr when it doesn't exist.
      */
-    ChatChannel *getChannel(const std::string &name);
+    ChatChannel *getChannel(const QString &name);
 
     /**
      * Remove a user from all channels. Used at logout.
@@ -101,7 +101,7 @@ public:
      *
      * @param topic the new topic of the given channel
      */
-    void setChannelTopic(int channelId, const std::string &name);
+    void setChannelTopic(int channelId, const QString &name);
 
     /**
      * Returns whether a channel exists.
@@ -109,7 +109,7 @@ public:
      * @param channelId a channel ID
      */
     bool channelExists(int channelId) const;
-    bool channelExists(const std::string &channelName) const;
+    bool channelExists(const QString &channelName) const;
 
     /**
      * Get next usable channel ID

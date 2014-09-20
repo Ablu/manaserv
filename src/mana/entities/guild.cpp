@@ -26,7 +26,7 @@
 
 #include <algorithm>
 
-Guild::Guild(const std::string &name)
+Guild::Guild(const QString &name)
     : mId(0)
     , mName(name)
 {

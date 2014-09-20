@@ -37,14 +37,14 @@
 #endif
 
 bool ConnectionHandler::startListen(enet_uint16 port,
-                                    const std::string &listenHost)
+                                    const QString &listenHost)
 {
     // Bind the server to the default localhost.
     address.host = ENET_HOST_ANY;
     address.port = port;
 
-    if (!listenHost.empty())
-        enet_address_set_host(&address, listenHost.c_str());
+    if (!listenHost.isEmpty())
+        enet_address_set_host(&address, listenHost.toStdString().c_str());
 
     LOG_INFO("Listening on port " << port << "...");
 #if defined(ENET_VERSION) && ENET_VERSION >= ENET_CUTOFF

@@ -183,8 +183,8 @@ void CharacterComponent::deserialize(Entity &entity, MessageIn &msg)
     for (int i = 0; i < questlogSize; ++i) {
         unsigned id = msg.readInt16();
         QuestState state = (QuestState) msg.readInt8();
-        std::string title = msg.readString();
-        std::string description = msg.readString();
+        QString title = msg.readString();
+        QString description = msg.readString();
 
         setQuestlog(id, state, title, description);
     }
@@ -647,8 +647,8 @@ void CharacterComponent::markAllInfoAsChanged(Entity &entity)
 }
 
 void CharacterComponent::setQuestlog(unsigned id, QuestState state,
-                                     const std::string &title,
-                                     const std::string &description,
+                                     const QString &title,
+                                     const QString &description,
                                      bool sendNotification)
 {
     auto &quest = mQuestlog[id];
@@ -672,7 +672,7 @@ void CharacterComponent::setQuestlogState(unsigned id,
 }
 
 void CharacterComponent::setQuestlogTitle(unsigned id,
-                                          const std::string &title,
+                                          const QString &title,
                                           bool sendNotification)
 {
     auto &quest = mQuestlog[id];
@@ -683,7 +683,7 @@ void CharacterComponent::setQuestlogTitle(unsigned id,
 }
 
 void CharacterComponent::setQuestlogDescription(unsigned id,
-                                                const std::string &description,
+                                                const QString &description,
                                                 bool sendNotification)
 {
     auto &quest = mQuestlog[id];

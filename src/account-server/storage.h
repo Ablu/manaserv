@@ -92,7 +92,7 @@ class Storage
          *
          * @return the character associated to the name
          */
-        CharacterData *getCharacter(const std::string &name);
+        CharacterData *getCharacter(const QString &name);
 
         /**
          * Gets the id of a character by its name.
@@ -101,7 +101,7 @@ class Storage
          *
          * @return the id of the character
          */
-        unsigned getCharacterId(const std::string &name);
+        unsigned getCharacterId(const QString &name);
 
         /**
          * Add an account to the database.
@@ -199,7 +199,7 @@ class Storage
          *
          * @return true if the user name exists.
          */
-        bool doesUserNameExist(const std::string &name);
+        bool doesUserNameExist(const QString &name);
 
         /**
          * Tells if the email address already exists.
@@ -208,7 +208,7 @@ class Storage
          *
          * @return true if the email address exists.
          */
-        bool doesEmailAddressExist(const std::string &email);
+        bool doesEmailAddressExist(const QString &email);
 
         /**
          * Tells if the character's name already exists.
@@ -217,7 +217,7 @@ class Storage
          *
          * @return true if character's name exists.
          */
-        bool doesCharacterNameExist(const std::string &name);
+        bool doesCharacterNameExist(const QString &name);
 
         /**
          * Updates the data for a single character,
@@ -322,7 +322,7 @@ class Storage
          * @param id character id.
          * @param name quest var name to get.
          */
-        std::string getQuestVar(int id, const std::string &);
+        QString getQuestVar(int id, const QString &);
 
         /**
          * Sets the value of a quest variable.
@@ -331,7 +331,7 @@ class Storage
          * @param name quest var name to set.
          * @param value value to set.
          */
-        void setQuestVar(int id, const std::string &, const std::string &);
+        void setQuestVar(int id, const QString &, const QString &);
 
         enum SpecialMapId {
             WorldMap = 0,
@@ -345,7 +345,7 @@ class Storage
          * @param name  Name of the requested world variable.
          * @param mapId ID of the specific map.
          */
-        std::string getWorldStateVar(const std::string &name, int mapId);
+        QString getWorldStateVar(const QString &name, int mapId);
 
         /**
          * Sets the value of a world state variable. The \a mapId should be a
@@ -354,8 +354,8 @@ class Storage
          * @param name  Name of the world vairable.
          * @param value New value of the world variable.
          */
-        void setWorldStateVar(const std::string &name,
-                              const std::string &value,
+        void setWorldStateVar(const QString &name,
+                              const QString &value,
                               int mapId);
 
         /**
@@ -364,7 +364,7 @@ class Storage
          *
          * @param mapId ID of the specific map
          */
-        std::map<std::string, std::string> getAllWorldStateVars(int mapId);
+        std::map<QString, QString> getAllWorldStateVars(int mapId);
 
         /**
          * Set the level on an account.

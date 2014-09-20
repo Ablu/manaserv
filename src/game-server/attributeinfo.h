@@ -23,7 +23,7 @@
 
 #include <limits>
 #include <vector>
-#include <string>
+#include <QString>
 
 /**
  * Stackable types.
@@ -58,7 +58,7 @@ struct AttributeModifier
 
 struct AttributeInfo
 {
-    AttributeInfo(int id, const std::string &name):
+    AttributeInfo(int id, const QString &name):
         id(id),
         name(name),
         persistent(false),
@@ -68,7 +68,7 @@ struct AttributeInfo
     {}
 
     int id;
-    std::string name;
+    QString name;
     bool persistent;
     double minimum;
     double maximum;

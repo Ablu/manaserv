@@ -52,11 +52,11 @@ void ResourceManager::initialize(IConfiguration *configuration)
 
     PHYSFS_permitSymbolicLinks(1);
 
-    const std::string worldDataPath =
+    const QString worldDataPath =
             mConfiguration->getValue("worldDataPath", "example");
 
     // world first to allow overriding of server's libraries
-    PHYSFS_addToSearchPath(worldDataPath.c_str(), 1);
+    PHYSFS_addToSearchPath(worldDataPath.toStdString().c_str(), 1);
     PHYSFS_addToSearchPath(".", 1);
     PHYSFS_addToSearchPath(PKG_DATADIR, 1);
 }
@@ -67,34 +67,34 @@ void ResourceManager::initialize(IConfiguration *configuration)
  * bad thing, as you don't know if you weren't able to open it because it
  * doesn't exist or because you don't have the right to.
  */
-static bool fileExists(const std::string &filename)
+static bool fileExists(const QString &filename)
 {
     struct stat buffer;
     // When stat is succesful, the file exists
-    return stat(filename.c_str(), &buffer) == 0;
+    return stat(filename.toStdString().c_str(), &buffer) == 0;
 }
 
-bool ResourceManager::exists(const std::string &path, bool lookInSearchPath)
+bool ResourceManager::exists(const QString &path, bool lookInSearchPath)
 {
     if (!lookInSearchPath)
         return fileExists(path);
 
-    return PHYSFS_exists(path.c_str());
+    return PHYSFS_exists(path.toStdString().c_str());
 }
 
-std::string ResourceManager::resolve(const std::string &path)
+QString ResourceManager::resolve(const QString &path)
 {
-    const char *realDir = PHYSFS_getRealDir(path.c_str());
+    const char *realDir = PHYSFS_getRealDir(path.toStdString().c_str());
     if (realDir)
-        return std::string(realDir) + "/" + path;
+        return QString(realDir) + "/" + path;
 
-    return std::string();
+    return QString();
 }
 
-char *ResourceManager::loadFile(const std::string &fileName, int &fileSize)
+char *ResourceManager::loadFile(const QString &fileName, int &fileSize)
 {
     // Attempt to open the specified file using PhysicsFS
-    PHYSFS_file *file = PHYSFS_openRead(fileName.c_str());
+    PHYSFS_file *file = PHYSFS_openRead(fileName.toStdString().c_str());
 
     // If the handler is an invalid pointer indicate failure
     if (file == nullptr)
@@ -126,16 +126,16 @@ char *ResourceManager::loadFile(const std::string &fileName, int &fileSize)
 }
 
 ResourceManager::splittedPath ResourceManager::splitFileNameAndPath(
-                                                const std::string &fullFilePath)
+                                                const QString &fullFilePath)
 {
     // We'll reversed-search for '/' or'\' and extract the substrings
     // corresponding to the filename and the path separately.
-    size_t slashPos = fullFilePath.find_last_of("/\\");
+    int slashPos = fullFilePath.lastIndexOf("/\\");
 
     ResourceManager::splittedPath splittedFilePath;
     // Note the last slash is kept in the path name.
-    splittedFilePath.path = fullFilePath.substr(0, slashPos + 1);
-    splittedFilePath.file = fullFilePath.substr(slashPos + 1);
+    splittedFilePath.path = fullFilePath.mid(0, slashPos + 1);
+    splittedFilePath.file = fullFilePath.mid(slashPos + 1);
 
     return splittedFilePath;
 }
@@ -155,19 +155,19 @@ ResourceManager::splittedPath ResourceManager::splitFileNameAndPath(
  *
  * @return Joined paths or path2 if path2 was an absolute path.
  */
-std::string ResourceManager::joinPaths(const std::string& path1, const std::string& path2)
+QString ResourceManager::joinPaths(const QString& path1, const QString& path2)
 {
-    if (path2.empty())
+    if (path2.isEmpty())
         return path1;
 
-    if (path1.empty())
+    if (path1.isEmpty())
         return path2;
 
     // check if path2 is an absolute path that cannot be joined
     if (path2[0] == '/' || path2[0] == '\\')
         return path2;
 
-    char p1end = path1[path1.size()-1];
+    QChar p1end = path1[path1.size()-1];
     if (p1end == '/' || p1end == '\\')
     {
         return path1 + path2;
@@ -181,24 +181,24 @@ std::string ResourceManager::joinPaths(const std::string& path1, const std::stri
 /**
  * Removes relative elements from the path.
  */
-std::string ResourceManager::cleanPath(const std::string& path)
+QString ResourceManager::cleanPath(const QString& path)
 {
-    size_t prev, cur;
-    std::string part, result;
-    std::vector<std::string> pathStack;
+    int prev, cur;
+    QString part, result;
+    std::vector<QString> pathStack;
 
     prev = 0;
     while (true)
     {
-        cur = path.find_first_of("/\\", prev);
-        if (cur == std::string::npos)
+        cur = path.indexOf("/\\", prev);
+        if (cur == -1)
         {
             // FIXME add everything from prev to the end
-            pathStack.push_back(path.substr(prev));
+            pathStack.push_back(path.mid(prev));
             break;
         }
 
-        part = path.substr(prev, cur - prev);
+        part = path.mid(prev, cur - prev);
         if (part == "..")
         {
             // go back one level
@@ -216,7 +216,7 @@ std::string ResourceManager::cleanPath(const std::string& path)
             if (pathStack.empty() && cur == 0)
             {
                 // handle first empty match before the root slash
-                pathStack.push_back(std::string());
+                pathStack.push_back(QString());
             }
             else
             {

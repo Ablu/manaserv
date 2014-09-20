@@ -23,7 +23,7 @@
 
 #include "utils/point.h"
 
-#include <string>
+#include <QString>
 
 class Entity;
 class IConfiguration;
@@ -95,41 +95,41 @@ namespace GameState
      * Says something to an actor.
      * @note passing nullptr as source generates a message from "Server:"
      */
-    void sayTo(Entity *destination, Entity *source, const std::string &text);
+    void sayTo(Entity *destination, Entity *source, const QString &text);
 
     /**
      * Says something to everything around an actor.
      */
-    void sayAround(Entity *entity, const std::string &text);
+    void sayAround(Entity *entity, const QString &text);
 
     /**
      * Says something to every player on the server.
      */
-    void sayToAll(const std::string &text);
+    void sayToAll(const QString &text);
 
     /**
      * Gets the cached value of a global script variable.
      */
-    std::string getVariable(const std::string &key);
+    QString getVariable(const QString &key);
 
     /**
      * Changes a global script variable and notifies the database server
      * about the change.
      */
-    void setVariable(const std::string &key, const std::string &value);
+    void setVariable(const QString &key, const QString &value);
 
     /**
      * Changes a global variable without notifying the database server
      * about the change.
      */
-    void setVariableFromDbserver(const std::string &key, const std::string &value);
+    void setVariableFromDbserver(const QString &key, const QString &value);
 
     /**
      * Informs all maps about the change of a variable so the maps can call
      * callbacks for those.
      */
-    void callVariableCallbacks(const std::string &key,
-                               const std::string &value);
+    void callVariableCallbacks(const QString &key,
+                               const QString &value);
 
     void initialize(IConfiguration *configuration);
 }

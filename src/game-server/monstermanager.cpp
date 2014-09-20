@@ -53,7 +53,7 @@ void MonsterManager::deinitialize()
     mMonsterClassesByName.clear();
 }
 
-MonsterClass *MonsterManager::getMonsterByName(const std::string &name) const
+MonsterClass *MonsterManager::getMonsterByName(const QString &name) const
 {
     return mMonsterClassesByName.value(name);
 }
@@ -68,13 +68,13 @@ MonsterClass *MonsterManager::getMonster(int id) const
  * Read a <monster> element from settings.
  * Used by SettingsManager.
  */
-void MonsterManager::readMonsterNode(xmlNodePtr node, const std::string &filename)
+void MonsterManager::readMonsterNode(xmlNodePtr node, const QString &filename)
 {
     if (!xmlStrEqual(node->name, BAD_CAST "monster"))
         return;
 
     int monsterId = XML::getProperty(node, "id", 0);
-    std::string name = XML::getProperty(node, "name", std::string());
+    QString name = XML::getProperty(node, "name", QString());
 
     if (monsterId < 1)
     {
@@ -95,7 +95,7 @@ void MonsterManager::readMonsterNode(xmlNodePtr node, const std::string &filenam
     MonsterClass *monster = new MonsterClass(monsterId);
     mMonsterClasses[monsterId] = monster;
 
-    if (!name.empty())
+    if (!name.isEmpty())
     {
         monster->setName(name);
 
@@ -113,11 +113,13 @@ void MonsterManager::readMonsterNode(xmlNodePtr node, const std::string &filenam
         if (xmlStrEqual(subnode->name, BAD_CAST "drop"))
         {
             MonsterDrop drop;
-            std::string item = XML::getProperty(subnode, "item",
-                                                std::string());
+            QString item = XML::getProperty(subnode, "item",
+                                                QString());
             ItemClass *itemClass;
-            if (utils::isNumeric(item))
-                itemClass = itemManager->getItem(utils::stringToInt(item));
+            bool wasNumeric;
+            int itemId = item.toInt(&wasNumeric);
+            if (wasNumeric)
+                itemClass = itemManager->getItem(itemId);
             else
                 itemClass = itemManager->getItemByName(item);
 
@@ -139,8 +141,8 @@ void MonsterManager::readMonsterNode(xmlNodePtr node, const std::string &filenam
         {
             monster->setSize(XML::getProperty(subnode, "size", -1));
             monster->setMutation(XML::getProperty(subnode, "mutation", 0));
-            std::string genderString = XML::getProperty(subnode, "gender",
-                                                        std::string());
+            QString genderString = XML::getProperty(subnode, "gender",
+                                                        QString());
             monster->setGender(getGender(genderString));
 
             // Checking attributes for completeness and plausibility
@@ -164,12 +166,13 @@ void MonsterManager::readMonsterNode(xmlNodePtr node, const std::string &filenam
         }
         else if (xmlStrEqual(subnode->name, BAD_CAST "attribute"))
         {
-            std::string attributeIdString = XML::getProperty(subnode, "id",
-                                                             std::string());
+            QString attributeIdString = XML::getProperty(subnode, "id",
+                                                             QString());
             AttributeInfo *info = nullptr;
-            if (utils::isNumeric(attributeIdString))
+            bool wasNumeric;
+            const int attributeId = attributeIdString.toInt(&wasNumeric);
+            if (attributeId)
             {
-                const int attributeId = utils::stringToInt(attributeIdString);
                 info = attributeManager->getAttributeInfo(attributeId);
             }
             else
@@ -192,12 +195,13 @@ void MonsterManager::readMonsterNode(xmlNodePtr node, const std::string &filenam
         }
         else if (xmlStrEqual(subnode->name, BAD_CAST "ability"))
         {
-            const std::string idText = XML::getProperty(subnode, "id",
-                                                        std::string());
+            const QString idText = XML::getProperty(subnode, "id",
+                                                        QString());
             AbilityManager::AbilityInfo *info = 0;
-            if (utils::isNumeric(idText))
+            bool wasNumeric;
+            const int abilityId = idText.toInt(&wasNumeric);
+            if (wasNumeric)
             {
-                const int abilityId = utils::stringToInt(idText);
                 info = abilityManager->getAbilityInfo(abilityId);
             }
             else

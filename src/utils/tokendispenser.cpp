@@ -22,9 +22,9 @@
 
 #include <cstdlib>
 
-std::string utils::getMagicToken()
+QString utils::getMagicToken()
 {
-    std::string magic_token(MAGIC_TOKEN_LENGTH, ' ');
+    QString magic_token(MAGIC_TOKEN_LENGTH, ' ');
 
     for (int i = 0; i < MAGIC_TOKEN_LENGTH; ++i)
     {

@@ -103,7 +103,7 @@ void integerReceived(Entity *ch, int value);
 /**
  * The player has entered an string.
  */
-void stringReceived(Entity *ch, const std::string &value);
+void stringReceived(Entity *ch, const QString &value);
 
 } // namespace Npc
 

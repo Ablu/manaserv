@@ -25,7 +25,7 @@
 
 #include <libxml/tree.h>
 
-#include <string>
+#include <QString>
 
 /**
  * XML helper functions.
@@ -47,7 +47,7 @@ public:
      * @param useResman whether to resolve the full path to the file
      *                  using the resource manager (true by default).
      */
-    Document(const std::string &fileName, bool useResman = true);
+    Document(const QString &fileName, bool useResman = true);
 
     /**
      * Destructor. Frees the loaded XML file.
@@ -87,8 +87,8 @@ double getFloatProperty(xmlNodePtr node, const char *name, double def);
 /**
  * Gets a string property from an xmlNodePtr.
  */
-std::string getProperty(xmlNodePtr node, const char *name,
-                        const std::string &def);
+QString getProperty(xmlNodePtr node, const char *name,
+                        const QString &def);
 
 /**
  * Finds the first child node with the given name

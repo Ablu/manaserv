@@ -23,7 +23,7 @@
 
 #include <list>
 #include <map>
-#include <string>
+#include <QString>
 
 class Entity;
 
@@ -38,7 +38,7 @@ namespace PermissionManager
     /**
      * Loads permission file.
      */
-    void initialize(const std::string &);
+    void initialize(const QString &);
 
     /**
      * Reloads permission file.
@@ -48,23 +48,23 @@ namespace PermissionManager
     /**
      * Returns if the characters account has the given permission
      */
-    Result checkPermission(const Entity *character, std::string permission);
-    Result checkPermission(unsigned char level, std::string permission);
+    Result checkPermission(const Entity *character, QString permission);
+    Result checkPermission(unsigned char level, QString permission);
 
     /**
      * Gets the permission class bitmask of a class alias
      */
-    unsigned char getMaskFromAlias(const std::string & alias);
+    unsigned char getMaskFromAlias(const QString & alias);
 
     /**
      * Gets a list of all permissions the character is having
      */
-    std::list<std::string> getPermissionList(const Entity* character);
+    std::list<QString> getPermissionList(const Entity* character);
 
     /**
      * Gets a list of all permissions classes the character is having
      */
-    std::list<std::string> getClassList(const Entity* character);
+    std::list<QString> getClassList(const Entity* character);
 
 } // namespace PermissionManager
 

@@ -32,9 +32,9 @@ namespace utils
     *
     * @param errmsg error introduction string.
     */
-    static void throwError(const std::string &errmsg)
+    static void throwError(const QString &errmsg)
     {
-        qWarning() << errmsg.c_str();
+        qCritical() << errmsg;
         throw errmsg;
     }
 
@@ -45,7 +45,7 @@ namespace utils
     * @param T is the exception instance.
     */
     template <class T>
-    static void throwError(std::string errmsg, const T& e)
+    static void throwError(QString errmsg, const T& e)
     {
         errmsg += e.what();
         throwError(errmsg);

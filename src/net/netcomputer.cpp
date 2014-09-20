@@ -78,7 +78,7 @@ void NetComputer::send(const MessageOut &msg, bool reliable,
     }
 }
 
-std::ostream &operator <<(std::ostream &os, const NetComputer &comp)
+QTextStream &operator <<(QTextStream &os, const NetComputer &comp)
 {
     // address.host contains the ip-address in network-byte-order
     if (utils::processor::isLittleEndian)

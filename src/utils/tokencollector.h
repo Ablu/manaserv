@@ -22,7 +22,7 @@
 #define TOKENCOLLECTOR_H
 
 #include <stdint.h>
-#include <string>
+#include <QString>
 #include <list>
 #include <time.h>
 
@@ -33,7 +33,7 @@ class TokenCollectorBase
 {
     struct Item
     {
-        std::string token; /**< Cookie used by the client. */
+        QString token; /**< Cookie used by the client. */
         intptr_t data;     /**< User data. */
         time_t timeStamp;  /**< Creation time. */
     };
@@ -62,9 +62,9 @@ protected:
     virtual void foundMatch(intptr_t client, intptr_t connect) = 0;
     TokenCollectorBase();
     virtual ~TokenCollectorBase();
-    void insertClient(const std::string &, intptr_t);
+    void insertClient(const QString &, intptr_t);
     void removeClient(intptr_t);
-    void insertConnect(const std::string &, intptr_t);
+    void insertConnect(const QString &, intptr_t);
     void removeOutdated(time_t);
 };
 
@@ -105,14 +105,14 @@ public:
      * Checks if the server expected this client token. If so, calls
      * Handler::tokenMatched. Otherwise marks the client as pending.
      */
-    void addPendingClient(const std::string &token, Client data)
+    void addPendingClient(const QString &token, Client data)
     { insertClient(token, (intptr_t)data); }
 
     /**
      * Checks if a client already registered this token. If so, calls
      * Handler::tokenMatched. Otherwise marks the data as pending.
      */
-    void addPendingConnect(const std::string &token, ServerData data)
+    void addPendingConnect(const QString &token, ServerData data)
     { insertConnect(token, (intptr_t)data); }
 
     /**

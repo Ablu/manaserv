@@ -36,7 +36,6 @@
 #include "net/messagein.h"
 #include "net/messageout.h"
 #include "net/netcomputer.h"
-#include "utils/functors.h"
 #include "utils/logger.h"
 #include "utils/point.h"
 #include "utils/stringfilter.h"
@@ -53,7 +52,7 @@ class AccountHandler : public ConnectionHandler
 public:
     AccountHandler(IConfiguration *configuration,
                    IStorage *storage,
-                   const std::string &attributesFile);
+                   const QString &attributesFile);
 
     /**
      * Called by the token collector in order to associate a client to its
@@ -127,14 +126,14 @@ private:
     int mNumHairStyles;
     int mNumHairColors;
     int mNumGenders;
-    unsigned mMinNameLength;
-    unsigned mMaxNameLength;
+    int mMinNameLength;
+    int mMaxNameLength;
     int mMaxCharacters;
 
     bool mRegistrationAllowed;
 
-    std::string mUpdateHost;
-    std::string mDataUrl;
+    QString mUpdateHost;
+    QString mDataUrl;
 
     typedef std::map<int, time_t> IPsToTime;
     IPsToTime mLastLoginAttemptForIP;
@@ -144,7 +143,7 @@ static AccountHandler *accountHandler;
 
 AccountHandler::AccountHandler(IConfiguration *configuration,
                                IStorage *storage,
-                               const std::string &attributesFile):
+                               const QString &attributesFile):
     ConnectionHandler(configuration),
     mTokenCollector(this),
     mConfiguration(configuration),
@@ -159,8 +158,8 @@ AccountHandler::AccountHandler(IConfiguration *configuration,
     mMaxNameLength(mConfiguration->getValue("char_maxNameLength", 25)),
     mMaxCharacters(mConfiguration->getValue("account_maxCharacters", 3)),
     mRegistrationAllowed(mConfiguration->getBoolValue("account_allowRegister", true)),
-    mUpdateHost(mConfiguration->getValue("net_defaultUpdateHost", std::string())),
-    mDataUrl(mConfiguration->getValue("net_clientDataUrl", std::string()))
+    mUpdateHost(mConfiguration->getValue("net_defaultUpdateHost", QString())),
+    mDataUrl(mConfiguration->getValue("net_clientDataUrl", QString()))
 {
     XML::Document doc(attributesFile);
     xmlNodePtr node = doc.rootNode();
@@ -190,11 +189,11 @@ AccountHandler::AccountHandler(IConfiguration *configuration,
 
             // Store as string initially to check
             // that the property is defined.
-            std::string defStr = XML::getProperty(attributenode, "default",
-                                                  std::string());
-            if (!defStr.empty())
+            QString defStr = XML::getProperty(attributenode, "default",
+                                                  QString());
+            if (!defStr.isEmpty())
             {
-                const double val = string_to<double>()(defStr);
+                const double val = defStr.toDouble();
                 mDefaultAttributes.insert(std::make_pair(id, val));
             }
         }
@@ -236,8 +235,8 @@ AccountHandler::AccountHandler(IConfiguration *configuration,
               << mAttributeMinimum << ", Max: " << mAttributeMaximum << ")");
 }
 
-bool AccountClientHandler::initialize(const std::string &attributesFile, int port,
-                                      const std::string &host,
+bool AccountClientHandler::initialize(const QString &attributesFile, int port,
+                                      const QString &host,
                                       IConfiguration *configuration,
                                       IStorage *storage)
 {
@@ -259,7 +258,7 @@ void AccountClientHandler::process()
     accountHandler->process(50);
 }
 
-void AccountClientHandler::prepareReconnect(const std::string &token, int id)
+void AccountClientHandler::prepareReconnect(const QString &token, int id)
 {
     accountHandler->mTokenCollector.addPendingConnect(token, id);
 }
@@ -321,21 +320,21 @@ static void sendFullCharacterData(AccountClient *client,
     client->send(msg);
 }
 
-static std::string getRandomString(int length)
+static QString getRandomString(int length)
 {
-    char s[length];
+    QString s(length);
     // No need to care about zeros. They can be handled.
     // But care for endianness
     for (int i = 0; i < length; ++i)
         s[i] = (char)rand();
 
-    return std::string(s, length);
+    return s;
 }
 
 void AccountHandler::handleLoginRandTriggerMessage(AccountClient &client, MessageIn &msg)
 {
-    std::string salt = getRandomString(4);
-    QString username = QString::fromStdString(msg.readString());
+    QString salt = getRandomString(4);
+    QString username = msg.readString();
 
     if (Account *acc = mStorage->getAccount(username))
     {
@@ -383,8 +382,8 @@ void AccountHandler::handleLoginMessage(AccountClient &client, MessageIn &msg)
     }
     mLastLoginAttemptForIP[address] = now;
 
-    const std::string username = msg.readString();
-    const std::string password = msg.readString();
+    const QString username = msg.readString();
+    const QString password = msg.readString();
 
     if (stringFilter->findDoubleQuotes(username))
     {
@@ -410,8 +409,9 @@ void AccountHandler::handleLoginMessage(AccountClient &client, MessageIn &msg)
             acc = account;
     mPendingAccounts.remove(acc);
 
-    if (!acc || sha256(acc->getPassword() + acc->getRandomSalt()) != password)
-    {
+    if (!acc || QString::fromStdString(
+                    sha256((acc->getPassword() + acc->getRandomSalt())
+                               .toStdString())) != password) {
         reply.writeInt8(ERRMSG_INVALID_ARGUMENT);
         client.send(reply);
         delete acc;
@@ -487,12 +487,12 @@ void AccountHandler::handleReconnectMessage(AccountClient &client,
         return;
     }
 
-    std::string magic_token = msg.readString(MAGIC_TOKEN_LENGTH);
+    QString magic_token = msg.readString(MAGIC_TOKEN_LENGTH);
     client.status = CLIENT_QUEUED; // Before the addPendingClient
     mTokenCollector.addPendingClient(magic_token, &client);
 }
 
-static bool checkCaptcha(AccountClient &, const std::string & /* captcha */)
+static bool checkCaptcha(AccountClient &, const QString & /* captcha */)
 {
     // TODO
     return true;
@@ -502,10 +502,10 @@ void AccountHandler::handleRegisterMessage(AccountClient &client,
                                            MessageIn &msg)
 {
     int clientVersion = msg.readInt32();
-    std::string username = msg.readString();
-    std::string password = msg.readString();
-    std::string email = msg.readString();
-    std::string captcha = msg.readString();
+    QString username = msg.readString();
+    QString password = msg.readString();
+    QString email = msg.readString();
+    QString captcha = msg.readString();
 
     MessageOut reply(APMSG_REGISTER_RESPONSE);
 
@@ -534,7 +534,7 @@ void AccountHandler::handleRegisterMessage(AccountClient &client,
     {
         reply.writeInt8(REGISTER_EXISTS_USERNAME);
     }
-    else if (mStorage->doesEmailAddressExist(sha256(email)))
+    else if (mStorage->doesEmailAddressExist(QString::fromStdString(sha256(email.toStdString()))))
     {
         reply.writeInt8(REGISTER_EXISTS_EMAIL);
     }
@@ -546,11 +546,11 @@ void AccountHandler::handleRegisterMessage(AccountClient &client,
     {
         Account *acc = new Account;
         acc->setName(username);
-        acc->setPassword(sha256(password));
+        acc->setPassword(QString::fromStdString(sha256(password.toStdString())));
         // We hash email server-side for additional privacy
         // we ask for it again when we need it and verify it
         // through comparing it with the hash.
-        acc->setEmail(sha256(email));
+        acc->setEmail(QString::fromStdString(sha256(email.toStdString())));
         acc->setLevel(AL_PLAYER);
 
         // Set the date and time of the account registration, and the last login
@@ -585,10 +585,10 @@ void AccountHandler::handleUnregisterMessage(AccountClient &client,
         return;
     }
 
-    QString username = QString::fromStdString(msg.readString());
-    std::string password = msg.readString();
+    QString username = msg.readString();
+    QString password = msg.readString();
 
-    if (stringFilter->findDoubleQuotes(username.toStdString()))
+    if (stringFilter->findDoubleQuotes(username))
     {
         reply.writeInt8(ERRMSG_INVALID_ARGUMENT);
         client.send(reply);
@@ -598,7 +598,7 @@ void AccountHandler::handleUnregisterMessage(AccountClient &client,
     // See whether the account exists
     Account *acc = mStorage->getAccount(username);
 
-    if (!acc || acc->getPassword() != sha256(password))
+    if (!acc || acc->getPassword() != QString::fromStdString(sha256(password.toStdString())))
     {
         reply.writeInt8(ERRMSG_INVALID_ARGUMENT);
         client.send(reply);
@@ -607,7 +607,7 @@ void AccountHandler::handleUnregisterMessage(AccountClient &client,
     }
 
     // Delete account and associated characters
-    LOG_INFO("Unregistered \"" << username.toStdString()
+    LOG_INFO("Unregistered \"" << username
              << "\", AccountID: " << acc->getID());
     mStorage->delAccount(acc);
     reply.writeInt8(ERRMSG_OK);
@@ -624,7 +624,7 @@ void AccountHandler::handleRequestRegisterInfoMessage(AccountClient &client,
     {
         reply.writeInt8(false);
         reply.writeString(mConfiguration->getValue(
-                              "account_denyRegisterReason", std::string()));
+                              "account_denyRegisterReason", QString()));
     }
     else
     {
@@ -650,8 +650,8 @@ void AccountHandler::handleEmailChangeMessage(AccountClient &client,
         return;
     }
 
-    const std::string email = msg.readString();
-    const std::string emailHash = sha256(email);
+    const QString email = msg.readString();
+    const QString emailHash = QString::fromStdString(sha256(email.toStdString()));
 
     if (!stringFilter->isEmailValid(email))
     {
@@ -678,8 +678,8 @@ void AccountHandler::handleEmailChangeMessage(AccountClient &client,
 void AccountHandler::handlePasswordChangeMessage(AccountClient &client,
                                                  MessageIn &msg)
 {
-    std::string oldPassword = sha256(msg.readString());
-    std::string newPassword = sha256(msg.readString());
+    QString oldPassword = QString::fromStdString(sha256(msg.readString().toStdString()));
+    QString newPassword = QString::fromStdString(sha256(msg.readString().toStdString()));
 
     MessageOut reply(APMSG_PASSWORD_CHANGE_RESPONSE);
 
@@ -710,7 +710,7 @@ void AccountHandler::handlePasswordChangeMessage(AccountClient &client,
 void AccountHandler::handleCharacterCreateMessage(AccountClient &client,
                                                   MessageIn &msg)
 {
-    std::string name = msg.readString();
+    QString name = msg.readString();
     int hairStyle = msg.readInt8();
     int hairColor = msg.readInt8();
     int gender = msg.readInt8();
@@ -885,7 +885,7 @@ void AccountHandler::handleCharacterSelectMessage(AccountClient &client,
 
     CharacterData &selectedChar = *chars[slot];
 
-    std::string address;
+    QString address;
     int port;
     if (!GameServerHandler::getGameServerFromMap
             (selectedChar.getMapId(), address, port))
@@ -900,7 +900,7 @@ void AccountHandler::handleCharacterSelectMessage(AccountClient &client,
 
     LOG_DEBUG(selectedChar.getName() << " is trying to enter the servers.");
 
-    std::string magic_token(utils::getMagicToken());
+    QString magic_token(utils::getMagicToken());
     reply.writeString(magic_token, MAGIC_TOKEN_LENGTH);
     reply.writeString(address);
     reply.writeInt16(port);
@@ -954,7 +954,7 @@ void AccountHandler::handleCharacterDeleteMessage(AccountClient &client,
         return;
     }
 
-    std::string characterName = chars[slot]->getName();
+    QString characterName = chars[slot]->getName();
     LOG_INFO("Character deleted:" << characterName);
 
     // Log transaction

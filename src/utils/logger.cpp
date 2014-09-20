@@ -24,11 +24,11 @@
 #include "mana/configuration/interfaces/iconfiguration.h"
 
 #include "common/resourcemanager.h"
-#include "utils/string.h"
-#include "utils/time.h"
 
 #include <fstream>
 #include <iostream>
+
+#include <QDate>
 
 #ifdef WIN32
 #include <windows.h>
@@ -42,7 +42,7 @@ static std::ofstream mLogFile;
 IConfiguration *Logger::mConfiguration;
 
 /** current log filename */
-std::string Logger::mFilename;
+QString Logger::mFilename;
 /** Timestamp flag. */
 bool Logger::mHasTimestamp = true;
 /** Tee mode flag. */
@@ -56,13 +56,13 @@ long Logger::mMaxFileSize = 1024; // 1 Mb
 /** Switch log file each day. */
 bool Logger::mSwitchLogEachDay = false;
 /** Last call date */
-static std::string mLastCallDate;
+static QString mLastCallDate;
 /**
  * Old date
  * For code simplificatiion, the old Date is kept separate
  * from the last call date.
  */
-static std::string mOldDate;
+static QString mOldDate;
 
 /**
   * Check whether the day has changed since the last call.
@@ -71,7 +71,7 @@ static std::string mOldDate;
   */
 static bool getDayChanged()
 {
-    std::string dayDate = getCurrentDate();
+    QString dayDate = QDate::currentDate().toString("yyyy-MM-dd");
 
     if (mLastCallDate != dayDate)
     {
@@ -84,7 +84,7 @@ static bool getDayChanged()
     return false;
 }
 
-void Logger::initialize(const std::string &logFile, IConfiguration *configuration)
+void Logger::initialize(const QString &logFile, IConfiguration *configuration)
 {
     mConfiguration = configuration;
 
@@ -100,11 +100,12 @@ void Logger::initialize(const std::string &logFile, IConfiguration *configuratio
     setSwitchLogEachDay(mConfiguration->getBoolValue("log_perDay", false));
 }
 
-void Logger::output(std::ostream &os, const std::string &msg, const char *prefix)
+void Logger::output(std::ostream &os, const QString &msg, const char *prefix)
 {
     if (mHasTimestamp)
     {
-        os << "[" << getCurrentTime() << "]" << ' ';
+        os << "[" << QDate::currentDate().toString("yyyy-MM-dd").toStdString()
+           << "]" << ' ';
     }
 
     if (prefix)
@@ -112,10 +113,10 @@ void Logger::output(std::ostream &os, const std::string &msg, const char *prefix
         os << prefix << ' ';
     }
 
-    os << msg << std::endl;
+    os << msg.toStdString() << std::endl;
 }
 
-void Logger::setLogFile(const std::string &logFile, bool append)
+void Logger::setLogFile(const QString &logFile, bool append)
 {
     // Close the current log file.
     if (mLogFile.is_open())
@@ -125,15 +126,16 @@ void Logger::setLogFile(const std::string &logFile, bool append)
 
     // Open the file for output
     // and remove the former file contents depending on the append flag.
-    mLogFile.open(logFile.c_str(),
+    mLogFile.open(logFile.toStdString().c_str(),
                   append ? std::ios::app : std::ios::trunc);
 
     mFilename = logFile;
-    mLastCallDate = mOldDate = getCurrentDate();
+    mLastCallDate = mOldDate = QDate::currentDate().toString("yyyy-MM-dd");
 
     if (!mLogFile.is_open())
     {
-        throw std::ios::failure("unable to open " + logFile + "for writing");
+        throw std::ios::failure("unable to open " + logFile.toStdString() +
+                                "for writing");
     }
     else
     {
@@ -143,7 +145,7 @@ void Logger::setLogFile(const std::string &logFile, bool append)
     }
 }
 
-void Logger::output(const std::string &msg, Level atVerbosity)
+void Logger::output(const QString &msg, Level atVerbosity)
 {
     if (mVerbosity >= atVerbosity)
     {
@@ -199,37 +201,38 @@ void Logger::switchLogs()
 
         // Stringify the time, the format is: path/yyyy-mm-dd-n_logFilename.
         using namespace std;
-        ostringstream os;
-        os << (dayJustChanged ? mOldDate : getCurrentDate());
+        QString date =
+            (dayJustChanged ? mOldDate
+                            : QDate::currentDate().toString("yyyy-MM-dd"));
 
         int fileNum = 1;
         ResourceManager::splittedPath filePath =
                                ResourceManager::splitFileNameAndPath(mFilename);
 
-        std::string newFileName;
+        QString newFileName;
         // Keeping a hard limit of 100 files per day.
         do
         {
-            newFileName = filePath.path + os.str()
-                                + "-" + toString<int>(fileNum)
-                                + "_" + filePath.file;
+            newFileName = filePath.path + date + "-" +
+                          QString::number(fileNum) + "_" + filePath.file;
         }
         while (ResourceManager::exists(newFileName, false) && ++fileNum < 100);
 
-        if (rename(mFilename.c_str(), newFileName.c_str()) != 0)
+        if (rename(mFilename.toStdString().c_str(),
+                   newFileName.toStdString().c_str()) != 0)
         {
             // Continue appending on the original file.
             setLogFile(mFilename, true);
-            mLogFile << "Error renaming file: " << mFilename << " to: "
-            << newFileName << std::endl << "Keep logging on the same log file."
-            << std::endl;
+            mLogFile << "Error renaming file: " << mFilename.toStdString()
+                     << " to: " << newFileName.toStdString() << std::endl
+                     << "Keep logging on the same log file." << std::endl;
         }
         else
         {
             // Keep the logging after emptying the original log file.
             setLogFile(mFilename);
-            mLogFile << "---- Continue logging from former file " << newFileName
-                     << " ----" << std::endl;
+            mLogFile << "---- Continue logging from former file "
+                     << newFileName.toStdString() << " ----" << std::endl;
         }
     }
 }

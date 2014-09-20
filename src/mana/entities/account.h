@@ -22,7 +22,7 @@
 #define ACCOUNT_H
 
 #include <memory>
-#include <string>
+#include <QString>
 #include <vector>
 #include <time.h>
 
@@ -47,7 +47,7 @@ public:
      *
      * @param name the user name.
      */
-    void setName(const std::string &name)
+    void setName(const QString &name)
     { mName = name; }
 
     /**
@@ -55,7 +55,7 @@ public:
      *
      * @return the user name.
      */
-    const std::string &getName() const
+    const QString &getName() const
     { return mName; }
 
     /**
@@ -68,7 +68,7 @@ public:
      *
      * @param password the user password (hashed with salt).
      */
-    void setPassword(const std::string &password)
+    void setPassword(const QString &password)
     { mPassword = password; }
 
 
@@ -77,7 +77,7 @@ public:
      *
      * @return the user password (hashed with salt).
      */
-    const std::string &getPassword() const
+    const QString &getPassword() const
     { return mPassword; }
 
     /**
@@ -87,7 +87,7 @@ public:
      *
      * @param the new random salt to be sent out next login
      */
-    void setRandomSalt(const std::string &salt)
+    void setRandomSalt(const QString &salt)
     { mRandomSalt = salt; }
 
 
@@ -96,7 +96,7 @@ public:
      *
      * @return the random salt used for next login.
      */
-    const std::string &getRandomSalt() const
+    const QString &getRandomSalt() const
     { return mRandomSalt; }
 
     /**
@@ -105,7 +105,7 @@ public:
      *
      * @param email the user email address (hashed).
      */
-    void setEmail(const std::string &email)
+    void setEmail(const QString &email)
     { mEmail = email; }
 
 
@@ -114,7 +114,7 @@ public:
      *
      * @return the user email address (hashed).
      */
-    const std::string &getEmail() const
+    const QString &getEmail() const
     { return mEmail; }
 
 
@@ -222,11 +222,11 @@ private:
     Account(const Account &rhs) = delete;
     Account &operator=(const Account &rhs) = delete;
 
-    std::string mName;        /**< User name */
-    std::string mPassword;    /**< User password (hashed with salt) */
-    std::string mRandomSalt;  /**< A random sequence sent to client to
+    QString mName;        /**< User name */
+    QString mPassword;    /**< User password (hashed with salt) */
+    QString mRandomSalt;  /**< A random sequence sent to client to
                                    protect against replay attacks.*/
-    std::string mEmail;       /**< User email address (hashed) */
+    QString mEmail;       /**< User email address (hashed) */
     std::map<unsigned, std::unique_ptr<CharacterData>> mCharacters;   /**< Character data */
     int mID;                  /**< Unique id */
     unsigned char mLevel;     /**< Account level */

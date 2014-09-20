@@ -22,7 +22,7 @@
 #define SERVERHANDLER_H
 
 #include <iosfwd>
-#include <string>
+#include <QString>
 
 #include "net/messagein.h"
 
@@ -35,7 +35,7 @@ namespace GameServerHandler
     /**
      * Creates a connection handler and starts listening on given port.
      */
-    bool initialize(int port, const std::string &host, IConfiguration *configuration, IStorage *storage);
+    bool initialize(int port, const QString &host, IConfiguration *configuration, IStorage *storage);
 
     /**
      * Stops listening to messages and destroys the connection handler.
@@ -46,12 +46,12 @@ namespace GameServerHandler
      * Returns the information a client needs to connect to the game server
      * corresponding to the given map ID.
      */
-    bool getGameServerFromMap(int, std::string &address, int &port);
+    bool getGameServerFromMap(int, QString &address, int &port);
 
     /**
      * Warns a game server about a soon-to-connect client.
      */
-    void registerClient(const std::string &token, CharacterData &);
+    void registerClient(const QString &token, CharacterData &);
 
     /**
      * Dumps per-server statistics into given stream

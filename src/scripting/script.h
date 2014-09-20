@@ -27,7 +27,7 @@
 #include "game-server/attributemanager.h"
 
 #include <list>
-#include <string>
+#include <QString>
 #include <vector>
 #include <stack>
 
@@ -65,12 +65,12 @@ public:
     /**
      * Registers a new scripting engine.
      */
-    static void registerEngine(const std::string &, Factory);
+    static void registerEngine(const QString &, Factory);
 
     /**
      * Creates a new script context for a given engine.
      */
-    static Script *create(const std::string &engine);
+    static Script *create(const QString &engine);
 
     /**
      * A reference to a script object. It wraps an integer value, but adds
@@ -124,26 +124,26 @@ public:
      * @param name the name of the text, used for error reporting
      * @param context the context that is supposed to be used for loading
      */
-    virtual void load(const char *prog,
-                      const char *name,
+    virtual void load(const QString &prog,
+                      const QString &name,
                       const Context &context = Context()) = 0;
 
     /**
      * Loads a text file into script context and executes its global
      * statements.
      */
-    virtual bool loadFile(const std::string &,
+    virtual bool loadFile(const QString &,
                           const Context &context = Context());
 
     /**
      * Loads a chunk of text and considers it as an NPC handler. This
      * handler will later be used to create the given NPC.
      */
-    virtual void loadNPC(const std::string &name,
+    virtual void loadNPC(const QString &name,
                          int id,
                          ManaServ::BeingGender gender,
                          int x, int y,
-                         const char *,
+                         const QString &,
                          MapComposite *map);
 
     /**
@@ -182,7 +182,7 @@ public:
     /**
      * Pushes a string argument for the function being prepared.
      */
-    virtual void push(const std::string &) = 0;
+    virtual void push(const QString &) = 0;
 
     /**
      * Pushes a pointer argument to a game entity.
@@ -258,7 +258,7 @@ public slots:
     virtual void processDeathEvent(Entity *entity) = 0;
 
 protected:
-    std::string mScriptFile;
+    QString mScriptFile;
     Thread *mCurrentThread;
     const Context *mContext;
 

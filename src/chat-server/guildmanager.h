@@ -22,7 +22,7 @@
 #define CHATSERVER_GUILDMANAGER_H
 
 #include <list>
-#include <string>
+#include <QString>
 #include <vector>
 #include <map>
 
@@ -42,7 +42,7 @@ public:
     /**
      * Creates a guild.
      */
-    Guild *createGuild(const std::string &name, int playerId);
+    Guild *createGuild(const QString &name, int playerId);
 
     /**
      * Removes a guild.
@@ -58,7 +58,7 @@ public:
      * Removes a member from a guild.
      */
     void removeGuildMember(Guild *guild, int playerId,
-                           const std::string &characterName,
+                           const QString &characterName,
                            ChatClient *client = 0);
 
     /**
@@ -73,12 +73,12 @@ public:
      *
      * @return the guild with the given name, or nullptr if it doesn't exist
      */
-    Guild *findByName(const std::string &name) const;
+    Guild *findByName(const QString &name) const;
 
     /**
      * Returns whether a guild exists.
      */
-    bool doesExist(const std::string &name) const;
+    bool doesExist(const QString &name) const;
 
     /**
      * Return the guilds a character is in

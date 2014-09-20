@@ -23,7 +23,7 @@
 #define MAPMANAGER_H
 
 #include <map>
-#include <string>
+#include <QString>
 
 #include "utils/xml.h"
 
@@ -54,7 +54,7 @@ namespace MapManager
     /**
      * Returns the requested map
      */
-    MapComposite *getMap(const std::string &mapName);
+    MapComposite *getMap(const QString &mapName);
 
     /**
      * Returns all the maps.

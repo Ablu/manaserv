@@ -30,15 +30,15 @@
 
 namespace XML
 {
-    Document::Document(const std::string &fileName, bool useResman):
+    Document::Document(const QString &fileName, bool useResman):
         mDoc(0)
     {
-        std::string resolvedFileName = fileName;
+        QString resolvedFileName = fileName;
         if (useResman)
         {
             resolvedFileName = ResourceManager::resolve(fileName);
 
-            if (resolvedFileName.empty())
+            if (resolvedFileName.isEmpty())
             {
                 LOG_ERROR("(XML::Document) File not found in search path: "
                           << fileName);
@@ -46,7 +46,7 @@ namespace XML
             }
         }
 
-        mDoc = xmlParseFile(resolvedFileName.c_str());
+        mDoc = xmlParseFile(resolvedFileName.toStdString().c_str());
 
         if (!mDoc)
         {
@@ -118,13 +118,13 @@ namespace XML
         return ret;
     }
 
-    std::string getProperty(xmlNodePtr node, const char *name,
-                            const std::string &def)
+    QString getProperty(xmlNodePtr node, const char *name,
+                            const QString &def)
     {
         xmlChar *prop = xmlGetProp(node, BAD_CAST name);
         if (prop)
         {
-            std::string val = (char*) prop;
+            QString val = (char*) prop;
             xmlFree(prop);
             return val;
         }

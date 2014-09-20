@@ -37,7 +37,7 @@
 
 #include <map>
 #include <set>
-#include <string>
+#include <QString>
 #include <vector>
 
 class BuySell;
@@ -63,8 +63,8 @@ struct QuestInfo
 
     unsigned id;
     QuestState state;
-    std::string title;
-    std::string description;
+    QString title;
+    QString description;
 };
 
 /**
@@ -200,7 +200,7 @@ public:
      * Associative array containing all the quest variables known by the
      * server.
      */
-    std::map< std::string, std::string > questCache;
+    std::map< QString, QString > questCache;
 
     /**
      * Used to serialize kill count.
@@ -295,16 +295,16 @@ public:
     void markAllInfoAsChanged(Entity &entity);
 
     void setQuestlog(unsigned id, QuestState state,
-                     const std::string &title,
-                     const std::string &description,
+                     const QString &title,
+                     const QString &description,
                      bool sendNotification = false);
     void setQuestlogState(unsigned id, QuestState state,
                           bool sendNotification = false);
     void setQuestlogTitle(unsigned id,
-                          const std::string &title,
+                          const QString &title,
                           bool sendNotification = false);
     void setQuestlogDescription(unsigned id,
-                                const std::string &description,
+                                const QString &description,
                                 bool sendNotification = false);
 
     void serialize(Entity &entity, MessageOut &msg);

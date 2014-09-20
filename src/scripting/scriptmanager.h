@@ -23,7 +23,7 @@
 
 #include "game-server/charactercomponent.h"
 
-#include <string>
+#include <QString>
 
 class Script;
 
@@ -48,7 +48,7 @@ void deinitialize();
 /**
  * Loads the main script file.
  */
-bool loadMainScript(const std::string &file);
+bool loadMainScript(const QString &file);
 
 /**
  * Returns the current global script state.

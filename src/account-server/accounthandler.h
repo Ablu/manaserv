@@ -21,7 +21,7 @@
 #ifndef ACCOUNTHANDLER_H
 #define ACCOUNTHANDLER_H
 
-#include <string>
+#include <QString>
 
 class IConfiguration;
 class IStorage;
@@ -31,8 +31,8 @@ namespace AccountClientHandler
     /**
      * Creates a connection handler and starts listening on given port.
      */
-    bool initialize(const std::string &configFile, int port,
-                    const std::string &host, IConfiguration *configuration, IStorage *storage);
+    bool initialize(const QString &configFile, int port,
+                    const QString &host, IConfiguration *configuration, IStorage *storage);
 
     /**
      * Stops listening to messages and destroys the connection handler.
@@ -42,7 +42,7 @@ namespace AccountClientHandler
     /**
      * Prepares a connection for a client coming from a game server.
      */
-    void prepareReconnect(const std::string &token, int accountID);
+    void prepareReconnect(const QString &token, int accountID);
 
     /**
      * Processes messages received by the connection handler.

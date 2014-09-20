@@ -26,6 +26,8 @@
 #include <sstream>
 #include <iostream>
 
+#include <QTextStream>
+
 class IConfiguration;
 
 namespace utils
@@ -85,7 +87,7 @@ public:
         Debug
     };
 
-    static void initialize(const std::string &logFile, IConfiguration *configuration);
+    static void initialize(const QString &logFile, IConfiguration *configuration);
 
     /**
      * Sets the log file.
@@ -98,7 +100,7 @@ public:
      *
      * @exception std::ios::failure if the log file could not be opened.
      */
-    static void setLogFile(const std::string &logFile, bool append = false);
+    static void setLogFile(const QString &logFile, bool append = false);
 
     /**
      * Add/removes the timestamp.
@@ -161,7 +163,7 @@ public:
      *
      * @exception std::ios::failure.
      */
-    static void output(const std::string &msg, Level atVerbosity);
+    static void output(const QString &msg, Level atVerbosity);
 
     static Level mVerbosity;   /**< Verbosity level. */
 private:
@@ -170,7 +172,7 @@ private:
     static bool mHasTimestamp; /**< Timestamp flag. */
     static bool mTeeMode;      /**< Tee mode flag. */
 
-    static std::string mFilename; /**< Name of the current logfile. */
+    static QString mFilename; /**< Name of the current logfile. */
     /** Enable rotation of logfiles by size. */
     static bool mLogRotation;
     /** Maximum size of current logfile in bytes */
@@ -187,7 +189,7 @@ private:
      *
      * @exception std::ios::failure.
      */
-    static void output(std::ostream &os, const std::string &msg,
+    static void output(std::ostream &os, const QString &msg,
                        const char *prefix);
 
     /**
@@ -197,42 +199,15 @@ private:
     static void switchLogs();
 };
 
-/**
- * Class for temporarily debugging things that are actually not interesting
- * to include in the log.
- *
- * It is used for automatically ending with a newline, putting spaces in
- * between different parameters and quoting strings.
- */
-class Debug
-{
-public:
-    ~Debug() { std::cout << std::endl; }
-
-    template <class T>
-    Debug &operator << (T t)
-    {
-        std::cout << t << " ";
-        return *this;
-    }
-};
-
-template <>
-inline Debug &Debug::operator << (const std::string &t)
-{
-    std::cout << "\"" << t << "\" ";
-    return *this;
-}
-
 } // namespace utils
 
 // HELPER MACROS
 
 #define LOG(level, msg)                                                \
     do if (::utils::Logger::mVerbosity >= ::utils::Logger::level) {    \
-        std::ostringstream os;                                         \
-        os << msg;                                                     \
-        ::utils::Logger::output(os.str(), ::utils::Logger::level);     \
+        QTextStream stream;                                         \
+        stream << msg;                                                     \
+        ::utils::Logger::output(stream.readAll(), ::utils::Logger::level);     \
     } while (0)
 
 #define LOG_DEBUG(msg)  LOG(Debug, msg)
@@ -240,12 +215,5 @@ inline Debug &Debug::operator << (const std::string &t)
 #define LOG_WARN(msg)   LOG(Warn, msg)
 #define LOG_ERROR(msg)  LOG(Error, msg)
 #define LOG_FATAL(msg)  LOG(Fatal, msg)
-
-/**
- * Returns an instance of the debug class for printing out a line.
- *
- * Usage: debug() << "testing" << a << b;
- */
-inline ::utils::Debug debug() { return ::utils::Debug(); }
 
 #endif // LOGGER_H

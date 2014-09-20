@@ -22,7 +22,7 @@
 #define CONNECTIONHANDLER_H
 
 #include <list>
-#include <string>
+#include <QString>
 #include <enet/enet.h>
 
 class IConfiguration;
@@ -50,7 +50,7 @@ public:
      * @host  the host IP to listen on, defaults to the default localhost
      */
     bool startListen(enet_uint16 port,
-                     const std::string &host = std::string());
+                     const QString &host = QString());
 
     /**
      * Disconnect all the clients and close the server socket.

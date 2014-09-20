@@ -36,7 +36,7 @@ Party::Party()
     mId = id;
 }
 
-void Party::addUser(const std::string &name, const std::string &inviter)
+void Party::addUser(const QString &name, const QString &inviter)
 {
     mUsers.push_back(name);
 
@@ -49,7 +49,7 @@ void Party::addUser(const std::string &name, const std::string &inviter)
     }
 }
 
-void Party::removeUser(const std::string &name)
+void Party::removeUser(const QString &name)
 {
     PartyUsers::iterator itr = std::find(mUsers.begin(), mUsers.end(), name);
     if (itr != mUsers.end())

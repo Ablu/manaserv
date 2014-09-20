@@ -25,7 +25,7 @@
 #include "net/messagein.h"
 #include "net/messageout.h"
 
-CharacterData::CharacterData(const std::string &name, int id):
+CharacterData::CharacterData(const QString &name, int id):
     mName(name),
     mDatabaseID(id),
     mCharacterSlot(0),

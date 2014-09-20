@@ -58,7 +58,7 @@ AttributeInfo *AttributeManager::getAttributeInfo(
 }
 
 AttributeInfo *AttributeManager::getAttributeInfo(
-        const std::string &name) const
+        const QString &name) const
 {
     if (mAttributeNameMap.contains(name))
         return mAttributeNameMap.value(name);
@@ -71,7 +71,7 @@ const std::set<AttributeInfo *>
     return mAttributeScopes[type];
 }
 
-ModifierLocation AttributeManager::getLocation(const std::string &tag) const
+ModifierLocation AttributeManager::getLocation(const QString &tag) const
 {
     if (mTagMap.find(tag) != mTagMap.end())
         return mTagMap.at(tag);
@@ -79,7 +79,7 @@ ModifierLocation AttributeManager::getLocation(const std::string &tag) const
         return ModifierLocation(0, 0);
 }
 
-const std::string *AttributeManager::getTag(const ModifierLocation &location) const
+const QString *AttributeManager::getTag(const ModifierLocation &location) const
 {
     for (auto &it : mTagMap)
     {
@@ -104,8 +104,8 @@ void AttributeManager::readAttributeNode(xmlNodePtr attributeNode)
         return;
     }
 
-    std::string name = XML::getProperty(attributeNode, "name", std::string());
-    if (name.empty())
+    QString name = XML::getProperty(attributeNode, "name", QString());
+    if (name.isEmpty())
     {
         LOG_WARN("Attribute manager: attribute '" << id
                  << "' does not have a name! Skipping...");
@@ -124,19 +124,19 @@ void AttributeManager::readAttributeNode(xmlNodePtr attributeNode)
     attribute->modifiable = XML::getBoolProperty(attributeNode, "modifiable",
                                                  false);
 
-    const std::string scope = utils::toUpper(
-                XML::getProperty(attributeNode, "scope", std::string()));
+    const QString scope =
+        XML::getProperty(attributeNode, "scope", QString()).toUpper();
 
     bool hasScope = false;
 
-    if (scope.find("CHARACTER") != std::string::npos)
+    if (scope.contains("CHARACTER"))
     {
         mAttributeScopes[CharacterScope].insert(attribute);
         LOG_DEBUG("Attribute manager: attribute '" << id
                   << "' added to default character scope.");
         hasScope = true;
     }
-    if (scope.find("MONSTER") != std::string::npos)
+    if (scope.contains("MONSTER"))
     {
         mAttributeScopes[MonsterScope].insert(attribute);
         LOG_DEBUG("Attribute manager: attribute '" << id
@@ -180,7 +180,7 @@ void AttributeManager::checkStatus()
     LOG_DEBUG("Stackable is " << Stackable << ", NonStackable is " << NonStackable
               << ", NonStackableBonus is " << NonStackableBonus << ".");
     LOG_DEBUG("Additive is " << Additive << ", Multiplicative is " << Multiplicative << ".");
-    const std::string *tag;
+    const QString *tag;
     unsigned count = 0;
     for (auto &attributeIt : mAttributeMap)
     {
@@ -189,7 +189,7 @@ void AttributeManager::checkStatus()
         for (auto &modifierIt : attributeIt.second->modifiers)
         {
             tag = getTag(ModifierLocation(attributeIt.first, lCount));
-            std::string end = tag ? "tag of '" + (*tag) + "'." : "no tag.";
+            QString end = tag ? "tag of '" + (*tag) + "'." : "no tag.";
             LOG_DEBUG("    stackableType: " << modifierIt.stackableType
                       << ", effectType: " << modifierIt.effectType << ", and "
                       << end);
@@ -212,21 +212,21 @@ void AttributeManager::checkStatus()
 void AttributeManager::readModifierNode(xmlNodePtr modifierNode,
                                         int attributeId, AttributeInfo *info)
 {
-    const std::string stackableTypeString = utils::toUpper(
-                XML::getProperty(modifierNode, "stacktype", std::string()));
-    const std::string effectTypeString = utils::toUpper(
-                XML::getProperty(modifierNode, "modtype", std::string()));
-    const std::string tag = XML::getProperty(modifierNode, "tag",
-                                             std::string());
+    const QString stackableTypeString =
+        XML::getProperty(modifierNode, "stacktype", QString()).toUpper();
+    const QString effectTypeString =
+        XML::getProperty(modifierNode, "modtype", QString()).toUpper();
+    const QString tag = XML::getProperty(modifierNode, "tag",
+                                             QString());
 
-    if (stackableTypeString.empty())
+    if (stackableTypeString.isEmpty())
     {
         LOG_WARN("Attribute manager: attribute '" << attributeId <<
                  "' has undefined stackable type, skipping modifier!");
         return;
     }
 
-    if (effectTypeString.empty())
+    if (effectTypeString.isEmpty())
     {
         LOG_WARN("Attribute manager: attribute '" << attributeId
                  << "' has undefined modification type, skipping modifier!");
@@ -274,7 +274,7 @@ void AttributeManager::readModifierNode(xmlNodePtr modifierNode,
     info->modifiers.push_back(
                 AttributeModifier(stackableType, effectType));
 
-    if (!tag.empty())
+    if (!tag.isEmpty())
     {
         const int layer = info->modifiers.size() - 1;
         mTagMap.insert(std::make_pair(tag, ModifierLocation(attributeId,

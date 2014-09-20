@@ -21,7 +21,7 @@
 #ifndef CHATSERVER_GUILD_H
 #define CHATSERVER_GUILD_H
 
-#include <string>
+#include <QString>
 #include <list>
 
 /**
@@ -32,7 +32,7 @@ struct GuildMember
 {
 public:
     int mId;
-    std::string mName;
+    QString mName;
     int mPermissions;
 };
 
@@ -42,7 +42,7 @@ public:
 class Guild
 {
 public:
-    Guild(const std::string &name);
+    Guild(const QString &name);
     ~Guild();
 
     /**
@@ -85,7 +85,7 @@ public:
     /**
      * Returns the name of the guild.
      */
-    std::string getName() const
+    QString getName() const
     { return mName; }
 
     /**
@@ -134,7 +134,7 @@ protected:
 
 private:
     short mId;
-    std::string mName;
+    QString mName;
     std::list<GuildMember*> mMembers;
     std::list<int> mInvited;
 };

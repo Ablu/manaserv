@@ -75,8 +75,8 @@ public:
     /**
      * Completes a server change for given character ID.
      */
-    void completeServerChange(int id, const std::string &token,
-                              const std::string &address, int port);
+    void completeServerChange(int id, const QString &token,
+                              const QString &address, int port);
 
     /**
      * Updates the party id of the character
@@ -87,7 +87,7 @@ public:
      * Registers a character that should soon be claimed by a client.
      * @param token token used by the client when connecting.
      */
-    void addPendingCharacter(const std::string &token, Entity *);
+    void addPendingCharacter(const QString &token, Entity *);
 
     /**
      * Combines a client with its character.
@@ -111,7 +111,7 @@ public:
      * Gets the character associated to a character name. This method is
      * slow, so it should never be called for regular operations.
      */
-    Entity *getCharacterByNameSlow(const std::string &) const;
+    Entity *getCharacterByNameSlow(const QString &) const;
 
 protected:
     NetComputer *computerConnected(ENetPeer *);
@@ -157,7 +157,7 @@ private:
     void handleTriggerEmoticon(GameClient &client, MessageIn &message);
 
     void sendNpcError(GameClient &client, int id,
-                      const std::string &errorMsg);
+                      const QString &errorMsg);
 
     IConfiguration *mConfiguration;
 

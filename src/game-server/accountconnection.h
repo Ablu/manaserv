@@ -51,30 +51,30 @@ public:
     /**
      * Prepares the account server for a reconnecting player
      */
-    void playerReconnectAccount(int id, const std::string &magic_token);
+    void playerReconnectAccount(int id, const QString &magic_token);
 
     /**
      * Requests the value of a character-bound variable from the database.
      */
-    void requestCharacterVar(Entity *, const std::string &);
+    void requestCharacterVar(Entity *, const QString &);
 
     /**
      * Pushes a new character-bound value to the database.
      */
-    void updateCharacterVar(Entity *, const std::string &name,
-                            const std::string &value);
+    void updateCharacterVar(Entity *, const QString &name,
+                            const QString &value);
 
     /**
      * Pushes a new value of a map variable to the account server.
      */
-    void updateMapVar(MapComposite *, const std::string &name,
-                      const std::string &value);
+    void updateMapVar(MapComposite *, const QString &name,
+                      const QString &value);
 
     /**
      * Pushes a new value of a world variable to the account server.
      */
-    void updateWorldVar(const std::string &name,
-                        const std::string &value);
+    void updateWorldVar(const QString &name,
+                        const QString &value);
 
     /**
      * Sends ban message.
@@ -168,7 +168,7 @@ public:
     /**
      * Send transaction to account server
      */
-    void sendTransaction(int id, int action, const std::string &message);
+    void sendTransaction(int id, int action, const QString &message);
 
 protected:
     /**

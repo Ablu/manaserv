@@ -26,9 +26,9 @@
 
 #include <map>
 
-static std::map<int, std::string> maps;
+static std::map<int, QString> maps;
 
-void MapManager::initialize(const std::string &mapReferenceFile)
+void MapManager::initialize(const QString &mapReferenceFile)
 {
     maps.clear();
 
@@ -48,14 +48,14 @@ void MapManager::initialize(const std::string &mapReferenceFile)
             continue;
 
         int id = XML::getProperty(node, "id", 0);
-        std::string name = XML::getProperty(node, "servername", std::string());
+        QString name = XML::getProperty(node, "servername", QString());
 
         if (id > 0)
             maps[id] = name;
     }
 }
 
-std::map<int, std::string> &MapManager::getMaps()
+std::map<int, QString> &MapManager::getMaps()
 {
     return maps;
 }

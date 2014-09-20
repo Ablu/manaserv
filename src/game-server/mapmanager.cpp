@@ -73,7 +73,7 @@ void MapManager::reload()
 void MapManager::readMapNode(xmlNodePtr node)
 {
     int id = XML::getProperty(node, "id", 0);
-    std::string name = XML::getProperty(node, "name", std::string());
+    QString name = XML::getProperty(node, "name", QString());
 
 
     if (id <= 0)
@@ -81,14 +81,14 @@ void MapManager::readMapNode(xmlNodePtr node)
         LOG_WARN("Invalid map Id: " << id << " for map: "
                  << name << '.');
     }
-    else if (name.empty())
+    else if (name.isEmpty())
     {
         LOG_WARN("Invalid unnamed map Id: " << id << '.');
     }
     else
     {
         // Testing if the file is actually in the maps folder
-        std::string file = std::string("maps/") + name + ".tmx";
+        QString file = QString("maps/") + name + ".tmx";
         bool mapFileExists = ResourceManager::exists(file);
 
         // Try to fall back on fully compressed map
@@ -130,7 +130,7 @@ MapComposite *MapManager::getMap(int mapId)
     return (i != maps.end()) ? i->second : nullptr;
 }
 
-MapComposite *MapManager::getMap(const std::string &mapName)
+MapComposite *MapManager::getMap(const QString &mapName)
 {
     for (Maps::const_iterator i = maps.begin(); i != maps.end(); ++i)
         if (i->second->getName() == mapName)

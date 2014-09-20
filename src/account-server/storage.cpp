@@ -81,32 +81,32 @@ Storage::Storage(IConfiguration *configuration)
     : mItemDbVersion(0)
     , mConfiguration(configuration)
 {
-    const std::string &dbBackend = mConfiguration->getValue("db_backend", std::string());
-    const QString &dbDriver = databaseToDriver(QString::fromStdString(dbBackend));
+    const QString &dbBackend = mConfiguration->getValue("db_backend", QString());
+    const QString &dbDriver = databaseToDriver(dbBackend));
 
     if (dbDriver.isEmpty())
     {
-        throw std::string("Unknown db backend");
+        throw QString("Unknown db backend");
     }
 
     mDb = QSqlDatabase::addDatabase(dbDriver);
 
     if (dbBackend == "sqlite")
     {
-        mDb.setDatabaseName(QString::fromStdString(mConfiguration->getValue("sqlite_database", std::string())));
+        mDb.setDatabaseName(mConfiguration->getValue("sqlite_database", QString())));
     }
     else if (dbBackend == "mysql")
     {
-        mDb.setHostName(QString::fromStdString(mConfiguration->getValue("mysql_hostname", std::string())));
+        mDb.setHostName(mConfiguration->getValue("mysql_hostname", QString())));
         mDb.setPort(mConfiguration->getValue("mysql_port", 3306));
-        mDb.setDatabaseName(QString::fromStdString(mConfiguration->getValue("mysql_database", std::string())));
-        mDb.setUserName(QString::fromStdString(mConfiguration->getValue("mysql_username", std::string())));
-        mDb.setPassword(QString::fromStdString(mConfiguration->getValue("mysql_password", std::string())));
+        mDb.setDatabaseName(mConfiguration->getValue("mysql_database", QString())));
+        mDb.setUserName(mConfiguration->getValue("mysql_username", QString())));
+        mDb.setPassword(mConfiguration->getValue("mysql_password", QString())));
     }
 
     if (!mDb.open())
     {
-        throw std::string(mDb.lastError().text().toStdString());
+        throw QString(mDb.lastError().text());
     }
 }
 
@@ -120,8 +120,8 @@ inline void tryExecuteSql(QSqlQuery &query, const QString &sql)
 {
     if (!Q_LIKELY(query.exec(sql)))
     {
-        utils::throwError("Error during execution of sql statement '" + sql.toStdString()
-                          + "': " + query.lastError().text().toStdString());
+        utils::throwError("Error during execution of sql statement '" + sql
+                          + "': " + query.lastError().text());
     }
 }
 
@@ -130,8 +130,8 @@ inline void tryExecutePrepared(QSqlQuery &query)
     if (!Q_LIKELY(query.exec()))
     {
         utils::throwError("Error during execution of prepared sql statement '"
-                          + query.executedQuery().toStdString() + "': "
-                          + query.lastError().text().toStdString());
+                          + query.executedQuery() + "': "
+                          + query.lastError().text());
     }
 }
 
@@ -140,8 +140,8 @@ inline void tryPrepare(QSqlQuery &query, const QString &sql)
     if (!Q_LIKELY(query.prepare(sql)))
     {
         utils::throwError("Error during preparation of sql statement '"
-                          + sql.toStdString() + "': "
-                          + query.lastError().text().toStdString());
+                          + sql + "': "
+                          + query.lastError().text());
     }
 }
 
@@ -197,9 +197,9 @@ Account *Storage::getAccountBySQL(QSqlQuery &query)
     // Create an Account instance
     // and initialize it with information about the user.
     Account *account = new Account(id);
-    account->setName(query.value(1).toString().toStdString());
-    account->setPassword(query.value(2).toString().toStdString());
-    account->setEmail(query.value(3).toString().toStdString());
+    account->setName(query.value(1).toString());
+    account->setPassword(query.value(2).toString());
+    account->setEmail(query.value(3).toString());
     account->setRegistrationDate(query.value(6).toUInt());
     account->setLastLogin(query.value(7).toUInt());
 
@@ -346,7 +346,7 @@ CharacterData *Storage::getCharacterBySQL(QSqlQuery &sqlQuery, Account *owner)
     if (!sqlQuery.next())
         return 0;
 
-    character = new CharacterData(sqlQuery.value(2).toString().toStdString(), sqlQuery.value(0).toInt());
+    character = new CharacterData(sqlQuery.value(2).toString(), sqlQuery.value(0).toInt());
     character->setGender(sqlQuery.value(3).toInt());
     character->setHairStyle(sqlQuery.value(4).toInt());
     character->setHairColor(sqlQuery.value(5).toInt());
@@ -460,8 +460,8 @@ CharacterData *Storage::getCharacterBySQL(QSqlQuery &sqlQuery, Account *owner)
             QuestInfo quest;
             quest.id = query.value(0).toUInt();
             quest.state = query.value(1).toUInt();
-            quest.title = query.value(2).toString().toStdString();
-            quest.description = query.value(3).toString().toStdString();
+            quest.title = query.value(2).toString();
+            quest.description = query.value(3).toString();
             character->addQuest(quest);
             query.next();
         }
@@ -504,21 +504,21 @@ CharacterData *Storage::getCharacter(int id, Account *owner)
     return getCharacterBySQL(query, owner);
 }
 
-CharacterData *Storage::getCharacter(const std::string &name)
+CharacterData *Storage::getCharacter(const QString &name)
 {
     QString sql = "SELECT * FROM " + CHARACTERS_TBL_NAME + " WHERE name = :name";
     QSqlQuery query(mDb);
     tryPrepare(query, sql);
-    query.bindValue(":name", QString::fromStdString(name));
+    query.bindValue(":name", name));
     return getCharacterBySQL(query, 0);
 }
 
-unsigned Storage::getCharacterId(const std::string &name)
+unsigned Storage::getCharacterId(const QString &name)
 {
     QString sql = "SELECT id FROM " + CHARACTERS_TBL_NAME + " WHERE name = :name";
     QSqlQuery query(mDb);
     tryPrepare(query, sql);
-    query.bindValue(":name", QString::fromStdString(name));
+    query.bindValue(":name", name));
     tryExecutePrepared(query);
 
     if (!query.next())
@@ -527,38 +527,38 @@ unsigned Storage::getCharacterId(const std::string &name)
     return query.value(0).toUInt();
 }
 
-bool Storage::doesUserNameExist(const std::string &name)
+bool Storage::doesUserNameExist(const QString &name)
 {
     QString sql = "SELECT COUNT(username) FROM " + ACCOUNTS_TBL_NAME
             + " WHERE username = :username";
     QSqlQuery query(mDb);
 
     tryPrepare(query, sql);
-    query.bindValue(":username", QString::fromStdString(name));
+    query.bindValue(":username", name));
     tryExecutePrepared(query);
     query.next();
     return query.value(0).toInt();
 }
 
-bool Storage::doesEmailAddressExist(const std::string &email)
+bool Storage::doesEmailAddressExist(const QString &email)
 {
     QString sql = "SELECT COUNT(email) FROM " + ACCOUNTS_TBL_NAME
             + " WHERE UPPER(email) = UPPER(:email)";
     QSqlQuery query(mDb);
     tryPrepare(query, sql);
-    query.bindValue(":email", QString::fromStdString(email));
+    query.bindValue(":email", email));
     tryExecutePrepared(query);
     query.next();
     return query.value(0).toInt() != 0;
 }
 
-bool Storage::doesCharacterNameExist(const std::string& name)
+bool Storage::doesCharacterNameExist(const QString& name)
 {
     QString sql = "SELECT COUNT(name) FROM " + CHARACTERS_TBL_NAME
             + " WHERE name = :name";
     QSqlQuery query(mDb);
     tryPrepare(query, sql);
-    query.bindValue(":name", QString::fromStdString(name));
+    query.bindValue(":name", name));
     tryExecutePrepared(query);
     query.next();
 
@@ -653,8 +653,8 @@ void Storage::updateCharacter(CharacterData *character)
                     + ")";
             QSqlQuery query(mDb);
             tryPrepare(query, insertSql);
-            query.bindValue(":title", QString::fromStdString(quest.title));
-            query.bindValue(":description", QString::fromStdString(quest.description));
+            query.bindValue(":title", quest.title));
+            query.bindValue(":description", quest.description));
 
             tryExecutePrepared(query);
         }
@@ -728,9 +728,9 @@ void Storage::addAccount(Account *account)
             + QString::number(account->getLastLogin()) + ");";
     QSqlQuery query(mDb);
     tryPrepare(query, sql);
-    query.bindValue(":name", QString::fromStdString(account->getName()));
-    query.bindValue(":password", QString::fromStdString(account->getPassword()));
-    query.bindValue(":email", QString::fromStdString(account->getEmail()));
+    query.bindValue(":name", account->getName()));
+    query.bindValue(":password", account->getPassword()));
+    query.bindValue(":email", account->getEmail()));
 
     tryExecutePrepared(query);
     account->setID(query.lastInsertId().toInt());
@@ -751,9 +751,9 @@ void Storage::flush(Account *account)
 
         QSqlQuery query(mDb);
         tryPrepare(query, sqlUpdateAccountTable);
-        query.bindValue(":username", QString::fromStdString(account->getName()));
-        query.bindValue(":password", QString::fromStdString(account->getPassword()));
-        query.bindValue(":email", QString::fromStdString(account->getEmail()));
+        query.bindValue(":username", account->getName()));
+        query.bindValue(":password", account->getPassword()));
+        query.bindValue(":email", account->getEmail()));
         query.bindValue(":level", account->getLevel());
         query.bindValue(":lastlogin", QVariant::fromValue(account->getLastLogin()));
         query.bindValue(":id", account->getID());
@@ -797,7 +797,7 @@ void Storage::flush(Account *account)
 
             QSqlQuery query(mDb);
             tryPrepare(query, sqlInsertCharactersTable);
-            query.bindValue(":charname", QString::fromStdString(character->getName()));
+            query.bindValue(":charname", character->getName()));
             tryExecutePrepared(query);
 
             // Update the character ID.
@@ -833,7 +833,7 @@ void Storage::flush(Account *account)
             for (Characters::const_iterator it = characters.begin(),
                  it_end = characters.end(); it != it_end; ++it) // In memory
             {
-                if (query.value(0).toString().toStdString() == (*it).second->getName())
+                if (query.value(0).toString() == (*it).second->getName())
                 {
                     charFound = true;
                     break;
@@ -956,7 +956,7 @@ void Storage::addGuild(Guild *guild)
                 + " (name) VALUES (:name)";
         QSqlQuery query(mDb);
         tryPrepare(query, sql);
-        query.bindValue(":name", QString::fromStdString(guild->getName()));
+        query.bindValue(":name", guild->getName()));
         tryExecutePrepared(query);
 
     }
@@ -965,7 +965,7 @@ void Storage::addGuild(Guild *guild)
                 + " WHERE name = :name";
         QSqlQuery query(mDb);
         tryPrepare(query, sql);
-        query.bindValue(":name", QString::fromStdString(guild->getName()));
+        query.bindValue(":name", guild->getName()));
         tryExecutePrepared(query);
         query.next();
 
@@ -1075,7 +1075,7 @@ std::map<int, Guild*> Storage::getGuildList()
     // Loop through every row in the table and assign it to a guild
     while (query.next())
     {
-        Guild *guild = new Guild(query.value(1).toString().toStdString());
+        Guild *guild = new Guild(query.value(1).toString());
         guild->setId(query.value(0).toInt());
         guilds[guild->getId()] = guild;
     }
@@ -1112,22 +1112,22 @@ std::map<int, Guild*> Storage::getGuildList()
     return guilds;
 }
 
-std::string Storage::getQuestVar(int id, const std::string &name)
+QString Storage::getQuestVar(int id, const QString &name)
 {
     QString sql = "select value from " + QUESTS_TBL_NAME
             + " WHERE owner_id = :ownerid AND name = :name";
     QSqlQuery query(mDb);
     tryPrepare(query, sql);
     query.bindValue(":ownerid", id);
-    query.bindValue(":name", QString::fromStdString(name));
+    query.bindValue(":name", name));
     tryExecutePrepared(query);
 
     if (query.next())
-        return query.value(0).toString().toStdString();
-    return std::string();
+        return query.value(0).toString();
+    return QString();
 }
 
-std::string Storage::getWorldStateVar(const std::string &name, int mapId)
+QString Storage::getWorldStateVar(const QString &name, int mapId)
 {
     QString sql = "SELECT value FROM "
             + WORLD_STATES_TBL_NAME
@@ -1138,21 +1138,21 @@ std::string Storage::getWorldStateVar(const std::string &name, int mapId)
 
     QSqlQuery query(mDb);
     tryPrepare(query, sql);
-    query.bindValue(":key", QString::fromStdString(name));
+    query.bindValue(":key", name));
     query.bindValue(":mapId", mapId);
 
     tryExecutePrepared(query);
     if (query.next())
     {
-        return query.value(0).toString().toStdString();
+        return query.value(0).toString();
     }
 
-    return std::string();
+    return QString();
 }
 
-std::map<std::string, std::string> Storage::getAllWorldStateVars(int mapId)
+std::map<QString, QString> Storage::getAllWorldStateVars(int mapId)
 {
-    std::map<std::string, std::string> variables;
+    std::map<QString, QString> variables;
 
     // Avoid a crash because prepared statements must have at least one binding.
     if (mapId < 0)
@@ -1177,21 +1177,21 @@ std::map<std::string, std::string> Storage::getAllWorldStateVars(int mapId)
 
     while(query.next())
     {
-        variables[query.value(0).toString().toStdString()] = query.value(1).toString().toStdString();
+        variables[query.value(0).toString()] = query.value(1).toString();
     }
 
     return variables;
 }
 
-void Storage::setWorldStateVar(const std::string &name,
-                               const std::string &value,
+void Storage::setWorldStateVar(const QString &name,
+                               const QString &value,
                                int mapId)
 {
     // Set the value to empty means: delete the variable
     if (value.empty())
     {
         QString deleteStateVar = "DELETE FROM " + WORLD_STATES_TBL_NAME
-                + " WHERE state_name = '" + QString::fromStdString(name) + "'"
+                + " WHERE state_name = '" + name) + "'"
                 + " AND map_id = '" + QString::number(mapId) + "';";
         mDb.exec(deleteStateVar);
         return;
@@ -1199,9 +1199,9 @@ void Storage::setWorldStateVar(const std::string &name,
 
     // Try to update the variable in the database
     QString updateStateVar = "UPDATE " + WORLD_STATES_TBL_NAME
-            + "   SET value = '" + QString::fromStdString(value) + "', "
+            + "   SET value = '" + value) + "', "
             + "       moddate = '" + QString::number(time(0)) + "' "
-            + " WHERE state_name = '" + QString::fromStdString(name) + "'"
+            + " WHERE state_name = '" + name) + "'"
             + " AND map_id = '" + QString::number(mapId) + "';";
     QSqlQuery query(mDb);
     tryExecuteSql(query, updateStateVar);
@@ -1213,21 +1213,21 @@ void Storage::setWorldStateVar(const std::string &name,
     // Otherwise we have to add the new variable
     QString insertStateVar = "INSERT INTO " + WORLD_STATES_TBL_NAME
             + " (state_name, map_id, value , moddate) VALUES ("
-            + "'" + QString::fromStdString(name) + "', "
+            + "'" + name) + "', "
             + "'" + QString::number(mapId) + "', "
-            + "'" + QString::fromStdString(value) + "', "
+            + "'" + value) + "', "
             + "'" + QString::number(time(0)) + "');";
     mDb.exec(insertStateVar);
 }
 
-void Storage::setQuestVar(int id, const std::string &name,
-                          const std::string &value)
+void Storage::setQuestVar(int id, const QString &name,
+                          const QString &value)
 {
     QString query1 = "delete from " + QUESTS_TBL_NAME
             + " where owner_id = '" + QString::number(id) + "' and name = :name;";
     QSqlQuery query(mDb);
     tryPrepare(query, query1);
-    query.bindValue(":name", QString::fromStdString(name));
+    query.bindValue(":name", name));
     tryExecutePrepared(query);
 
     if (value.empty())
@@ -1238,8 +1238,8 @@ void Storage::setQuestVar(int id, const std::string &name,
             + QString::number(id) + "', :name, :value);";
     QSqlQuery insertQuery(mDb);
     tryPrepare(insertQuery, query2);
-    insertQuery.bindValue(":name", QString::fromStdString(name));
-    insertQuery.bindValue(":value", QString::fromStdString(value));
+    insertQuery.bindValue(":name", name));
+    insertQuery.bindValue(":value", value));
     tryExecutePrepared(insertQuery);
 }
 
@@ -1343,7 +1343,7 @@ void Storage::storeLetter(Letter *letter)
                 + ":content)";
         QSqlQuery query(mDb);
         tryPrepare(query, sql);
-        query.bindValue(":content", QString::fromStdString(letter->getContents()));
+        query.bindValue(":content", letter->getContents()));
         tryExecutePrepared(query);
 
         letter->setId(query.lastInsertId().toUInt());
@@ -1368,7 +1368,7 @@ void Storage::storeLetter(Letter *letter)
 
         QSqlQuery query(mDb);
         tryPrepare(query, sql);
-        query.bindValue(":content", QString::fromStdString(letter->getContents()));
+        query.bindValue(":content", letter->getContents()));
 
         tryExecutePrepared(query);
 
@@ -1400,7 +1400,7 @@ Post *Storage::getStoredPost(int playerId)
 
         letter->setId(query.value(0).toUInt());
         letter->setExpiry(query.value(4).toUInt());
-        letter->addText(query.value(6).toString().toStdString());
+        letter->addText(query.value(6).toString());
 
         // TODO: Load attachments per letter from POST_ATTACHMENTS_TBL_NAME
         // needs redesign of struct ItemInventroy
@@ -1466,7 +1466,7 @@ void Storage::addTransaction(const Transaction &trans)
             + QString::number(time(0)) + ")";
     QSqlQuery query(mDb);
     tryPrepare(query, sql);
-    query.bindValue(":message", QString::fromStdString(trans.mMessage));
+    query.bindValue(":message", trans.mMessage));
     tryExecutePrepared(query);
 }
 
@@ -1484,7 +1484,7 @@ std::vector<Transaction> Storage::getTransactions(unsigned num)
         Transaction trans;
         trans.mCharacterId = query.value(1).toUInt();
         trans.mAction = query.value(2).toUInt();
-        trans.mMessage = query.value(3).toString().toStdString();
+        trans.mMessage = query.value(3).toString();
         transactions.push_back(trans);
     }
 
@@ -1505,7 +1505,7 @@ std::vector<Transaction> Storage::getTransactions(time_t date)
         Transaction trans;
         trans.mCharacterId = query.value(1).toUInt();
         trans.mAction = query.value(2).toUInt();
-        trans.mMessage = query.value(3).toString().toStdString();
+        trans.mMessage = query.value(3).toString();
         transactions.push_back(trans);
     }
 

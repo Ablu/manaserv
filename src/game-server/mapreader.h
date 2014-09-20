@@ -22,7 +22,7 @@
 #ifndef _MAPREADER_H
 #define _MAPREADER_H
 
-#include <string>
+#include <QString>
 #include <vector>
 
 #include <libxml/tree.h>
@@ -39,7 +39,7 @@ public:
      * Read an XML map from a file.
      * @return the map when successful, 0 otherwise.
      */
-    static Map *readMap(const std::string &filename);
+    static Map *readMap(const QString &filename);
 
 private:
     /**
@@ -55,8 +55,8 @@ private:
     /**
      * Get the string value from the given object property node.
      */
-    static std::string getObjectProperty(xmlNodePtr node,
-                                         const std::string &def);
+    static QString getObjectProperty(xmlNodePtr node,
+                                         const QString &def);
 
     /**
      * Get the integer value from the given object property node.

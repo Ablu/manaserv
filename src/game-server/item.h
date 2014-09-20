@@ -116,8 +116,8 @@ class ItemEffectScript : public ItemEffectInfo
 {
 public:
     ItemEffectScript(ItemClass *itemClass,
-                     const std::string &activateEventName,
-                     const std::string &dispellEventName):
+                     const QString &activateEventName,
+                     const QString &dispellEventName):
         mItemClass(itemClass),
         mActivateEventName(activateEventName),
         mDispellEventName(dispellEventName)
@@ -130,8 +130,8 @@ public:
 
 private:
     ItemClass *mItemClass;
-    std::string mActivateEventName;
-    std::string mDispellEventName;
+    QString mActivateEventName;
+    QString mDispellEventName;
 };
 
 
@@ -154,13 +154,13 @@ public:
     /**
      * Returns the name of the item type
      */
-    const std::string &getName() const
+    const QString &getName() const
     { return mName; }
 
     /**
      * Sets the name of the item type
      */
-    void setName(const std::string &name)
+    void setName(const QString &name)
     { mName = name; }
 
     /**
@@ -205,10 +205,10 @@ public:
     const ItemEquipRequirement &getItemEquipRequirement() const
     { return mEquipReq; }
 
-    void setEventCallback(const std::string &event, Script *script)
+    void setEventCallback(const QString &event, Script *script)
     { script->assignCallback(mEventCallbacks[event]); }
 
-    Script::Ref getEventCallback(const std::string &event) const
+    Script::Ref getEventCallback(const QString &event) const
     { return mEventCallbacks.value(event); }
 
 private:
@@ -225,7 +225,7 @@ private:
                    ItemTriggerType dispell = ITT_NULL);
 
     unsigned short mDatabaseID; /**< Item reference information */
-    std::string mName; /**< name used to identify the item class */
+    QString mName; /**< name used to identify the item class */
     /** The sprite that should be shown to the character */
     unsigned short mSpriteID;
     unsigned short mCost;     /**< Unit cost the item. */

@@ -25,9 +25,9 @@
 #include "chat-server/chatclient.h"
 
 ChatChannel::ChatChannel(int id,
-                         const std::string &name,
-                         const std::string &announcement,
-                         const std::string &password,
+                         const QString &name,
+                         const QString &announcement,
+                         const QString &password,
                          bool joinable):
     mId(id),
     mName(name),
@@ -75,7 +75,7 @@ bool ChatChannel::removeUser(ChatClient *user)
     mRegisteredUsers.erase(i);
     std::vector< ChatChannel * > &channels = user->channels;
     channels.erase(std::find(channels.begin(), channels.end(), this));
-    std::map<ChatChannel*,std::string> &modes = user->userModes;
+    std::map<ChatChannel*,QString> &modes = user->userModes;
     modes.erase(modes.begin(), modes.end());
     return true;
 }
@@ -87,7 +87,7 @@ void ChatChannel::removeAllUsers()
     {
         std::vector< ChatChannel * > &channels = (*i)->channels;
         channels.erase(std::find(channels.begin(), channels.end(), this));
-        std::map<ChatChannel*,std::string> &modes = (*i)->userModes;
+        std::map<ChatChannel*,QString> &modes = (*i)->userModes;
         modes.erase(modes.begin(), modes.end());
     }
     mRegisteredUsers.clear();
@@ -100,21 +100,20 @@ bool ChatChannel::canJoin() const
 
 void ChatChannel::setUserMode(ChatClient *user, unsigned char mode)
 {
-    std::map<ChatChannel*, std::string>::iterator itr = user->userModes.find(this);
+    std::map<ChatChannel*, QString>::iterator itr = user->userModes.find(this);
     if (itr != user->userModes.end())
     {
         itr->second += mode;
     }
     else
     {
-        std::stringstream ss; ss << mode;
-        user->userModes.insert(std::pair<ChatChannel*, std::string>(this, ss.str()));
+        user->userModes.insert(std::pair<ChatChannel*, QString>(this, QString::number(mode)));
     }
 }
 
-std::string ChatChannel::getUserMode(ChatClient *user) const
+QString ChatChannel::getUserMode(ChatClient *user) const
 {
-    std::map<ChatChannel*, std::string>::const_iterator itr =
+    std::map<ChatChannel*, QString>::const_iterator itr =
             user->userModes.find(const_cast<ChatChannel*>(this));
 
     if (itr != user->userModes.end())

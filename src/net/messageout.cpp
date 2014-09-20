@@ -29,7 +29,7 @@
 #include <sstream>
 #endif
 #include <stdint.h>
-#include <string>
+#include <QString>
 #include <enet/enet.h>
 
 /** Initial amount of bytes allocated for the messageout data buffer. */
@@ -123,11 +123,11 @@ void MessageOut::writeDouble(double value)
     o << value;
     std::string str = o.str();
     writeInt8(str.size());
-    writeString(str, str.size());
+    writeString(QString::fromStdString(str), str.size());
 #endif
 }
 
-void MessageOut::writeString(const std::string &string, int length)
+void MessageOut::writeString(const QString &string, int length)
 {
     if (mDebugMode)
     {
@@ -167,18 +167,16 @@ void MessageOut::writeValueType(ManaServ::ValueType type)
     mPos += 1;
 }
 
-std::ostream&
-operator <<(std::ostream &os, const MessageOut &msg)
+QTextStream &operator<<(QTextStream &os, const MessageOut &msg)
 {
-    if (msg.getLength() >= 2)
-    {
+    if (msg.getLength() >= 2) {
         MessageIn m(msg.mData, msg.mPos);
         os << m;
     }
     else
     {
-        os << "Unknown"
-           << std::dec << " (" << msg.getLength() << " B)";
+        os.setIntegerBase(10);
+        os << "Unknown" << " (" << msg.getLength() << " B)";
     }
     return os;
 }

@@ -23,7 +23,7 @@
 
 #include "common/manaserv_protocol.h"
 
-#include <iosfwd>
+#include <QTextStream>
 
 /**
  * Used for parsing an incoming message.
@@ -64,7 +64,7 @@ public:
      * that the length of the string is stored in a short at the
      * start of the string.
      */
-    std::string readString(int length = -1);
+    QString readString(int length = -1);
 
     /**
      * Returns the length of unread data.
@@ -91,8 +91,7 @@ private:
      * When the message includes debugging information, prints out
      * the message contents instead of the length.
      */
-    friend std::ostream& operator <<(std::ostream &os,
-                                     const MessageIn &msg);
+    friend QTextStream &operator <<(QTextStream &os, const MessageIn &msg);
 };
 
 #endif

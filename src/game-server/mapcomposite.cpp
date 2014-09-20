@@ -596,7 +596,7 @@ Script::Ref MapComposite::mInitializeCallback;
 Script::Ref MapComposite::mUpdateCallback;
 
 MapComposite::MapComposite(int id,
-                           const std::string &name,
+                           const QString &name,
                            IConfiguration *configuration):
     mConfiguration(configuration),
     mActive(false),
@@ -616,7 +616,7 @@ MapComposite::~MapComposite()
 
 bool MapComposite::readMap()
 {
-    std::string file = "maps/" + mName + ".tmx";
+    QString file = "maps/" + mName + ".tmx";
 
     mMap = MapReader::readMap(file);
     return mMap;
@@ -631,9 +631,9 @@ bool MapComposite::activate()
 
     initializeContent();
 
-    std::string sPvP = mMap->getProperty("pvp");
-    if (sPvP.empty())
-        sPvP = mConfiguration->getValue("game_defaultPvp", std::string());
+    QString sPvP = mMap->getProperty("pvp");
+    if (sPvP.isEmpty())
+        sPvP = mConfiguration->getValue("game_defaultPvp", QString());
 
     if (sPvP == "free")
         mPvPRules = PVP_FREE;
@@ -811,19 +811,19 @@ const std::vector< Entity * > &MapComposite::getEverything() const
 }
 
 
-std::string MapComposite::getVariable(const std::string &key) const
+QString MapComposite::getVariable(const QString &key) const
 {
-    std::map<std::string, std::string>::const_iterator i = mScriptVariables.find(key);
+    std::map<QString, QString>::const_iterator i = mScriptVariables.find(key);
     if (i != mScriptVariables.end())
         return i->second;
     else
-        return std::string();
+        return QString();
 }
 
-void MapComposite::setVariable(const std::string &key, const std::string &value)
+void MapComposite::setVariable(const QString &key, const QString &value)
 {
     // check if the value actually changed
-    std::map<std::string, std::string>::iterator i = mScriptVariables.find(key);
+    std::map<QString, QString>::iterator i = mScriptVariables.find(key);
     if (i == mScriptVariables.end() || i->second != value)
     {
         // changed value or unknown variable
@@ -834,8 +834,8 @@ void MapComposite::setVariable(const std::string &key, const std::string &value)
     }
 }
 
-static void callVariableCallback(Script::Ref &function, const std::string &key,
-                                 const std::string &value, MapComposite *map)
+static void callVariableCallback(Script::Ref &function, const QString &key,
+                                 const QString &value, MapComposite *map)
 {
     if (function.isValid())
     {
@@ -847,20 +847,20 @@ static void callVariableCallback(Script::Ref &function, const std::string &key,
     }
 }
 
-void MapComposite::callMapVariableCallback(const std::string &key,
-                                           const std::string &value)
+void MapComposite::callMapVariableCallback(const QString &key,
+                                           const QString &value)
 {
-    std::map<const std::string, Script::Ref>::iterator it =
+    std::map<const QString, Script::Ref>::iterator it =
             mMapVariableCallbacks.find(key);
     if (it == mMapVariableCallbacks.end())
         return;
     callVariableCallback(it->second, key, value, this);
 }
 
-void MapComposite::callWorldVariableCallback(const std::string &key,
-                                             const std::string &value)
+void MapComposite::callWorldVariableCallback(const QString &key,
+                                             const QString &value)
 {
-    std::map<const std::string, Script::Ref>::iterator it =
+    std::map<const QString, Script::Ref>::iterator it =
             mWorldVariableCallbacks.find(key);
     if (it == mWorldVariableCallbacks.end())
         return;
@@ -871,8 +871,8 @@ void MapComposite::callWorldVariableCallback(const std::string &key,
  * Finds a map object by its name and type.
  * Name and type are case insensitive.
  */
-const MapObject *MapComposite::findMapObject(const std::string &name,
-                                             const std::string &type) const
+const MapObject *MapComposite::findMapObject(const QString &name,
+                                             const QString &type) const
 {
     const std::vector<MapObject *> &destObjects = mMap->getObjects();
     std::vector<MapObject *>::const_iterator it, it_end;
@@ -880,8 +880,8 @@ const MapObject *MapComposite::findMapObject(const std::string &name,
          it != it_end; ++it)
     {
         const MapObject *obj = *it;
-        if (utils::compareStrI(obj->getType(), type) == 0 &&
-            utils::compareStrI(obj->getName(), name) == 0)
+        if (obj->getType().compare(type, Qt::CaseInsensitive) == 0 &&
+            obj->getName().compare(name, Qt::CaseInsensitive)  == 0)
         {
             return obj;
         }
@@ -902,18 +902,18 @@ void MapComposite::initializeContent()
     for (size_t i = 0; i < objects.size(); ++i)
     {
         const MapObject *object = objects.at(i);
-        const std::string &type = object->getType();
+        const QString &type = object->getType();
 
-        if (utils::compareStrI(type, "WARP") == 0)
+        if (type.compare("WARP", Qt::CaseInsensitive) == 0)
         {
-            const std::string destMapName = object->getProperty("DEST_MAP");
+            const QString destMapName = object->getProperty("DEST_MAP");
             const Rectangle &sourceBounds = object->getBounds();
             MapComposite *destMap = MapManager::getMap(destMapName);
 
             // check destination map
             if (!destMap)
             {
-                if (destMapName.empty())
+                if (destMapName.isEmpty())
                 {
                     // this must be a one way warp target
                     continue;
@@ -930,7 +930,7 @@ void MapComposite::initializeContent()
             {
                 // warp to an object
                 // get destination object name
-                const std::string destMapObjectName = object->getProperty("DEST_NAME");
+                const QString destMapObjectName = object->getProperty("DEST_NAME");
                 // get target object and validate it
                 const MapObject *destination = destMap->findMapObject(destMapObjectName, "WARP");
                 if (!destination)
@@ -943,9 +943,9 @@ void MapComposite::initializeContent()
 
                 const Rectangle &destinationBounds = destination->getBounds();
 
-                const std::string &exit = destination->getProperty("EXIT_DIRECTION");
+                const QString &exit = destination->getProperty("EXIT_DIRECTION");
 
-                if (exit.empty()) {
+                if (exit.isEmpty()) {
                     // old style WARP, warp to center of that object
                     int destX = destinationBounds.x + destinationBounds.w / 2;
                     int destY = destinationBounds.y + destinationBounds.h / 2;
@@ -958,26 +958,26 @@ void MapComposite::initializeContent()
                     AutowarpAction::ExitDirection exitDir;
 
                     // find the exit direction
-                    if (utils::compareStrI(exit, "NORTH") == 0)
+                    if (exit.compare("NORTH", Qt::CaseInsensitive) == 0)
                     {
                         exitDir = AutowarpAction::ExitNorth;
                     }
-                    else if (utils::compareStrI(exit, "EAST") == 0)
+                    else if (exit.compare("EASY", Qt::CaseInsensitive) == 0)
                     {
                         exitDir = AutowarpAction::ExitEast;
                     }
-                    else if (utils::compareStrI(exit, "SOUTH") == 0)
+                    else if (exit.compare("SOUTH", Qt::CaseInsensitive) == 0)
                     {
                         exitDir = AutowarpAction::ExitSouth;
                     }
-                    else if (utils::compareStrI(exit, "WEST") == 0)
+                    else if (exit.compare("WEST", Qt::CaseInsensitive) == 0)
                     {
                         exitDir = AutowarpAction::ExitWest;
                     }
                     else
                     {
                         // invalid or missing exit direction
-                        if (exit.empty())
+                        if (exit.isEmpty())
                         {
                             LOG_ERROR("Warp target \"" << destMapObjectName << "\" on map "
                                     << destMap->getName()
@@ -1001,8 +1001,8 @@ void MapComposite::initializeContent()
             else if (object->hasProperty("DEST_X") && object->hasProperty("DEST_Y"))
             {
                 // warp to absolute position
-                int destX = utils::stringToInt(object->getProperty("DEST_X"));
-                int destY = utils::stringToInt(object->getProperty("DEST_Y"));
+                int destX = object->getProperty("DEST_X").toInt();
+                int destY = object->getProperty("DEST_Y").toInt();
 
                 action = new WarpAction(destMap, Point(destX, destY));
             }
@@ -1025,13 +1025,13 @@ void MapComposite::initializeContent()
                      );
             insert(entity);
         }
-        else if (utils::compareStrI(type, "SPAWN") == 0)
+        else if (type.compare("SPAWN", Qt::CaseInsensitive) == 0)
         {
             MonsterClass *monster = 0;
-            int maxBeings = utils::stringToInt(object->getProperty("MAX_BEINGS"));
-            int spawnRate = utils::stringToInt(object->getProperty("SPAWN_RATE"));
-            std::string monsterName = object->getProperty("MONSTER_ID");
-            int monsterId = utils::stringToInt(monsterName);
+            int maxBeings = object->getProperty("MAX_BEINGS").toInt();
+            int spawnRate = object->getProperty("SPAWN_RATE").toInt();
+            QString monsterName = object->getProperty("MONSTER_ID");
+            int monsterId = monsterName.toInt();
 
             if (monsterId)
             {
@@ -1063,42 +1063,42 @@ void MapComposite::initializeContent()
                 insert(entity);
             }
         }
-        else if (utils::compareStrI(type, "NPC") == 0)
+        else if (type.compare("NPC", Qt::CaseInsensitive) == 0)
         {
-            int npcId = utils::stringToInt(object->getProperty("NPC_ID"));
-            std::string gender = object->getProperty("GENDER");
-            std::string scriptText = object->getProperty("SCRIPT");
+            int npcId = object->getProperty("NPC_ID").toInt();
+            QString gender = object->getProperty("GENDER");
+            QString scriptText = object->getProperty("SCRIPT");
 
-            if (npcId && !scriptText.empty())
+            if (npcId && !scriptText.isEmpty())
             {
                 Script *script = ScriptManager::currentState();
                 script->loadNPC(object->getName(), npcId,
                                 ManaServ::getGender(gender),
                                 object->getX(), object->getY(),
-                                scriptText.c_str(), this);
+                                scriptText, this);
             }
             else
             {
                 LOG_WARN("Unrecognized format for npc");
             }
         }
-        else if (utils::compareStrI(type, "SCRIPT") == 0)
+        else if (type.compare("SCRIPT", Qt::CaseInsensitive) == 0)
         {
-            std::string scriptFilename = object->getProperty("FILENAME");
-            std::string scriptText = object->getProperty("TEXT");
+            QString scriptFilename = object->getProperty("FILENAME");
+            QString scriptText = object->getProperty("TEXT");
 
             Script *script = ScriptManager::currentState();
             Script::Context context;
             context.map = this;
 
-            if (!scriptFilename.empty())
+            if (!scriptFilename.isEmpty())
             {
                 script->loadFile(scriptFilename, context);
             }
-            else if (!scriptText.empty())
+            else if (!scriptText.isEmpty())
             {
-                std::string name = "'" + object->getName() + "'' in " + mName;
-                script->load(scriptText.c_str(), name.c_str(), context);
+                QString name = "'" + object->getName() + "'' in " + mName;
+                script->load(scriptText, name.toStdString().c_str(), context);
             }
             else
             {

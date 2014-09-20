@@ -122,7 +122,7 @@ static void initializeServer()
     signal(SIGTERM, closeGracefully);
 
 
-    std::string logFile = configuration->getValue("log_gameServerFile",
+    QString logFile = configuration->getValue("log_gameServerFile",
                                                  DEFAULT_LOG_FILE);
 
     Item::initialize(configuration);
@@ -147,7 +147,7 @@ static void initializeServer()
     PermissionManager::initialize(DEFAULT_PERMISSION_FILE);
 
 
-    std::string mainScript = configuration->getValue("script_mainFile",
+    QString mainScript = configuration->getValue("script_mainFile",
                                                      DEFAULT_MAIN_SCRIPT_FILE);
     ScriptManager::loadMainScript(mainScript);
 
@@ -239,7 +239,7 @@ struct CommandLineOptions
         portChanged(false)
     {}
 
-    std::string configPath;
+    QString configPath;
 
     Logger::Level verbosity;
     bool verbosityChanged;
@@ -314,7 +314,7 @@ int main(int argc, char *argv[])
     }
 
     // Check inter-server password.
-    if (configuration->getValue("net_password", std::string()).empty())
+    if (configuration->getValue("net_password", QString()).isEmpty())
     {
         LOG_FATAL("SECURITY WARNING: 'net_password' not set!");
         exit(EXIT_BAD_CONFIG_PARAMETER);

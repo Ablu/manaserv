@@ -44,7 +44,7 @@ public:
 
     ~LuaScript();
 
-    void load(const char *prog, const char *name,
+    void load(const QString &prog, const QString &name,
               const Context &context = Context());
 
     Thread *newThread();
@@ -54,7 +54,7 @@ public:
     void prepareResume(Thread *thread);
 
     void push(int);
-    void push(const std::string &);
+    void push(const QString &);
     void push(Entity *);
     void push(const std::list<InventoryItem> &itemList);
     void push(AttributeInfo *);
@@ -68,12 +68,12 @@ public:
     void unref(Ref &ref);
 
     static void getQuestCallback(Entity *,
-                                 const std::string &value,
+                                 const QString &value,
                                  Script *);
 
     static void getPostCallback(Entity *,
-                                const std::string &sender,
-                                const std::string &letter,
+                                const QString &sender,
+                                const QString &letter,
                                 Script *);
 
     void processDeathEvent(Entity *entity);

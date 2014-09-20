@@ -21,7 +21,7 @@
 #ifndef CHATCHANNEL_H
 #define CHATCHANNEL_H
 
-#include <string>
+#include <QString>
 #include <vector>
 
 class ChatClient;
@@ -51,9 +51,9 @@ public:
      * @param privacy      whether this channel is private.
      */
     ChatChannel(int id,
-                const std::string &name,
-                const std::string &announcement = std::string(),
-                const std::string &password = std::string(),
+                const QString &name,
+                const QString &announcement = QString(),
+                const QString &password = QString(),
                 bool joinable = true);
 
     /**
@@ -65,37 +65,37 @@ public:
     /**
      * Get the name of the channel.
      */
-    const std::string &getName() const
+    const QString &getName() const
     { return mName; }
 
     /**
      * Get the announcement string of the channel.
      */
-    const std::string &getAnnouncement() const
+    const QString &getAnnouncement() const
     { return mAnnouncement; }
 
     /**
      * Get the password of the channel.
      */
-    const std::string& getPassword() const
+    const QString& getPassword() const
     { return mPassword; }
 
     /**
      * Sets the name of the channel.
      */
-    void setName(const std::string &channelName)
+    void setName(const QString &channelName)
     { mName = channelName; }
 
     /**
      * Sets the announcement string of the channel.
      */
-    void setAnnouncement(const std::string &channelAnnouncement)
+    void setAnnouncement(const QString &channelAnnouncement)
     { mAnnouncement = channelAnnouncement; }
 
     /**
      * Sets the password of the channel.
      */
-    void setPassword(const std::string &channelPassword)
+    void setPassword(const QString &channelPassword)
     { mPassword = channelPassword; }
 
     /**
@@ -136,16 +136,16 @@ public:
     /**
      * Get user mode
      */
-    std::string getUserMode(ChatClient *) const;
+    QString getUserMode(ChatClient *) const;
 
 private:
     unsigned short mId;            /**< The ID of the channel. */
-    std::string mName;             /**< The name of the channel. */
-    std::string mAnnouncement;     /**< Welcome message. */
-    std::string mPassword;         /**< The channel password. */
+    QString mName;             /**< The name of the channel. */
+    QString mAnnouncement;     /**< Welcome message. */
+    QString mPassword;         /**< The channel password. */
     bool mJoinable;                /**< Whether anyone can join. */
     ChannelUsers mRegisteredUsers; /**< Users in this channel. */
-    std::string mOwner;             /**< Channel owner character name */
+    QString mOwner;             /**< Channel owner character name */
 };
 
 #endif

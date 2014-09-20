@@ -76,7 +76,7 @@ void SettingsManager::reload()
 /**
  * Load a configuration file.
  */
-void SettingsManager::loadFile(const std::string &filename)
+void SettingsManager::loadFile(const QString &filename)
 {
     LOG_INFO("Loading game settings from " << filename);
 
@@ -103,14 +103,14 @@ void SettingsManager::loadFile(const std::string &filename)
         if (xmlStrEqual(childNode->name, BAD_CAST "include"))
         {
             // include an other file
-            const std::string includeFile = XML::getProperty(childNode, "file", std::string());
+            const QString includeFile = XML::getProperty(childNode, "file", QString());
 
             // check if file property was given
-            if (!includeFile.empty())
+            if (!includeFile.isEmpty())
             {
                 // build absolute path path
                 const ResourceManager::splittedPath splittedPath = ResourceManager::splitFileNameAndPath(filename);
-                const std::string realIncludeFile = ResourceManager::cleanPath(
+                const QString realIncludeFile = ResourceManager::cleanPath(
                         ResourceManager::joinPaths(splittedPath.path, includeFile));
 
                 // check if we're not entering a loop

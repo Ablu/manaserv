@@ -47,7 +47,7 @@ GuildManager::~GuildManager()
     }
 }
 
-Guild* GuildManager::createGuild(const std::string &name, int playerId)
+Guild* GuildManager::createGuild(const QString &name, int playerId)
 {
     Guild *guild = new Guild(name);
     // Add guild to db
@@ -81,7 +81,7 @@ void GuildManager::addGuildMember(Guild *guild, int playerId)
 }
 
 void GuildManager::removeGuildMember(Guild *guild, int playerId,
-                                     const std::string &characterName,
+                                     const QString &characterName,
                                      ChatClient *client)
 {
     // remove the user from the guild
@@ -132,7 +132,7 @@ Guild *GuildManager::findById(short id) const
     return it == mGuilds.end() ? 0 : it->second;
 }
 
-Guild *GuildManager::findByName(const std::string &name) const
+Guild *GuildManager::findByName(const QString &name) const
 {
     for (std::map<int, Guild*>::const_iterator it = mGuilds.begin(),
             it_end = mGuilds.end();
@@ -145,7 +145,7 @@ Guild *GuildManager::findByName(const std::string &name) const
     return 0;
 }
 
-bool GuildManager::doesExist(const std::string &name) const
+bool GuildManager::doesExist(const QString &name) const
 {
     return findByName(name) != 0;
 }

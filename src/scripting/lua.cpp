@@ -1227,7 +1227,7 @@ static int chr_get_quest(lua_State *s)
 
     Script::Thread *thread = checkCurrentThread(s);
 
-    std::string value;
+    QString value;
     bool res = getQuestVar(q, name, value);
     if (res)
     {
@@ -2099,7 +2099,7 @@ static int chr_request_quest(lua_State *s)
     luaL_argcheck(s, name[0] != 0, 2, "empty variable name");
     luaL_checktype(s, 3, LUA_TFUNCTION);
 
-    std::string value;
+    QString value;
     bool res = getQuestVar(ch, name, value);
     if (res)
     {
@@ -2137,7 +2137,7 @@ static int chr_try_get_quest(lua_State *s)
     const char *name = luaL_checkstring(s, 2);
     luaL_argcheck(s, name[0] != 0, 2, "empty variable name");
 
-    std::string value;
+    QString value;
     bool res = getQuestVar(q, name, value);
     if (res)
         push(s, value);
@@ -2786,7 +2786,7 @@ static int log(lua_State *s)
                   1,
                   "invalid log level");
 
-    const std::string message = luaL_checkstring(s, 2);
+    const QString message = luaL_checkstring(s, 2);
 
     Logger::output(message, (Logger::Level) loglevel);
     return 0;
@@ -3032,7 +3032,7 @@ static int attributeinfo_get_id(lua_State *s)
 static int attributeinfo_get_name(lua_State *s)
 {
     auto *attributeInfo = LuaAttributeInfo::check(s, 1);
-    lua_pushstring(s, attributeInfo->name.c_str());
+    lua_pushstring(s, attributeInfo->name.toStdString().c_str());
     return 1;
 }
 
@@ -3159,7 +3159,7 @@ static int map_get_objects(lua_State *s)
         for (std::vector<MapObject*>::const_iterator it = objects.begin();
              it != objects.end(); ++it)
         {
-            if (utils::compareStrI((*it)->getType(), filter) == 0)
+            if ((*it)->getType().compare(filter, Qt::CaseInsensitive) == 0)
             {
                 filteredObjects.push_back(*it);
             }
@@ -3183,8 +3183,8 @@ static int map_object_get_property(lua_State *s)
     const char *key = luaL_checkstring(s, 2);
     MapObject *obj = LuaMapObject::check(s, 1);
 
-    std::string property = obj->getProperty(key);
-    if (!property.empty())
+    QString property = obj->getProperty(key);
+    if (!property.isEmpty())
     {
         push(s, property);
         return 1;
@@ -3303,9 +3303,9 @@ static int item_class_get_name(lua_State *s)
 static int test_tableget(lua_State *s)
 {
     std::list<float> list;
-    std::vector<std::string> svector;
+    std::vector<QString> svector;
     std::vector<int> ivector;
-    std::map<std::string, std::string> map;
+    std::map<QString, QString> map;
     std::set<int> set;
 
     LOG_INFO("Pushing Float List");
@@ -3323,7 +3323,7 @@ static int test_tableget(lua_State *s)
     svector.push_back("belong");
     svector.push_back("to");
     svector.push_back("us!");
-    pushSTLContainer<std::string>(s, svector);
+    pushSTLContainer<QString>(s, svector);
 
     LOG_INFO("Pushing Integer Vector");
     ivector.resize(10);
@@ -3337,7 +3337,7 @@ static int test_tableget(lua_State *s)
     map["Banana"] = "yellow";
     map["Lime"] = "green";
     map["Plum"] = "blue";
-    pushSTLContainer<std::string, std::string>(s, map);
+    pushSTLContainer<QString, QString>(s, map);
 
     LOG_INFO("Pushing Integer Set");
     set.insert(12);
@@ -3355,12 +3355,12 @@ static int require_loader(lua_State *s)
 {
     // Add .lua extension (maybe only do this when it doesn't have it already)
     const char *file = luaL_checkstring(s, 1);
-    std::string filename = file;
+    QString filename = file;
     filename.append(".lua");
 
-    const std::string path = ResourceManager::resolve(filename);
-    if (!path.empty())
-        luaL_loadfile(s, path.c_str());
+    const QString path = ResourceManager::resolve(filename);
+    if (!path.isEmpty())
+        luaL_loadfile(s, path.toStdString().c_str());
     else
         lua_pushliteral(s, "File not found");
 

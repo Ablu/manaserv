@@ -22,7 +22,7 @@
 #ifndef MAPCOMPOSITE_H
 #define MAPCOMPOSITE_H
 
-#include <string>
+#include <QString>
 #include <vector>
 #include <map>
 
@@ -132,7 +132,7 @@ class MapComposite
 {
 public:
     MapComposite(int id,
-                 const std::string &name,
+                 const QString &name,
                  IConfiguration *configuration);
     MapComposite(const MapComposite &) = delete;
     ~MapComposite();
@@ -169,7 +169,7 @@ public:
     /**
      * Gets the name of this map.
      */
-    const std::string &getName() const
+    const QString &getName() const
     { return mName; }
 
     /**
@@ -233,36 +233,36 @@ public:
     /**
      * Gets the cached value of a map-bound script variable
      */
-    std::string getVariable(const std::string &key) const;
+    QString getVariable(const QString &key) const;
 
     /**
      * Changes a script variable and notifies the database server
      * about the change
      */
-    void setVariable(const std::string &key, const std::string &value);
+    void setVariable(const QString &key, const QString &value);
 
     /**
      * Changes a script variable without notifying the database server
      * about the change
      */
-    void setVariableFromDbserver(const std::string &key,
-                                 const std::string &value)
+    void setVariableFromDbserver(const QString &key,
+                                 const QString &value)
     { mScriptVariables[key] = value; }
 
     /**
      * Sets callback for map variable
      */
-    void setMapVariableCallback(const std::string &key, Script *script)
+    void setMapVariableCallback(const QString &key, Script *script)
     { script->assignCallback(mMapVariableCallbacks[key]); }
 
     /**
      * Sets callback for global variable
      */
-    void setWorldVariableCallback(const std::string &key, Script *script)
+    void setWorldVariableCallback(const QString &key, Script *script)
     { script->assignCallback(mWorldVariableCallbacks[key]); }
 
-    void callWorldVariableCallback(const std::string &key,
-                                   const std::string &value);
+    void callWorldVariableCallback(const QString &key,
+                                   const QString &value);
 
     static void setInitializeCallback(Script *script)
     { script->assignCallback(mInitializeCallback); }
@@ -270,25 +270,25 @@ public:
     static void setUpdateCallback(Script *script)
     { script->assignCallback(mUpdateCallback); }
 
-    const MapObject *findMapObject(const std::string &name,
-                                   const std::string &type) const;
+    const MapObject *findMapObject(const QString &name,
+                                   const QString &type) const;
 
 private:
     void initializeContent();
-    void callMapVariableCallback(const std::string &key,
-                                 const std::string &value);
+    void callMapVariableCallback(const QString &key,
+                                 const QString &value);
 
     IConfiguration *mConfiguration;
     bool mActive;         /**< Status of map. */
     Map *mMap;            /**< Actual map. */
     MapContent *mContent; /**< Entities on the map. */
-    std::string mName;    /**< Name of the map. */
+    QString mName;    /**< Name of the map. */
     unsigned short mID;   /**< ID of the map. */
     /** Cached persistent variables */
-    std::map<std::string, std::string> mScriptVariables;
+    std::map<QString, QString> mScriptVariables;
     PvPRules mPvPRules;
-    std::map<const std::string, Script::Ref> mMapVariableCallbacks;
-    std::map<const std::string, Script::Ref> mWorldVariableCallbacks;
+    std::map<const QString, Script::Ref> mMapVariableCallbacks;
+    std::map<const QString, Script::Ref> mWorldVariableCallbacks;
 
     static Script::Ref mInitializeCallback;
     static Script::Ref mUpdateCallback;

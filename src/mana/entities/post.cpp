@@ -41,12 +41,12 @@ unsigned long Letter::getExpiry() const
     return mExpiry;
 }
 
-void Letter::addText(const std::string &text)
+void Letter::addText(const QString &text)
 {
     mContents = text;
 }
 
-std::string Letter::getContents() const
+QString Letter::getContents() const
 {
     return mContents;
 }

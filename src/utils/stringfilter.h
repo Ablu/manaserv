@@ -22,7 +22,8 @@
 #define SLANGSFILTER_H
 
 #include <list>
-#include <string>
+#include <QString>
+#include <QStringList>
 
 class IConfiguration;
 
@@ -38,8 +39,6 @@ class StringFilter
 public:
     StringFilter(IConfiguration *configuration);
 
-    ~StringFilter();
-
     /**
      * Load slang list from the config file.
      *
@@ -48,36 +47,27 @@ public:
     bool loadSlangFilterList();
 
     /**
-     * Write slang list to the config file.
-     *
-     * @return true is the config is loaded succesfully
-     */
-    void writeSlangFilterList();
-
-    /**
     * Useful to filter slangs automatically, by instance.
     * @return true if the sentence is slangs clear.
     */
-    bool filterContent(const std::string &text) const;
+    bool filterContent(const QString &text) const;
 
     /**
      * Tells if an email is valid
      */
-    bool isEmailValid(const std::string &email) const;
+    bool isEmailValid(const QString &email) const;
 
     /**
      * find double quotes (") in strings.
      * Very useful not to make SQL Queries based on names crash
      * I placed it here cause where you've got " you can have slangs...
      */
-    bool findDoubleQuotes(const std::string &text) const;
+    bool findDoubleQuotes(const QString &text) const;
 
 private:
     IConfiguration *mConfiguration;
 
-    typedef std::list<std::string> Slangs;
-    typedef Slangs::iterator SlangIterator;
-    Slangs mSlangs;    /**< the formatted Slangs list */
+    QStringList mSlangs;    /**< the formatted Slangs list */
     bool mInitialized;                 /**< Set if the list is loaded */
 };
 

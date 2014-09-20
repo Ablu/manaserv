@@ -79,7 +79,7 @@ void LuaScript::push(int v)
     ++nbArgs;
 }
 
-void LuaScript::push(const std::string &v)
+void LuaScript::push(const QString &v)
 {
     assert(nbArgs >= 0);
     ::push(mCurrentState, v);
@@ -104,10 +104,10 @@ void LuaScript::push(const std::list<InventoryItem> &itemList)
     for (const InventoryItem &inventoryItem : itemList)
     {
         // create the item structure
-        std::map<std::string, int> item;
+        std::map<QString, int> item;
         item["id"] = inventoryItem.itemId;
         item["amount"] = inventoryItem.amount;
-        pushSTLContainer<std::string, int>(mCurrentState, item);
+        pushSTLContainer<QString, int>(mCurrentState, item);
         lua_rawseti(mCurrentState, itemTable, ++position);
     }
     ++nbArgs;
@@ -135,9 +135,9 @@ int LuaScript::execute(const Context &context)
     {
         const char *s = lua_tostring(mCurrentState, -1);
 
-        LOG_WARN("Lua Script Error" << std::endl
-                 << "     Script  : " << mScriptFile << std::endl
-                 << "     Error   : " << (s ? s : "") << std::endl);
+        LOG_WARN("Lua Script Error" << "\n"
+                 << "     Script  : " << mScriptFile << "\n"
+                 << "     Error   : " << (s ? s : "") << "\n");
         lua_pop(mCurrentState, 1);
         return 0;
     }
@@ -181,7 +181,7 @@ bool LuaScript::resume()
         lua_pushvalue(mCurrentState, -3); // error string as first parameter
         lua_pcall(mCurrentState, 1, 1, 0);
 
-        LOG_WARN("Lua Script Error:" << std::endl
+        LOG_WARN("Lua Script Error:" << "\n"
                  << lua_tostring(mCurrentState, -1));
     }
 
@@ -221,12 +221,13 @@ void LuaScript::unref(Ref &ref)
     }
 }
 
-void LuaScript::load(const char *prog, const char *name,
+void LuaScript::load(const QString &prog, const QString &name,
                      const Context &context)
 {
     const Context *previousContext = mContext;
     mContext = &context;
-    int res = luaL_loadbuffer(mRootState, prog, std::strlen(prog), name);
+    int res = luaL_loadbuffer(mRootState, prog.toStdString().c_str(),
+                              prog.length(), name.toStdString().c_str());
     if (res)
     {
         switch (res) {
@@ -278,7 +279,7 @@ void LuaScript::processRemoveEvent(Entity *entity)
  * Called when the server has recovered the value of a quest variable.
  */
 void LuaScript::getQuestCallback(Entity *q,
-                                 const std::string &value,
+                                 const QString &value,
                                  Script *script)
 {
     auto *characterComponent = q->getComponent<CharacterComponent>();
@@ -295,8 +296,8 @@ void LuaScript::getQuestCallback(Entity *q,
  * Called when the server has recovered the post for a user.
  */
 void LuaScript::getPostCallback(Entity *q,
-                                const std::string &sender,
-                                const std::string &letter,
+                                const QString &sender,
+                                const QString &letter,
                                 Script *script)
 {
     auto *characterComponent = q->getComponent<CharacterComponent>();

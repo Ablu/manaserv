@@ -23,7 +23,7 @@
 
 #include "common/manaserv_protocol.h"
 
-#include <iosfwd>
+#include <QTextStream>
 
 /**
  * Used for building an outgoing message.
@@ -65,7 +65,7 @@ public:
      * Writes a string. If a fixed length is not given (-1), it is stored
      * as a short at the start of the string.
      */
-    void writeString(const std::string &string, int length = -1);
+    void writeString(const QString &string, int length = -1);
 
     /**
      * Returns the content of the message.
@@ -103,8 +103,7 @@ private:
     /**
      * Streams message ID and length to the given output stream.
      */
-    friend std::ostream& operator <<(std::ostream &os,
-                                     const MessageOut &msg);
+    friend QTextStream &operator<<(QTextStream &os, const MessageOut &msg);
 };
 
 #endif // MESSAGEOUT_H

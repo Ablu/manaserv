@@ -42,9 +42,9 @@ ChatChannelManager::~ChatChannelManager()
 {
 }
 
-int ChatChannelManager::createNewChannel(const std::string &channelName,
-                                         const std::string &channelAnnouncement,
-                                         const std::string &channelPassword,
+int ChatChannelManager::createNewChannel(const QString &channelName,
+                                         const QString &channelAnnouncement,
+                                         const QString &channelPassword,
                                          bool joinable)
 {
     int channelId = nextUsable();
@@ -59,7 +59,7 @@ int ChatChannelManager::createNewChannel(const std::string &channelName,
     return channelId;
 }
 
-bool ChatChannelManager::tryNewPublicChannel(const std::string &name)
+bool ChatChannelManager::tryNewPublicChannel(const QString &name)
 {
     if (!stringFilter->filterContent(name))
     {
@@ -68,7 +68,7 @@ bool ChatChannelManager::tryNewPublicChannel(const std::string &name)
 
     // Checking strings for length and double quotes
     unsigned maxNameLength = mConfiguration->getValue("chat_maxChannelNameLength", 15);
-    if (name.empty() ||
+    if (name.isEmpty() ||
         name.length() > maxNameLength ||
         stringFilter->findDoubleQuotes(name))
     {
@@ -83,7 +83,7 @@ bool ChatChannelManager::tryNewPublicChannel(const std::string &name)
     else
     {
         // We attempt to create a new channel
-        short id = createNewChannel(name, std::string(), std::string(), true);
+        short id = createNewChannel(name, QString(), QString(), true);
         return id != 0;
     }
 }
@@ -116,7 +116,7 @@ std::list<const ChatChannel*> ChatChannelManager::getPublicChannels() const
     return channels;
 }
 
-int ChatChannelManager::getChannelId(const std::string &channelName) const
+int ChatChannelManager::getChannelId(const QString &channelName) const
 {
     for (ChatChannels::const_iterator i = mChatChannels.begin(),
             i_end = mChatChannels.end();
@@ -136,7 +136,7 @@ ChatChannel *ChatChannelManager::getChannel(int channelId)
     return 0;
 }
 
-ChatChannel *ChatChannelManager::getChannel(const std::string &name)
+ChatChannel *ChatChannelManager::getChannel(const QString &name)
 {
     for (ChatChannels::iterator i = mChatChannels.begin();
          i != mChatChannels.end(); ++i)
@@ -148,7 +148,7 @@ ChatChannel *ChatChannelManager::getChannel(const std::string &name)
     return 0;
 }
 
-void ChatChannelManager::setChannelTopic(int channelId, const std::string &topic)
+void ChatChannelManager::setChannelTopic(int channelId, const QString &topic)
 {
     ChatChannels::iterator i = mChatChannels.find(channelId);
     if (i == mChatChannels.end())
@@ -180,7 +180,7 @@ bool ChatChannelManager::channelExists(int channelId) const
     return mChatChannels.find(channelId) != mChatChannels.end();
 }
 
-bool ChatChannelManager::channelExists(const std::string &channelName) const
+bool ChatChannelManager::channelExists(const QString &channelName) const
 {
     for (ChatChannels::const_iterator i = mChatChannels.begin();
          i != mChatChannels.end(); ++i)

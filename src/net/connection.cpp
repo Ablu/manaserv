@@ -36,10 +36,10 @@ Connection::Connection():
 {
 }
 
-bool Connection::start(const std::string &address, int port)
+bool Connection::start(const QString &address, int port)
 {
     ENetAddress enetAddress;
-    enet_address_set_host(&enetAddress, address.c_str());
+    enet_address_set_host(&enetAddress, address.toStdString().c_str());
     enetAddress.port = port;
 
 #if defined(ENET_VERSION) && ENET_VERSION >= ENET_CUTOFF

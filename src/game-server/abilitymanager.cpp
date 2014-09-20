@@ -24,9 +24,9 @@
 #include "utils/xml.h"
 #include "utils/logger.h"
 
-static AbilityManager::TargetMode getTargetByString(const std::string &str)
+static AbilityManager::TargetMode getTargetByString(const QString &str)
 {
-    std::string strLower = utils::toLower(str);
+    QString strLower = str.toLower();
     if (strLower == "being")
         return AbilityManager::TARGET_BEING;
     else if (strLower == "point")
@@ -47,13 +47,12 @@ void AbilityManager::checkStatus()
 }
 
 void AbilityManager::readAbilityNode(xmlNodePtr abilityNode,
-                                     const std::string &filename)
+                                     const QString &filename)
 {
-    std::string name = utils::toLower(
-                XML::getProperty(abilityNode, "name", std::string()));
+    QString name = XML::getProperty(abilityNode, "name", QString()).toLower();
     int id = XML::getProperty(abilityNode, "id", 0);
 
-    if (id <= 0 || name.empty())
+    if (id <= 0 || name.isEmpty())
     {
         LOG_WARN("Invalid ability (empty name or id <= 0) in " << filename);
         return;
@@ -75,7 +74,7 @@ void AbilityManager::readAbilityNode(xmlNodePtr abilityNode,
     newInfo->id = id;
 
     newInfo->target = getTargetByString(XML::getProperty(abilityNode, "target",
-                                                         std::string()));
+                                                         QString()));
 
     mAbilitiesInfo[newInfo->id] = newInfo;
 
@@ -103,7 +102,7 @@ void AbilityManager::clear()
     mNamedAbilitiesInfo.clear();
 }
 
-unsigned AbilityManager::getId(const std::string &abilityName) const
+unsigned AbilityManager::getId(const QString &abilityName) const
 {
     if (mNamedAbilitiesInfo.contains(abilityName))
         return mNamedAbilitiesInfo.value(abilityName)->id;
@@ -111,7 +110,7 @@ unsigned AbilityManager::getId(const std::string &abilityName) const
         return 0;
 }
 
-const std::string AbilityManager::getAbilityName(int id) const
+const QString AbilityManager::getAbilityName(int id) const
 {
     AbilitiesInfo::const_iterator it = mAbilitiesInfo.find(id);
     return it != mAbilitiesInfo.end() ? it->second->name : "";
@@ -124,7 +123,7 @@ AbilityManager::AbilityInfo *AbilityManager::getAbilityInfo(int id) const
 }
 
 AbilityManager::AbilityInfo *AbilityManager::getAbilityInfo(
-        const std::string &abilityName) const
+        const QString &abilityName) const
 {
     if (mNamedAbilitiesInfo.contains(abilityName))
         return mNamedAbilitiesInfo.value(abilityName);

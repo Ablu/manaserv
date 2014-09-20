@@ -21,7 +21,7 @@
 #ifndef RESOURCE_MANAGER_H
 #define RESOURCE_MANAGER_H
 
-#include <string>
+#include <QString>
 
 class IConfiguration;
 
@@ -30,8 +30,8 @@ namespace ResourceManager
     // A structure retaining the path and file names separately.
     struct splittedPath
     {
-        std::string path;
-        std::string file;
+        QString path;
+        QString file;
     };
 
     /**
@@ -42,13 +42,13 @@ namespace ResourceManager
     /**
      * Checks whether the given file or directory exists in the search path
      */
-    bool exists(const std::string &path, bool lookInSearchPath = true);
+    bool exists(const QString &path, bool lookInSearchPath = true);
 
     /**
      * Returns the real file-system path of the resource with the given
      * resource path, or an empty string when no such resource exists.
      */
-    std::string resolve(const std::string &path);
+    QString resolve(const QString &path);
 
     /**
      * Allocates data into a buffer pointer for raw data loading. The
@@ -61,18 +61,18 @@ namespace ResourceManager
      *         or <code>nullptr</code> on failure.
      * @note The array contains an extra \0 character at position fileSize.
      */
-    char *loadFile(const std::string &fileName, int &fileSize);
+    char *loadFile(const QString &fileName, int &fileSize);
 
     /**
      * Returns the filePath sub-part corresponding to the filename only.
      * @return splittedPath: the file path ending with '/' or '\'
      *                       and the file name alone.
      */
-     splittedPath splitFileNameAndPath(const std::string &fullFilePath);
+     splittedPath splitFileNameAndPath(const QString &fullFilePath);
 
-     std::string joinPaths(const std::string& path1, const std::string& path2);
+     QString joinPaths(const QString& path1, const QString& path2);
 
-     std::string cleanPath(const std::string& path);
+     QString cleanPath(const QString& path);
 }
 
 #endif

@@ -21,8 +21,9 @@
 #ifndef NETCOMPUTER_H
 #define NETCOMPUTER_H
 
-#include <iostream>
 #include <enet/enet.h>
+
+#include <QTextStream>
 
 class MessageOut;
 
@@ -83,8 +84,7 @@ private:
      * Example:
      * <code> std::cout << comp </code>
      */
-    friend std::ostream& operator <<(std::ostream &os,
-                                     const NetComputer &comp);
+    friend QTextStream &operator<<(QTextStream &os, const NetComputer &comp);
 };
 
 #endif // NETCOMPUTER_H

@@ -32,7 +32,7 @@
 
 #include <string.h>
 
-typedef std::map< std::string, Script::Factory > Engines;
+typedef std::map< QString, Script::Factory > Engines;
 
 static Engines *engines = nullptr;
 
@@ -50,7 +50,7 @@ Script::~Script()
     assert(mThreads.empty());
 }
 
-void Script::registerEngine(const std::string &name, Factory f)
+void Script::registerEngine(const QString &name, Factory f)
 {
     if (!engines)
     {
@@ -63,7 +63,7 @@ void Script::registerEngine(const std::string &name, Factory f)
     (*engines)[name] = f;
 }
 
-Script *Script::create(const std::string &engine)
+Script *Script::create(const QString &engine)
 {
     if (engines)
     {
@@ -96,14 +96,14 @@ static char *skipPotentialBom(char *text)
     return (strncmp(text, utf8Bom, bomLength) == 0) ? text + bomLength : text;
 }
 
-bool Script::loadFile(const std::string &name, const Context &context)
+bool Script::loadFile(const QString &name, const Context &context)
 {
     int size;
     char *buffer = ResourceManager::loadFile(name, size);
     if (buffer)
     {
         mScriptFile = name;
-        load(skipPotentialBom(buffer), name.c_str(), context);
+        load(skipPotentialBom(buffer), name, context);
         free(buffer);
         return true;
     } else {
@@ -111,11 +111,11 @@ bool Script::loadFile(const std::string &name, const Context &context)
     }
 }
 
-void Script::loadNPC(const std::string &name,
+void Script::loadNPC(const QString &name,
                      int id,
                      ManaServ::BeingGender gender,
                      int x, int y,
-                     const char *prog,
+                     const QString &prog,
                      MapComposite *map)
 {
     if (!mCreateNpcDelayedCallback.isValid())
@@ -126,7 +126,7 @@ void Script::loadNPC(const std::string &name,
     }
     Context context;
     context.map = map;
-    load(prog, name.c_str(), context);
+    load(prog, name.toStdString().c_str(), context);
     prepare(mCreateNpcDelayedCallback);
     push(name);
     push(id);

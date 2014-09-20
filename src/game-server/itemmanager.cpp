@@ -68,7 +68,7 @@ ItemClass *ItemManager::getItem(int itemId) const
     return i != mItemClasses.end() ? i->second : 0;
 }
 
-ItemClass *ItemManager::getItemByName(const std::string &name) const
+ItemClass *ItemManager::getItemByName(const QString &name) const
 {
     return mItemClassesByName.value(name);
 }
@@ -78,7 +78,7 @@ unsigned ItemManager::getDatabaseVersion() const
     return mItemDatabaseVersion;
 }
 
-unsigned ItemManager::getEquipSlotIdFromName(const std::string &name) const
+unsigned ItemManager::getEquipSlotIdFromName(const QString &name) const
 {
     EquipSlotInfo *slotInfo = mNamedEquipSlotsInfo.value(name);
     return slotInfo ? slotInfo->slotId : 0;
@@ -113,11 +113,11 @@ void ItemManager::checkStatus()
 void ItemManager::readEquipSlotNode(xmlNodePtr node)
 {
     const int slotId = XML::getProperty(node, "id", 0);
-    const std::string name = XML::getProperty(node, "name",
-                                              std::string());
+    const QString name = XML::getProperty(node, "name",
+                                              QString());
     const int capacity = XML::getProperty(node, "capacity", 0);
 
-    if (slotId <= 0 || name.empty() || capacity <= 0)
+    if (slotId <= 0 || name.isEmpty() || capacity <= 0)
     {
         LOG_WARN("Item Manager: equip slot " << slotId
             << ": (" << name << ") has no name or zero count. "
@@ -158,7 +158,7 @@ void ItemManager::readEquipSlotNode(xmlNodePtr node)
  * Read an <item> element from settings.
  * Used by SettingsManager.
  */
-void ItemManager::readItemNode(xmlNodePtr itemNode, const std::string &filename)
+void ItemManager::readItemNode(xmlNodePtr itemNode, const QString &filename)
 {
     const int id = XML::getProperty(itemNode, "id", 0);
     if (id < 1)
@@ -169,7 +169,7 @@ void ItemManager::readItemNode(xmlNodePtr itemNode, const std::string &filename)
     }
 
     // Type is mostly unused, but still serves for hairsheets and race sheets
-    const std::string type = XML::getProperty(itemNode, "type", std::string());
+    const QString type = XML::getProperty(itemNode, "type", QString());
     if (type == "hairsprite" || type == "racesprite")
         return;
 
@@ -193,8 +193,8 @@ void ItemManager::readItemNode(xmlNodePtr itemNode, const std::string &filename)
     ItemClass *item = new ItemClass(id, maxPerSlot);
     mItemClasses.insert(std::make_pair(id, item));
 
-    const std::string name = XML::getProperty(itemNode, "name", std::string());
-    if (!name.empty())
+    const QString name = XML::getProperty(itemNode, "name", QString());
+    if (!name.isEmpty())
     {
         item->setName(name);
 
@@ -235,21 +235,23 @@ void ItemManager::readEquipNode(xmlNodePtr equipNode, ItemClass *item)
                 break;
             }
 
-            std::string slot = XML::getProperty(subNode, "type", std::string());
-            if (slot.empty())
+            QString slotString = XML::getProperty(subNode, "type", QString());
+            if (slotString.isEmpty())
             {
                 LOG_WARN("Item Manager: empty equip slot definition!");
                 continue;
             }
-            if (utils::isNumeric(slot))
+            bool wasNumeric;
+            int slot = slotString.toInt(&wasNumeric);
+            if (wasNumeric)
             {
                 // When the slot id is given
-                item->mEquipReq.equipSlotId = utils::stringToInt(slot);
+                item->mEquipReq.equipSlotId = slot;
             }
             else
             {
                 // When its name is given
-                item->mEquipReq.equipSlotId = getEquipSlotIdFromName(slot);
+                item->mEquipReq.equipSlotId = getEquipSlotIdFromName(slotString);
             }
             item->mEquipReq.capacityRequired =
                 XML::getProperty(subNode, "required", 1);
@@ -267,15 +269,15 @@ void ItemManager::readEquipNode(xmlNodePtr equipNode, ItemClass *item)
 
 void ItemManager::readEffectNode(xmlNodePtr effectNode, ItemClass *item)
 {
-    const std::string triggerName = XML::getProperty(
-                effectNode, "trigger", std::string());
-    const std::string dispellTrigger = XML::getProperty(
-                effectNode, "dispell", std::string());
+    const QString triggerName = XML::getProperty(
+                effectNode, "trigger", QString());
+    const QString dispellTrigger = XML::getProperty(
+                effectNode, "dispell", QString());
     // label -> { trigger (apply), trigger (cancel (default)) }
     // The latter can be overridden.
     ItemTrigger triggerType;
 
-    static std::map<const std::string, ItemTrigger> triggerTable;
+    static std::map<const QString, ItemTrigger> triggerTable;
     if (triggerTable.empty())
     {
         /*
@@ -301,7 +303,7 @@ void ItemManager::readEffectNode(xmlNodePtr effectNode, ItemClass *item)
         triggerTable["null"].dispell             = ITT_NULL;
     }
 
-    std::map<const std::string, ItemTrigger>::iterator
+    std::map<const QString, ItemTrigger>::iterator
              it = triggerTable.find(triggerName);
 
     if (it == triggerTable.end()) {
@@ -312,7 +314,7 @@ void ItemManager::readEffectNode(xmlNodePtr effectNode, ItemClass *item)
     triggerType = it->second;
 
     // Overwrite dispell trigger if given
-    if (!dispellTrigger.empty())
+    if (!dispellTrigger.isEmpty())
     {
         if ((it = triggerTable.find(dispellTrigger)) == triggerTable.end())
             LOG_WARN("Item Manager: Unable to find dispell effect "
@@ -325,9 +327,9 @@ void ItemManager::readEffectNode(xmlNodePtr effectNode, ItemClass *item)
     {
         if (xmlStrEqual(subNode->name, BAD_CAST "modifier"))
         {
-            std::string tag = XML::getProperty(subNode, "attribute",
-                                               std::string());
-            if (tag.empty())
+            QString tag = XML::getProperty(subNode, "attribute",
+                                               QString());
+            if (tag.isEmpty())
             {
                 LOG_WARN("Item Manager: Warning, modifier found "
                          "but no attribute specified!");
@@ -364,19 +366,19 @@ void ItemManager::readEffectNode(xmlNodePtr effectNode, ItemClass *item)
         }
         else if (xmlStrEqual(subNode->name, BAD_CAST "scriptevent"))
         {
-            std::string activateEventName = XML::getProperty(subNode,
+            QString activateEventName = XML::getProperty(subNode,
                                                              "activate",
-                                                             std::string());
-            if (activateEventName.empty())
+                                                             QString());
+            if (activateEventName.isEmpty())
             {
                 LOG_WARN("Item Manager: Empty name for 'activate' item script "
                          "event, skipping effect!");
                 continue;
             }
 
-            std::string dispellEventName = XML::getProperty(subNode,
+            QString dispellEventName = XML::getProperty(subNode,
                                                             "dispell",
-                                                            std::string());
+                                                            QString());
 
             item->addEffect(new ItemEffectScript(item,
                                                  activateEventName,

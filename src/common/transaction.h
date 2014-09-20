@@ -25,7 +25,7 @@ struct Transaction
 {
     unsigned mAction;
     unsigned mCharacterId;
-    std::string mMessage;
+    QString mMessage;
 };
 
 enum

@@ -21,7 +21,7 @@
 #ifndef SERVER_COMMANDHANDLER_H
 #define SERVER_COMMANDHANDLER_H
 
-#include <string>
+#include <QString>
 
 class Entity;
 class IConfiguration;
@@ -31,7 +31,7 @@ namespace CommandHandler
     /**
      * Parse and handle the given command.
      */
-    void handleCommand(Entity *player, const std::string &command);
+    void handleCommand(Entity *player, const QString &command);
 
     void initalize(IConfiguration *configuration);
 }

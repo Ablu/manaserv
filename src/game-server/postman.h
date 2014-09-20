@@ -22,7 +22,7 @@
 #define POSTMAN_H
 
 #include <map>
-#include <string>
+#include <QString>
 
 #include "game-server/charactercomponent.h"
 #include "game-server/entity.h"
@@ -32,8 +32,8 @@ class Script;
 struct PostCallback
 {
     void (*handler)(Entity *,
-                    const std::string &sender,
-                    const std::string &letter,
+                    const QString &sender,
+                    const QString &letter,
                     Script *);
 
     Script *script;
@@ -67,7 +67,7 @@ public:
         accountHandler->getPost(player);
     }
 
-    void gotPost(Entity *player, std::string sender, std::string letter)
+    void gotPost(Entity *player, QString sender, QString letter)
     {
         std::map<Entity*, PostCallback>::iterator itr = mCallbacks.find(player);
         if (itr != mCallbacks.end())

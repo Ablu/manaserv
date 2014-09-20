@@ -46,7 +46,7 @@ void ChatHandler::removeExpiredPartyInvites()
     time_t now = time(nullptr);
     while (!mInvitations.empty() && mInvitations.front().mExpireTime < now)
     {
-        std::map<std::string, int>::iterator itr;
+        std::map<QString, int>::iterator itr;
         itr = mNumInvites.find(mInvitations.front().mInviter);
         if (--itr->second <= 0)
             mNumInvites.erase(itr);
@@ -56,8 +56,8 @@ void ChatHandler::removeExpiredPartyInvites()
 
 void ChatHandler::handlePartyInvite(MessageIn &msg)
 {
-    std::string inviterName = msg.readString();
-    std::string inviteeName = msg.readString();
+    QString inviterName = msg.readString();
+    QString inviteeName = msg.readString();
     ChatClient *inviter = getClient(inviterName);
     ChatClient *invitee = getClient(inviteeName);
 
@@ -100,7 +100,7 @@ void ChatHandler::handlePartyInviteAnswer(ChatClient &client, MessageIn &msg)
 
     MessageOut outInvitee(CPMSG_PARTY_INVITE_ANSWER_RESPONSE);
 
-    std::string inviter = msg.readString();
+    QString inviter = msg.readString();
 
     // check if the invite is still valid
     bool valid = false;
@@ -204,8 +204,8 @@ void ChatHandler::removeUserFromParty(ChatClient &client)
 
 void ChatHandler::informPartyMemberQuit(ChatClient &client)
 {
-    std::map<std::string, ChatClient*>::iterator itr;
-    std::map<std::string, ChatClient*>::const_iterator itr_end = mPlayerMap.end();
+    std::map<QString, ChatClient*>::iterator itr;
+    std::map<QString, ChatClient*>::const_iterator itr_end = mPlayerMap.end();
 
     for (itr = mPlayerMap.begin(); itr != itr_end; ++itr)
     {

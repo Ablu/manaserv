@@ -47,7 +47,7 @@ public:
         {}
 
         unsigned id;
-        std::string name;
+        QString name;
         TargetMode target;
         Script::Ref rechargedCallback;
         Script::Ref useCallback;
@@ -73,16 +73,16 @@ public:
      * Gets the abilities Id from a string formatted in this way:
      * "categoryname_skillname"
      */
-    unsigned getId(const std::string &abilityName) const;
+    unsigned getId(const QString &abilityName) const;
 
-    const std::string getAbilityName(int id) const;
+    const QString getAbilityName(int id) const;
 
     AbilityInfo *getAbilityInfo(int id) const;
-    AbilityInfo *getAbilityInfo(const std::string &abilityName) const;
+    AbilityInfo *getAbilityInfo(const QString &abilityName) const;
 
     void checkStatus();
 
-    void readAbilityNode(xmlNodePtr skillNode, const std::string &filename);
+    void readAbilityNode(xmlNodePtr skillNode, const QString &filename);
 
 private:
     /**

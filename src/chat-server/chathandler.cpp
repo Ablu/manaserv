@@ -20,7 +20,7 @@
 
 #include <list>
 #include <algorithm>
-#include <string>
+#include <QString>
 #include <sstream>
 
 #include "mana/persistence/interfaces/istorage.h"
@@ -43,8 +43,8 @@
 
 using namespace ManaServ;
 
-void registerChatClient(const std::string &token,
-                        const std::string &name,
+void registerChatClient(const QString &token,
+                        const QString &name,
                         int level)
 {
     ChatHandler::Pending *p = new ChatHandler::Pending;
@@ -61,7 +61,7 @@ ChatHandler::ChatHandler(IConfiguration *configuration, IStorage *storage):
 {
 }
 
-bool ChatHandler::startListen(enet_uint16 port, const std::string &host)
+bool ChatHandler::startListen(enet_uint16 port, const QString &host)
 {
     LOG_INFO("Chat handler started:");
     return ConnectionHandler::startListen(port, host);
@@ -103,7 +103,7 @@ void ChatHandler::tokenMatched(ChatClient *client, Pending *p)
         msg.writeInt8(ERRMSG_OK);
 
         // Add chat client to player map
-        mPlayerMap.insert(std::pair<std::string, ChatClient*>(client->characterName, client));
+        mPlayerMap.insert(std::pair<QString, ChatClient*>(client->characterName, client));
     }
 
     client->send(msg);
@@ -119,7 +119,7 @@ void ChatHandler::computerDisconnected(NetComputer *comp)
 {
     ChatClient *computer = static_cast< ChatClient * >(comp);
 
-    if (computer->characterName.empty())
+    if (computer->characterName.isEmpty())
     {
         // Not yet fully logged in, remove it from pending clients.
         mTokenCollector.deletePendingClient(computer);
@@ -148,11 +148,11 @@ void ChatHandler::processMessage(NetComputer *comp, MessageIn &message)
 {
     ChatClient &computer = *static_cast< ChatClient * >(comp);
 
-    if (computer.characterName.empty())
+    if (computer.characterName.isEmpty())
     {
         if (message.getId() != PCMSG_CONNECT) return;
 
-        std::string magic_token = message.readString(MAGIC_TOKEN_LENGTH);
+        QString magic_token = message.readString(MAGIC_TOKEN_LENGTH);
         mTokenCollector.addPendingClient(magic_token, &computer);
         sendGuildRejoin(computer);
         return;
@@ -247,7 +247,7 @@ void ChatHandler::processMessage(NetComputer *comp, MessageIn &message)
     }
 }
 
-void ChatHandler::handleCommand(ChatClient &computer, const std::string &command)
+void ChatHandler::handleCommand(ChatClient &computer, const QString &command)
 {
     LOG_INFO("Chat: Received unhandled command: " << command);
     MessageOut result(CPMSG_ERROR);
@@ -267,7 +267,7 @@ void ChatHandler::warnPlayerAboutBadWords(ChatClient &computer)
 
 void ChatHandler::handleChatMessage(ChatClient &client, MessageIn &msg)
 {
-    std::string text = msg.readString();
+    QString text = msg.readString();
 
     // Pass it through the slang filter (false when it contains bad words)
     if (!stringFilter->filterContent(text))
@@ -289,8 +289,8 @@ void ChatHandler::handleChatMessage(ChatClient &client, MessageIn &msg)
     }
 }
 
-void ChatHandler::handleAnnounce(const std::string &message, int senderId,
-                                 const std::string &senderName)
+void ChatHandler::handleAnnounce(const QString &message, int senderId,
+                                 const QString &senderName)
 {
     // We do not need to check for right permissions since the game server does
     // this.
@@ -313,8 +313,8 @@ void ChatHandler::handleAnnounce(const std::string &message, int senderId,
 
 void ChatHandler::handlePrivMsgMessage(ChatClient &client, MessageIn &msg)
 {
-    std::string user = msg.readString();
-    std::string text = msg.readString();
+    QString user = msg.readString();
+    QString text = msg.readString();
 
     if (!stringFilter->filterContent(text))
     {
@@ -330,7 +330,7 @@ void ChatHandler::handleWhoMessage(ChatClient &client)
 {
     MessageOut reply(CPMSG_WHO_RESPONSE);
 
-    std::map<std::string, ChatClient*>::iterator itr, itr_end;
+    std::map<QString, ChatClient*>::iterator itr, itr_end;
     itr = mPlayerMap.begin();
     itr_end = mPlayerMap.end();
 
@@ -347,8 +347,8 @@ void ChatHandler::handleEnterChannelMessage(ChatClient &client, MessageIn &msg)
 {
     MessageOut reply(CPMSG_ENTER_CHANNEL_RESPONSE);
 
-    std::string channelName = msg.readString();
-    std::string givenPassword = msg.readString();
+    QString channelName = msg.readString();
+    QString givenPassword = msg.readString();
     ChatChannel *channel = nullptr;
     if (chatChannelManager->channelExists(channelName) ||
         chatChannelManager->tryNewPublicChannel(channelName))
@@ -360,7 +360,7 @@ void ChatHandler::handleEnterChannelMessage(ChatClient &client, MessageIn &msg)
     {
         reply.writeInt8(ERRMSG_INVALID_ARGUMENT);
     }
-    else if (!channel->getPassword().empty() &&
+    else if (!channel->getPassword().isEmpty() &&
             channel->getPassword() != givenPassword)
     {
         // Incorrect password (should probably have its own return value)
@@ -422,33 +422,30 @@ void ChatHandler::handleModeChangeMessage(ChatClient &client, MessageIn &msg)
         return;
     }
 
-    if (channel->getUserMode(&client).find('o') == std::string::npos)
+    if (!channel->getUserMode(&client).contains('o'))
     {
         // invalid permissions
         return;
     }
 
     // get the user whos mode has been changed
-    std::string user = msg.readString();
+    QString user = msg.readString();
 
     // get the mode to change to
     unsigned char mode = msg.readInt8();
     channel->setUserMode(getClient(user), mode);
 
     // set the info to pass to all channel clients
-    std::stringstream info;
-    info << client.characterName << ":" << user << ":" << mode;
+    QString info = client.characterName + ":" + user + ":" + mode;
 
-    warnUsersAboutPlayerEventInChat(channel,
-                    info.str(),
-                    CHAT_EVENT_MODE_CHANGE);
+    warnUsersAboutPlayerEventInChat(channel, info, CHAT_EVENT_MODE_CHANGE);
 
     // log transaction
     Transaction trans;
     trans.mCharacterId = client.characterId;
     trans.mAction = TRANS_CHANNEL_MODE;
     trans.mMessage = "User mode ";
-    trans.mMessage.append(utils::toString(mode) + " set on " + user);
+    trans.mMessage.append(QString::number(mode) + " set on " + user);
     mStorage->addTransaction(trans);
 }
 
@@ -463,22 +460,20 @@ void ChatHandler::handleKickUserMessage(ChatClient &client, MessageIn &msg)
         return;
     }
 
-    if (channel->getUserMode(&client).find('o') == std::string::npos)
+    if (!channel->getUserMode(&client).contains('o'))
     {
         // invalid permissions
         return;
     }
 
     // get the user whos being kicked
-    std::string user = msg.readString();
+    QString user = msg.readString();
 
     if (channel->removeUser(getClient(user)))
     {
-        std::stringstream ss;
-        ss << client.characterName << ":" << user;
-        warnUsersAboutPlayerEventInChat(channel,
-                ss.str(),
-                CHAT_EVENT_KICKED_PLAYER);
+        QString logMessage = client.characterName + ":" + user;
+        warnUsersAboutPlayerEventInChat(channel, logMessage,
+                                        CHAT_EVENT_KICKED_PLAYER);
     }
 
     // log transaction
@@ -560,7 +555,7 @@ void ChatHandler::handleListChannelUsersMessage(ChatClient &client,
 {
     MessageOut reply(CPMSG_LIST_CHANNELUSERS_RESPONSE);
 
-    std::string channelName = msg.readString();
+    QString channelName = msg.readString();
     ChatChannel *channel = chatChannelManager->getChannel(channelName);
 
     if (channel)
@@ -589,7 +584,7 @@ void ChatHandler::handleListChannelUsersMessage(ChatClient &client,
 void ChatHandler::handleTopicChange(ChatClient &client, MessageIn &msg)
 {
     short channelId = msg.readInt16();
-    std::string topic = msg.readString();
+    QString topic = msg.readString();
     ChatChannel *channel = chatChannelManager->getChannel(channelId);
 
     if (!guildManager->doesExist(channel->getName()))
@@ -620,8 +615,8 @@ void ChatHandler::handleDisconnectMessage(ChatClient &client, MessageIn &)
 }
 
 void ChatHandler::sayToPlayer(ChatClient &computer,
-                              const std::string &playerName,
-                              const std::string &text)
+                              const QString &playerName,
+                              const QString &text)
 {
     // Send it to the being if the being exists
     MessageOut result(CPMSG_PRIVMSG);
@@ -638,7 +633,7 @@ void ChatHandler::sayToPlayer(ChatClient &computer,
 }
 
 void ChatHandler::warnUsersAboutPlayerEventInChat(ChatChannel *channel,
-                                                  const std::string &info,
+                                                  const QString &info,
                                                   char eventId)
 {
     MessageOut msg(CPMSG_CHANNEL_EVENT);
@@ -659,9 +654,9 @@ void ChatHandler::sendInChannel(ChatChannel *channel, MessageOut &msg)
     }
 }
 
-ChatClient *ChatHandler::getClient(const std::string &name) const
+ChatClient *ChatHandler::getClient(const QString &name) const
 {
-    std::map<std::string, ChatClient*>::const_iterator itr
+    std::map<QString, ChatClient*>::const_iterator itr
             = mPlayerMap.find(name);
 
     if (itr != mPlayerMap.end())

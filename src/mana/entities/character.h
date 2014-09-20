@@ -21,7 +21,7 @@
 #ifndef CHARACTERDATA_H
 #define CHARACTERDATA_H
 
-#include <string>
+#include <QString>
 #include <vector>
 #include <set>
 
@@ -68,8 +68,8 @@ struct QuestInfo
 {
     int id;
     int state;
-    std::string title;
-    std::string description;
+    QString title;
+    QString description;
 };
 
 /**
@@ -80,7 +80,7 @@ typedef std::map<unsigned, AttributeValue> AttributeMap;
 class CharacterData
 {
 public:
-    CharacterData(const std::string &name, int id = -1);
+    CharacterData(const QString &name, int id = -1);
 
     /**
      * Gets the database id of the character.
@@ -113,8 +113,8 @@ public:
     /**
      * Gets the name of the character.
      */
-    const std::string &getName() const { return mName; }
-    void setName(const std::string &name) { mName = name; }
+    const QString &getName() const { return mName; }
+    void setName(const QString &name) { mName = name; }
 
     /**
      * Gets the gender of the character (male / female).
@@ -206,10 +206,10 @@ public:
     void setPosition(const Point &p) { mPos = p; }
 
     /** Add a guild to the character */
-    void addGuild(const std::string &name) { mGuilds.push_back(name); }
+    void addGuild(const QString &name) { mGuilds.push_back(name); }
 
     /** Returns a list of guilds the player belongs to */
-    std::vector<std::string>
+    std::vector<QString>
     getGuilds() const { return mGuilds; }
 
     /**
@@ -250,7 +250,7 @@ private:
     { return it->second.modified; }
 
     Possessions mPossessions; //!< All the possesions of the character.
-    std::string mName;        //!< Name of the character.
+    QString mName;        //!< Name of the character.
     int mDatabaseID;          //!< Character database ID.
     unsigned mCharacterSlot;  //!< Character slot.
     int mAccountID;           //!< Account ID of the owner.
@@ -268,7 +268,7 @@ private:
     short mCorrectionPoints;  //!< Unused correction points.
     unsigned char mAccountLevel; //!< Level of the associated account.
 
-    std::vector<std::string> mGuilds;        //!< All the guilds the player
+    std::vector<QString> mGuilds;        //!< All the guilds the player
                                              //!< belongs to.
     std::vector<QuestInfo> mQuests;
 

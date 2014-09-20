@@ -21,7 +21,7 @@
 #ifndef GAMESERVER_SETTINGSMANAGER_H_
 #define GAMESERVER_SETTINGSMANAGER_H_
 
-#include <string>
+#include <QString>
 #include <list>
 #include <set>
 
@@ -30,7 +30,7 @@ class IConfiguration;
 class SettingsManager
 {
 public:
-    SettingsManager(const std::string &settingsFile):
+    SettingsManager(const QString &settingsFile):
         mSettingsFile(settingsFile)
     {}
 
@@ -39,10 +39,10 @@ public:
     void reload();
 
 private:
-    std::string mSettingsFile;
-    std::set<std::string> mIncludedFiles;
+    QString mSettingsFile;
+    std::set<QString> mIncludedFiles;
 
-    void loadFile(const std::string &filename);
+    void loadFile(const QString &filename);
 
     void checkStatus();
 };

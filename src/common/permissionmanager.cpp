@@ -27,14 +27,14 @@
 #include <string.h>
 #include <cstring>
 
-static std::map<std::string, unsigned char> permissions;
-static std::map<std::string, unsigned char> aliases;
-static std::string permissionFile;
+static std::map<QString, unsigned char> permissions;
+static std::map<QString, unsigned char> aliases;
+static QString permissionFile;
 
-void addPermission(std::string permission, char mask)
+void addPermission(QString permission, char mask)
 {
 
-    std::map<std::string, unsigned char>::iterator i = permissions.find(permission);
+    std::map<QString, unsigned char>::iterator i = permissions.find(permission);
     if (i == permissions.end())
     {
         permissions.insert(std::make_pair(permission, mask));
@@ -43,7 +43,7 @@ void addPermission(std::string permission, char mask)
     }
 }
 
-void PermissionManager::initialize(const std::string & file)
+void PermissionManager::initialize(const QString & file)
 {
     permissionFile = file;
     reload();
@@ -105,15 +105,15 @@ void PermissionManager::reload()
 }
 
 
-PermissionManager::Result PermissionManager::checkPermission(const Entity* character, std::string permission)
+PermissionManager::Result PermissionManager::checkPermission(const Entity* character, QString permission)
 {
     return checkPermission(character->getComponent<CharacterComponent>()
                                ->getAccountLevel(), permission);
 }
 
-PermissionManager::Result PermissionManager::checkPermission(unsigned char level, std::string permission)
+PermissionManager::Result PermissionManager::checkPermission(unsigned char level, QString permission)
 {
-    std::map<std::string, unsigned char>::iterator iP = permissions.find(permission);
+    std::map<QString, unsigned char>::iterator iP = permissions.find(permission);
 
     if (iP == permissions.end())
     {
@@ -128,9 +128,9 @@ PermissionManager::Result PermissionManager::checkPermission(unsigned char level
     }
 }
 
-unsigned char PermissionManager::getMaskFromAlias(const std::string &alias)
+unsigned char PermissionManager::getMaskFromAlias(const QString &alias)
 {
-    std::map<std::string, unsigned char>::iterator i = aliases.find(alias);
+    std::map<QString, unsigned char>::iterator i = aliases.find(alias);
 
     if (i == aliases.end())
     {
@@ -140,9 +140,9 @@ unsigned char PermissionManager::getMaskFromAlias(const std::string &alias)
     }
 }
 
-std::list<std::string> PermissionManager::getPermissionList(const Entity* character)
+std::list<QString> PermissionManager::getPermissionList(const Entity* character)
 {
-    std::list<std::string> result;
+    std::list<QString> result;
 
     unsigned char mask = character->getComponent<CharacterComponent>()
             ->getAccountLevel();
@@ -158,9 +158,9 @@ std::list<std::string> PermissionManager::getPermissionList(const Entity* charac
     return result;
 }
 
-std::list<std::string> PermissionManager::getClassList(const Entity* character)
+std::list<QString> PermissionManager::getClassList(const Entity* character)
 {
-    std::list<std::string> result;
+    std::list<QString> result;
 
     unsigned char mask = character->getComponent<CharacterComponent>()
             ->getAccountLevel();

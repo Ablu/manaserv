@@ -21,7 +21,7 @@
 #ifndef BEING_H
 #define BEING_H
 
-#include <string>
+#include <QString>
 #include <vector>
 #include <list>
 #include <map>
@@ -243,11 +243,11 @@ public:
     void setStatusEffectTime(int id, int time);
 
     /** Gets the name of the being. */
-    const std::string &getName() const
+    const QString &getName() const
     { return mName; }
 
     /** Sets the name of the being. */
-    void setName(const std::string &name)
+    void setName(const QString &name)
     { mName = name; }
 
     /**
@@ -307,7 +307,7 @@ private:
     Path mPath;
     BeingDirection mDirection;   /**< Facing direction. */
 
-    std::string mName;
+    QString mName;
 
     /** Time until hp is regenerated again */
     Timeout mHealthRegenerationTimeout;

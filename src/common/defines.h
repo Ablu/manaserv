@@ -115,9 +115,9 @@ enum Element
     ELEMENT_ILLEGAL
 };
 
-static inline Element elementFromString(const std::string &name)
+static inline Element elementFromString(const QString &name)
 {
-    static std::map<const std::string, Element> table;
+    static std::map<const QString, Element> table;
 
     if (table.empty())
     {
@@ -132,7 +132,7 @@ static inline Element elementFromString(const std::string &name)
         table["ice"]        = ELEMENT_ICE;
     }
 
-    std::map<const std::string, Element>::iterator val = table.find(name);
+    std::map<const QString, Element>::iterator val = table.find(name);
 
     return val == table.end() ? ELEMENT_ILLEGAL : (*val).second;
 }
@@ -148,9 +148,9 @@ enum DamageType
     DAMAGE_OTHER = -1
 };
 
-static inline DamageType damageTypeFromString(const std::string &name)
+static inline DamageType damageTypeFromString(const QString &name)
 {
-    static std::map<const std::string, DamageType> table;
+    static std::map<const QString, DamageType> table;
 
     if (table.empty())
     {
@@ -160,7 +160,7 @@ static inline DamageType damageTypeFromString(const std::string &name)
         table["other"]      = DAMAGE_OTHER;
     }
 
-    std::map<const std::string, DamageType>::iterator val = table.find(name);
+    std::map<const QString, DamageType>::iterator val = table.find(name);
 
     return val == table.end() ? DAMAGE_OTHER : (*val).second;
 }

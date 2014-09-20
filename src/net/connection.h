@@ -21,7 +21,7 @@
 #ifndef CONNECTION_H
 #define CONNECTION_H
 
-#include <string>
+#include <QString>
 #include <enet/enet.h>
 
 class MessageIn;
@@ -41,7 +41,7 @@ public:
      * Connects to the given host/port and waits until the connection is
      * established. Returns false if it fails to connect.
      */
-    bool start(const std::string &, int);
+    bool start(const QString &, int);
 
     /**
      * Disconnects.

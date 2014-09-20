@@ -22,7 +22,7 @@
 #ifndef XMLCONFIGURATION_H
 #define XMLCONFIGURATION_H
 
-#include <string>
+#include <QString>
 
 #include "mana/configuration/interfaces/iconfiguration.h"
 
@@ -36,7 +36,7 @@ public:
      *                 config file 'manaserv.xml' is used.
      * @return whether the configuration file could be read
      */
-    bool initialize(const std::string &fileName = std::string());
+    bool initialize(const QString &fileName = QString());
 
     void deinitialize();
 
@@ -45,21 +45,21 @@ public:
      * @param key option identifier.
      * @param deflt default value.
      */
-    std::string getValue(const std::string &key, const std::string &deflt);
+    QString getValue(const QString &key, const QString &deflt);
 
     /**
      * Gets an option as an integer.
      * @param key option identifier.
      * @param deflt default value.
      */
-    int getValue(const std::string &key, int deflt);
+    int getValue(const QString &key, int deflt);
 
     /**
      * Gets an option as a boolean.
      * @param key option identifier.
      * @param deflt default value.
      */
-    bool getBoolValue(const std::string &key, bool deflt);
+    bool getBoolValue(const QString &key, bool deflt);
 };
 
 #ifndef DEFAULT_SERVER_PORT

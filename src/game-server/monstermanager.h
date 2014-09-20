@@ -21,7 +21,7 @@
 #ifndef MONSTERMANAGER_H
 #define MONSTERMANAGER_H
 
-#include <string>
+#include <QString>
 #include <map>
 #include "utils/string.h"
 #include "utils/xml.h"
@@ -66,11 +66,11 @@ public:
      * Returns null when there is no monster with such
      * a name.
      */
-    MonsterClass *getMonsterByName(const std::string &name) const;
+    MonsterClass *getMonsterByName(const QString &name) const;
 
     const MonsterClasses &getMonsterClasses() const;
 
-    void readMonsterNode(xmlNodePtr node, const std::string &filename);
+    void readMonsterNode(xmlNodePtr node, const QString &filename);
 
     void checkStatus();
 

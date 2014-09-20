@@ -60,7 +60,7 @@ StatusEffect *StatusManager::getStatus(int statusId)
     return i != statusEffects.end() ? i->second : 0;
 }
 
-StatusEffect *StatusManager::getStatusByName(const std::string &name)
+StatusEffect *StatusManager::getStatusByName(const QString &name)
 {
     return statusEffectsByName.value(name);
 }
@@ -69,7 +69,7 @@ StatusEffect *StatusManager::getStatusByName(const std::string &name)
  * Read a <attribute> element from settings.
  * Used by SettingsManager.
  */
-void StatusManager::readStatusNode(xmlNodePtr node, const std::string &filename)
+void StatusManager::readStatusNode(xmlNodePtr node, const QString &filename)
 {
     const int id = XML::getProperty(node, "id", 0);
     if (id < 1)
@@ -82,9 +82,9 @@ void StatusManager::readStatusNode(xmlNodePtr node, const std::string &filename)
 
     StatusEffect *statusEffect = new StatusEffect(id);
 
-    const std::string name = XML::getProperty(node, "name",
-                                              std::string());
-    if (!name.empty())
+    const QString name = XML::getProperty(node, "name",
+                                              QString());
+    if (!name.isEmpty())
     {
         if (statusEffectsByName.contains(name))
         {

@@ -23,7 +23,7 @@
 
 #include <map>
 #include <set>
-#include <string>
+#include <QString>
 #include <vector>
 
 #include "utils/string.h"
@@ -76,13 +76,13 @@ public:
     void deinitialize();
 
     AttributeInfo *getAttributeInfo(int id) const;
-    AttributeInfo *getAttributeInfo(const std::string &name) const;
+    AttributeInfo *getAttributeInfo(const QString &name) const;
 
     const std::set<AttributeInfo *> &getAttributeScope(ScopeType) const;
 
-    ModifierLocation getLocation(const std::string &tag) const;
+    ModifierLocation getLocation(const QString &tag) const;
 
-    const std::string *getTag(const ModifierLocation &location) const;
+    const QString *getTag(const ModifierLocation &location) const;
 
     void readAttributeNode(xmlNodePtr attributeNode);
 
@@ -97,7 +97,7 @@ private:
     std::map<int, AttributeInfo *> mAttributeMap;
     utils::NameMap<AttributeInfo *> mAttributeNameMap;
 
-    std::map<std::string, ModifierLocation> mTagMap;
+    std::map<QString, ModifierLocation> mTagMap;
 };
 
 extern AttributeManager *attributeManager;

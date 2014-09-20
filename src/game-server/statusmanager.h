@@ -21,7 +21,7 @@
 #ifndef STATUSMANAGER_H
 #define STATUSMANAGER_H
 
-#include <string>
+#include <QString>
 #include "utils/xml.h"
 
 class StatusEffect;
@@ -51,9 +51,9 @@ namespace StatusManager
     /**
      * Gets the status having the given name.
      */
-    StatusEffect *getStatusByName(const std::string &name);
+    StatusEffect *getStatusByName(const QString &name);
 
-    void readStatusNode(xmlNodePtr node, const std::string &filename);
+    void readStatusNode(xmlNodePtr node, const QString &filename);
 
     void checkStatus();
 }

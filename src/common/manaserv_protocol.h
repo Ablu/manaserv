@@ -22,7 +22,7 @@
 #ifndef MANASERV_PROTOCOL_H
 #define MANASERV_PROTOCOL_H
 
-#include <string>
+#include <QString>
 
 #include "utils/string.h"
 
@@ -483,11 +483,12 @@ inline ManaServ::BeingGender getGender(int gender)
 /**
 * Helper function for getting gender by string
 */
-inline ManaServ::BeingGender getGender(std::string gender)
+inline ManaServ::BeingGender getGender(QString gender)
 {
-    if (utils::toLower(gender) == "male")
+    auto lowerCaseGender = gender.toLower();
+    if (lowerCaseGender == "male")
         return ManaServ::GENDER_MALE;
-    else if (utils::toLower(gender) == "female")
+    else if (lowerCaseGender == "female")
         return ManaServ::GENDER_FEMALE;
     else
         return ManaServ::GENDER_UNSPECIFIED;
@@ -529,9 +530,9 @@ inline ManaServ::QuestStatus getQuestStatus(int status)
  * @param status name of quest status (open, started or finished)
  * @return the status as enum value
  */
-inline ManaServ::QuestStatus getQuestStatus(std::string status)
+inline ManaServ::QuestStatus getQuestStatus(QString status)
 {
-    std::string lowercase = utils::toLower(status);
+    QString lowercase = status.toLower();
     if (lowercase == "open")
         return ManaServ::STATUS_OPEN;
     else if (lowercase == "started")

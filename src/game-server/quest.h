@@ -21,7 +21,7 @@
 #ifndef GAMESERVER_QUEST_H
 #define GAMESERVER_QUEST_H
 
-#include <string>
+#include <QString>
 
 #include "scripting/scriptmanager.h"
 
@@ -36,14 +36,14 @@ public:
     { }
 
     virtual void triggerCallback(Entity *ch,
-                                 const std::string &value) const = 0;
+                                 const QString &value) const = 0;
 };
 
 class QuestThreadCallback : public QuestCallback
 {
 public:
     typedef void (*Handler)(Entity *,
-                            const std::string &value,
+                            const QString &value,
                             Script *mScript);
 
     QuestThreadCallback(Handler handler,
@@ -52,7 +52,7 @@ public:
         mScript(script)
     { }
 
-    void triggerCallback(Entity *ch, const std::string &value) const
+    void triggerCallback(Entity *ch, const QString &value) const
     { mHandler(ch, value, mScript); }
 
 private:
@@ -63,38 +63,38 @@ private:
 class QuestRefCallback : public QuestCallback
 {
 public:
-    QuestRefCallback(Script *script, const std::string &questName) :
+    QuestRefCallback(Script *script, const QString &questName) :
         mQuestName(questName)
     { script->assignCallback(mRef); }
 
-    void triggerCallback(Entity *ch, const std::string &value) const;
+    void triggerCallback(Entity *ch, const QString &value) const;
 
 private:
     Script::Ref mRef;
-    std::string mQuestName;
+    QString mQuestName;
 };
 
 /**
  * Gets the value associated to a quest variable.
  * @return false if no value was in cache.
  */
-bool getQuestVar(Entity *, const std::string &name, std::string &value);
+bool getQuestVar(Entity *, const QString &name, QString &value);
 
 /**
  * Sets the value associated to a quest variable.
  */
-void setQuestVar(Entity *, const std::string &name, const std::string &value);
+void setQuestVar(Entity *, const QString &name, const QString &value);
 
 /**
  * Starts the recovery of a variable and returns immediatly. The callback will
  * be called once the value has been recovered.
  */
-void recoverQuestVar(Entity *, const std::string &name, QuestCallback *);
+void recoverQuestVar(Entity *, const QString &name, QuestCallback *);
 
 /**
  * Called by the handler of the account server when a value is received.
  */
-void recoveredQuestVar(int id, const std::string &name,
-                       const std::string &value);
+void recoveredQuestVar(int id, const QString &name,
+                       const QString &value);
 
 #endif
