@@ -330,6 +330,7 @@ std::unique_ptr<CharacterData> SqlStorage::getCharacterBySQL(QSqlQuery &sqlQuery
                 + " where id = '" + QString::number(id) + "';";
         QSqlQuery query(mDb);
         tryExecuteSql(query, sql);
+        query.next();
         character->setAccountLevel(query.value(0).toInt(), true);
     }
 
