@@ -93,10 +93,8 @@ void AbilityManager::reload()
 
 void AbilityManager::clear()
 {
-    for (AbilitiesInfo::iterator it = mAbilitiesInfo.begin(),
-         it_end = mAbilitiesInfo.end(); it != it_end; ++it)
-    {
-        delete it->second;
+    for (auto &elem : mAbilitiesInfo) {
+        delete elem.second;
     }
     mAbilitiesInfo.clear();
     mNamedAbilitiesInfo.clear();
@@ -119,7 +117,7 @@ const QString AbilityManager::getAbilityName(int id) const
 AbilityManager::AbilityInfo *AbilityManager::getAbilityInfo(int id) const
 {
     AbilitiesInfo::const_iterator it = mAbilitiesInfo.find(id);
-    return it != mAbilitiesInfo.end() ? it->second : 0;
+    return it != mAbilitiesInfo.end() ? it->second : nullptr;
 }
 
 AbilityManager::AbilityInfo *AbilityManager::getAbilityInfo(
@@ -128,5 +126,5 @@ AbilityManager::AbilityInfo *AbilityManager::getAbilityInfo(
     if (mNamedAbilitiesInfo.contains(abilityName))
         return mNamedAbilitiesInfo.value(abilityName);
     else
-        return 0;
+        return nullptr;
 }

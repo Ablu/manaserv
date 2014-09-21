@@ -45,10 +45,8 @@ void StatusManager::reload()
 
 void StatusManager::deinitialize()
 {
-    for (StatusEffectsMap::iterator i = statusEffects.begin(),
-           i_end = statusEffects.end(); i != i_end; ++i)
-    {
-        delete i->second;
+    for (auto &statusEffect : statusEffects) {
+        delete statusEffect.second;
     }
     statusEffects.clear();
     statusEffectsByName.clear();
@@ -57,7 +55,7 @@ void StatusManager::deinitialize()
 StatusEffect *StatusManager::getStatus(int statusId)
 {
     StatusEffectsMap::const_iterator i = statusEffects.find(statusId);
-    return i != statusEffects.end() ? i->second : 0;
+    return i != statusEffects.end() ? i->second : nullptr;
 }
 
 StatusEffect *StatusManager::getStatusByName(const QString &name)

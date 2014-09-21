@@ -181,8 +181,8 @@ bool LuaScript::resume()
         lua_pushvalue(mCurrentState, -3); // error string as first parameter
         lua_pcall(mCurrentState, 1, 1, 0);
 
-        LOG_WARN("Lua Script Error:" << "\n"
-                 << lua_tostring(mCurrentState, -1));
+        LOG_WARN("Lua Script Error:"
+                 << "\n" << lua_tostring(mCurrentState, -1));
     }
 
     lua_settop(mCurrentState, 0);
@@ -195,7 +195,7 @@ bool LuaScript::resume()
         delete mCurrentThread;
     }
 
-    mCurrentThread = 0;
+    mCurrentThread = nullptr;
     mCurrentState = mRootState;
 
     return done;

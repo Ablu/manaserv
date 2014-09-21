@@ -322,13 +322,12 @@ Attribute::Attribute(const AttributeInfo *info):
     const std::vector<AttributeModifier> &modifiers = info->modifiers;
     LOG_DEBUG("Construction of new attribute with '" << modifiers.size()
         << "' layers.");
-    for (unsigned i = 0; i < modifiers.size(); ++i)
-    {
+    for (auto &modifier : modifiers) {
         LOG_DEBUG("Adding layer with stackable type "
-                  << modifiers[i].stackableType
-                  << " and effect type " << modifiers[i].effectType << ".");
-        mMods.push_back(new AttributeModifiersEffect(modifiers[i].stackableType,
-                                                     modifiers[i].effectType));
+                  << modifier.stackableType << " and effect type "
+                  << modifier.effectType << ".");
+        mMods.push_back(new AttributeModifiersEffect(modifier.stackableType,
+                                                     modifier.effectType));
         LOG_DEBUG("Layer added.");
     }
     mBase = checkBounds(mBase);
@@ -366,9 +365,8 @@ bool Attribute::tick()
 
 void Attribute::clearMods()
 {
-    for (std::vector<AttributeModifiersEffect *>::iterator it = mMods.begin(),
-         it_end = mMods.end(); it != it_end; ++it)
-        (*it)->clearMods(mBase);
+    for (auto &elem : mMods)
+        (elem)->clearMods(mBase);
 }
 
 void Attribute::setBase(double base)

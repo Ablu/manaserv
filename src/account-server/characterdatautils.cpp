@@ -86,14 +86,12 @@ void CharacterDataUtils::serialize(CharacterData &data, MessageOut &msg)
     const EquipData &equipData = poss.getEquipment();
 
     const InventoryData &inventoryData = poss.getInventory();
-    for (InventoryData::const_iterator itemIt = inventoryData.begin(),
-         itemIt_end = inventoryData.end(); itemIt != itemIt_end; ++itemIt)
-    {
-        int slot = itemIt->first;
+    for (const auto &elem : inventoryData) {
+        int slot = elem.first;
         msg.writeInt16(slot);
-        msg.writeInt16(itemIt->second.itemId);
-        msg.writeInt16(itemIt->second.amount);
-        if (equipData.find(itemIt->first) != equipData.end())
+        msg.writeInt16(elem.second.itemId);
+        msg.writeInt16(elem.second.amount);
+        if (equipData.find(elem.first) != equipData.end())
             msg.writeInt8(1); // equipped
         else
             msg.writeInt8(0); // not equipped

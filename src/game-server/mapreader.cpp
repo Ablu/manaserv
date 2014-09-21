@@ -42,7 +42,7 @@ Map *MapReader::readMap(const QString &filename)
     if (!rootNode || !xmlStrEqual(rootNode->name, BAD_CAST "map"))
     {
         LOG_ERROR("Error: Not a map file (" << filename << ")!");
-        return 0;
+        return nullptr;
     }
 
     return readMap(rootNode);

@@ -1018,10 +1018,8 @@ static int entity_get_inventory(lua_State *s)
     int firstTableStackPosition = lua_gettop(s);
     int tableIndex = 1;
 
-    for (InventoryData::const_iterator it = invData.begin(),
-        it_end = invData.end(); it != it_end; ++it)
-    {
-        if (!it->second.itemId || !it->second.amount)
+    for (const auto &elem : invData) {
+        if (!elem.second.itemId || !elem.second.amount)
             continue;
 
         // Create the sub-table (value of the main one)
@@ -1029,23 +1027,23 @@ static int entity_get_inventory(lua_State *s)
         int subTableStackPosition = lua_gettop(s);
         // Stores the item info in it.
         lua_pushliteral(s, "slot");
-        lua_pushinteger(s, it->first); // The slot id
+        lua_pushinteger(s, elem.first); // The slot id
         lua_settable(s, subTableStackPosition);
 
         lua_pushliteral(s, "id");
-        lua_pushinteger(s, it->second.itemId);
+        lua_pushinteger(s, elem.second.itemId);
         lua_settable(s, subTableStackPosition);
 
         lua_pushliteral(s, "name");
-        push(s, itemManager->getItem(it->second.itemId)->getName());
+        push(s, itemManager->getItem(elem.second.itemId)->getName());
         lua_settable(s, subTableStackPosition);
 
         lua_pushliteral(s, "amount");
-        lua_pushinteger(s, it->second.amount);
+        lua_pushinteger(s, elem.second.amount);
         lua_settable(s, subTableStackPosition);
 
         lua_pushliteral(s, "equipped");
-        lua_pushboolean(s, it->second.equipmentSlot != 0);
+        lua_pushboolean(s, elem.second.equipmentSlot != 0);
         lua_settable(s, subTableStackPosition);
 
         // Add the sub-table as value of the main one.
@@ -1092,10 +1090,8 @@ static int entity_get_equipment(lua_State *s)
     int firstTableStackPosition = lua_gettop(s);
     int tableIndex = 1;
 
-    for (EquipData::const_iterator it = equipData.begin(),
-        it_end = equipData.end(); it != it_end; ++it)
-    {
-        InventoryData::const_iterator itemIt = inventoryData.find(*it);
+    for (const auto &elem : equipData) {
+        InventoryData::const_iterator itemIt = inventoryData.find(elem);
         const InventoryItem &item = itemIt->second;
 
         // Create the sub-table (value of the main one)
@@ -3156,12 +3152,9 @@ static int map_get_objects(lua_State *s)
     else
     {
         std::vector<MapObject*> filteredObjects;
-        for (std::vector<MapObject*>::const_iterator it = objects.begin();
-             it != objects.end(); ++it)
-        {
-            if ((*it)->getType().compare(filter, Qt::CaseInsensitive) == 0)
-            {
-                filteredObjects.push_back(*it);
+        for (const auto &object : objects) {
+            if ((object)->getType().compare(filter, Qt::CaseInsensitive) == 0) {
+                filteredObjects.push_back(object);
             }
         }
         pushSTLContainer<MapObject*>(s, filteredObjects);

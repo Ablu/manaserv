@@ -44,10 +44,8 @@ void MonsterManager::initialize()
 
 void MonsterManager::deinitialize()
 {
-    for (MonsterClasses::iterator i = mMonsterClasses.begin(),
-         i_end = mMonsterClasses.end(); i != i_end; ++i)
-    {
-        delete i->second;
+    for (auto &elem : mMonsterClasses) {
+        delete elem.second;
     }
     mMonsterClasses.clear();
     mMonsterClassesByName.clear();
@@ -61,7 +59,7 @@ MonsterClass *MonsterManager::getMonsterByName(const QString &name) const
 MonsterClass *MonsterManager::getMonster(int id) const
 {
     MonsterClasses::const_iterator i = mMonsterClasses.find(id);
-    return i != mMonsterClasses.end() ? i->second : 0;
+    return i != mMonsterClasses.end() ? i->second : nullptr;
 }
 
 /**
@@ -197,7 +195,7 @@ void MonsterManager::readMonsterNode(xmlNodePtr node, const QString &filename)
         {
             const QString idText = XML::getProperty(subnode, "id",
                                                         QString());
-            AbilityManager::AbilityInfo *info = 0;
+            AbilityManager::AbilityInfo *info = nullptr;
             bool wasNumeric;
             const int abilityId = idText.toInt(&wasNumeric);
             if (wasNumeric)

@@ -97,10 +97,8 @@ static void serializeLooks(Entity *ch, MessageOut &msg)
 
     // Note that we can send several updates on the same slot type as different
     // items may have been equipped.
-    for (EquipData::const_iterator it = equipData.begin(),
-         it_end = equipData.end(); it != it_end; ++it)
-    {
-        InventoryData::const_iterator itemIt = inventoryData.find(*it);
+    for (const auto &elem : equipData) {
+        InventoryData::const_iterator itemIt = inventoryData.find(elem);
 
         if (!itemManager->isEquipSlotVisible(itemIt->second.equipmentSlot))
             continue;
@@ -248,11 +246,9 @@ static void informPlayer(MapComposite *map, Entity *p)
             {
                 auto *beingComponent = o->getComponent<BeingComponent>();
                 const Hits &hits = beingComponent->getHitsTaken();
-                for (Hits::const_iterator j = hits.begin(),
-                     j_end = hits.end(); j != j_end; ++j)
-                {
+                for (const auto &hit : hits) {
                     damageMsg.writeInt16(oid);
-                    damageMsg.writeInt16(*j);
+                    damageMsg.writeInt16(hit);
                 }
             }
 
@@ -485,10 +481,8 @@ void GameState::update(int tick)
 
     // Update game state (update AI, etc.)
     const MapManager::Maps &maps = MapManager::getMaps();
-    for (MapManager::Maps::const_iterator m = maps.begin(),
-         m_end = maps.end(); m != m_end; ++m)
-    {
-        MapComposite *map = m->second;
+    for (const auto &maps_m : maps) {
+        MapComposite *map = maps_m.second;
         if (!map->isActive())
             continue;
 
@@ -515,11 +509,9 @@ void GameState::update(int tick)
 #   endif
 
     // Take care of events that were delayed because of their side effects.
-    for (DelayedEvents::iterator it = delayedEvents.begin(),
-         it_end = delayedEvents.end(); it != it_end; ++it)
-    {
-        const DelayedEvent &e = it->second;
-        Entity *o = it->first;
+    for (auto &delayedEvent : delayedEvents) {
+        const DelayedEvent &e = delayedEvent.second;
+        Entity *o = delayedEvent.first;
         switch (e.type)
         {
             case EVENT_REMOVE:
@@ -802,7 +794,7 @@ void GameState::enqueueInsert(Entity *ptr)
 {
     DelayedEvent event;
     event.type = EVENT_INSERT;
-    event.map = 0;
+    event.map = nullptr;
     enqueueEvent(ptr, event);
 }
 
@@ -810,7 +802,7 @@ void GameState::enqueueRemove(Entity *ptr)
 {
     DelayedEvent event;
     event.type = EVENT_REMOVE;
-    event.map = 0;
+    event.map = nullptr;
     enqueueEvent(ptr, event);
 }
 
@@ -917,10 +909,8 @@ void GameState::callVariableCallbacks(const QString &key,
                                       const QString &value)
 {
     const MapManager::Maps &maps = MapManager::getMaps();
-    for (MapManager::Maps::const_iterator m = maps.begin(),
-         m_end = maps.end(); m != m_end; ++m)
-    {
-        m->second->callWorldVariableCallback(key, value);
+    for (const auto &maps_m : maps) {
+        maps_m.second->callWorldVariableCallback(key, value);
     }
 }
 

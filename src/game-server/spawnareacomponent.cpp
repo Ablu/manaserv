@@ -76,7 +76,7 @@ void SpawnAreaComponent::update(Entity &entity)
         {
             LOG_WARN("Refusing to spawn dead monster " << mSpecy->getId());
             delete being;
-            being = 0;
+            being = nullptr;
         }
 
         if (being)

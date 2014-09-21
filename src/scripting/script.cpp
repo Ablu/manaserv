@@ -39,10 +39,7 @@ static Engines *engines = nullptr;
 Script::Ref Script::mCreateNpcDelayedCallback;
 Script::Ref Script::mUpdateCallback;
 
-Script::Script():
-    mCurrentThread(0),
-    mContext(0)
-{}
+Script::Script() : mCurrentThread(nullptr), mContext(nullptr) {}
 
 Script::~Script()
 {
@@ -151,11 +148,9 @@ int Script::execute(MapComposite *map)
 template<typename T>
 static void fastRemoveOne(std::vector<T> &vector, T value)
 {
-    for (size_t i = 0, size = vector.size(); i < size; ++i)
-    {
-        if (vector.at(i) == value)
-        {
-            vector.at(i) = vector.back();
+    for (auto &elem : vector) {
+        if (elem == value) {
+            elem = vector.back();
             vector.pop_back();
             break;
         }

@@ -185,7 +185,7 @@ Script *getScript(lua_State *s)
 
 ItemClass *getItemClass(lua_State *s, int p)
 {
-    ItemClass *itemClass = 0;
+    ItemClass *itemClass = nullptr;
 
     switch (lua_type(s, p))
     {
@@ -205,7 +205,7 @@ ItemClass *getItemClass(lua_State *s, int p)
 
 MonsterClass *getMonsterClass(lua_State *s, int p)
 {
-    MonsterClass *monsterClass = 0;
+    MonsterClass *monsterClass = nullptr;
 
     switch (lua_type(s, p))
     {

@@ -45,17 +45,12 @@ void ItemManager::initialize()
 
 void ItemManager::deinitialize()
 {
-    for (ItemClasses::iterator i = mItemClasses.begin(),
-         i_end = mItemClasses.end(); i != i_end; ++i)
-    {
-        delete i->second;
+    for (auto &elem : mItemClasses) {
+        delete elem.second;
     }
 
-    for (std::map< unsigned, EquipSlotInfo* >::iterator it =
-        mEquipSlotsInfo.begin(), it_end = mEquipSlotsInfo.end(); it != it_end;
-        ++it)
-    {
-        delete it->second;
+    for (auto &elem : mEquipSlotsInfo) {
+        delete elem.second;
     }
 
     mItemClasses.clear();
@@ -65,7 +60,7 @@ void ItemManager::deinitialize()
 ItemClass *ItemManager::getItem(int itemId) const
 {
     ItemClasses::const_iterator i = mItemClasses.find(itemId);
-    return i != mItemClasses.end() ? i->second : 0;
+    return i != mItemClasses.end() ? i->second : nullptr;
 }
 
 ItemClass *ItemManager::getItemByName(const QString &name) const

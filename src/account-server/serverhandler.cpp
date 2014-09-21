@@ -63,7 +63,7 @@ typedef std::map<unsigned short, MapStatistics> ServerStatistics;
  */
 struct GameServer: NetComputer
 {
-    GameServer(ENetPeer *peer): NetComputer(peer), server(0), port(0) {}
+    GameServer(ENetPeer *peer) : NetComputer(peer), server(nullptr), port(0) {}
 
     QString name;
     QString address;
@@ -255,11 +255,9 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
                      << " asks for maps to activate.");
 
             const std::map<int, QString> &maps = MapManager::getMaps();
-            for (std::map<int, QString>::const_iterator it = maps.begin(),
-                 it_end = maps.end(); it != it_end; ++it)
-            {
-                int id = it->first;
-                const QString &reservedServer = it->second;
+            for (const auto &maps_it : maps) {
+                int id = maps_it.first;
+                const QString &reservedServer = maps_it.second;
                 if (reservedServer == server->name)
                 {
                     MessageOut outMsg(AGMSG_ACTIVE_MAP);
@@ -288,13 +286,11 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
                     outMsg.writeInt16(items.size()); //number of floor items
 
                     // Send each map item: item_id, amount, pos_x, pos_y
-                    for (std::list<FloorItem>::iterator i = items.begin();
-                         i != items.end(); ++i)
-                    {
-                        outMsg.writeInt32(i->getItemId());
-                        outMsg.writeInt16(i->getItemAmount());
-                        outMsg.writeInt16(i->getPosX());
-                        outMsg.writeInt16(i->getPosY());
+                    for (auto &item : items) {
+                        outMsg.writeInt32(item.getItemId());
+                        outMsg.writeInt16(item.getItemAmount());
+                        outMsg.writeInt16(item.getPosX());
+                        outMsg.writeInt16(item.getPosY());
                     }
 
                     comp->send(outMsg);
@@ -501,10 +497,9 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
                     result.writeString(letter->getSender().getName());
                     result.writeString(letter->getContents());
                     std::vector<InventoryItem> items = letter->getAttachments();
-                    for (unsigned j = 0; j < items.size(); ++j)
-                    {
-                        result.writeInt16(items[j].itemId);
-                        result.writeInt16(items[j].amount);
+                    for (auto &item : items) {
+                        result.writeInt16(item.itemId);
+                        result.writeInt16(item.amount);
                     }
                 }
 
@@ -552,11 +547,10 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
             LOG_DEBUG("Creating letter");
             Letter *letter = new Letter(0, std::move(sender), std::move(receiver));
             letter->addText(contents);
-            for (unsigned i = 0; i < items.size(); ++i)
-            {
+            for (auto &items_i : items) {
                 InventoryItem item;
-                item.itemId = items[i].first;
-                item.amount = items[i].second;
+                item.itemId = items_i.first;
+                item.amount = items_i.second;
 
                 unsigned maximumNumberOfAttachments =
                         mConfiguration->getValue("mail_maxAttachments", 3);
@@ -653,10 +647,8 @@ void GameServerHandler::dumpStatistics(std::ostream &os)
             const MapStatistics &m = j->second;
             os << "<map id=\"" << j->first << "\" nb_entities=\"" << m.nbEntities
                << "\" nb_monsters=\"" << m.nbMonsters << "\">\n";
-            for (std::vector< int >::const_iterator k = m.players.begin(),
-                 k_end = m.players.end(); k != k_end; ++k)
-            {
-                os << "<character id=\"" << *k << "\"/>\n";
+            for (const auto &elem : m.players) {
+                os << "<character id=\"" << elem << "\"/>\n";
             }
             os << "</map>\n";
         }

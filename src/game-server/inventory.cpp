@@ -66,10 +66,8 @@ void Inventory::initialize()
     /*
      * Set the equipment slots
      */
-    for (EquipData::iterator it = mPoss->equipment.begin(),
-            it_end = mPoss->equipment.end(); it != it_end; ++it)
-    {
-        InventoryData::iterator itemIt = mPoss->inventory.find(*it);
+    for (const auto &elem : mPoss->equipment) {
+        InventoryData::iterator itemIt = mPoss->inventory.find(elem);
         const ItemEquipRequirement &equipReq = itemManager->getItem(
                 itemIt->second.itemId)->getItemEquipRequirement();
         itemIt->second.equipmentSlot = equipReq.equipSlotId;
@@ -207,11 +205,9 @@ unsigned Inventory::insert(unsigned itemId, unsigned amount)
 unsigned Inventory::count(unsigned itemId) const
 {
     unsigned nb = 0;
-    for (InventoryData::iterator it = mPoss->inventory.begin(),
-        it_end = mPoss->inventory.end(); it != it_end; ++it)
-    {
-        if (it->second.itemId == itemId)
-            nb += it->second.amount;
+    for (auto &elem : mPoss->inventory) {
+        if (elem.second.itemId == itemId)
+            nb += elem.second.amount;
     }
 
     return nb;
@@ -219,10 +215,9 @@ unsigned Inventory::count(unsigned itemId) const
 
 int Inventory::getFirstSlot(unsigned itemId)
 {
-    for (InventoryData::iterator it = mPoss->inventory.begin(),
-        it_end = mPoss->inventory.end(); it != it_end; ++it)
-        if (it->second.itemId == itemId)
-            return (int)it->first;
+    for (auto &elem : mPoss->inventory)
+        if (elem.second.itemId == itemId)
+            return (int)elem.first;
     return -1;
 }
 
@@ -354,8 +349,8 @@ void Inventory::updateEquipmentTrigger(unsigned oldId, unsigned newId)
 {
     if (!oldId && !newId)
         return;
-    updateEquipmentTrigger(oldId ? itemManager->getItem(oldId) : 0,
-                    newId ? itemManager->getItem(newId) : 0);
+    updateEquipmentTrigger(oldId ? itemManager->getItem(oldId) : nullptr,
+                           newId ? itemManager->getItem(newId) : nullptr);
 }
 
 void Inventory::updateEquipmentTrigger(ItemClass *oldI, ItemClass *newI)
@@ -382,10 +377,8 @@ bool Inventory::checkEquipmentCapacity(unsigned equipmentSlot,
         return false;
 
     // Test whether the slot capacity requested is reached.
-    for (EquipData::const_iterator it = mPoss->equipment.begin(),
-         it_end = mPoss->equipment.end(); it != it_end; ++it)
-    {
-        InventoryData::iterator itemIt = mPoss->inventory.find(*it);
+    for (const auto &elem : mPoss->equipment) {
+        InventoryData::iterator itemIt = mPoss->inventory.find(elem);
         if (itemIt->second.equipmentSlot == equipmentSlot)
         {
             const int itemId = itemIt->second.itemId;
@@ -460,10 +453,8 @@ bool Inventory::equip(int inventorySlot)
             && hasInventoryEnoughSpace(equipReq.equipSlotId))
         {
             // Then, we unequip each iteminstance of the equip slot
-            for (EquipData::iterator it = mPoss->equipment.begin(),
-                 it_end = mPoss->equipment.end(); it != it_end; ++it)
-            {
-                const unsigned slot = *it;
+            for (auto slot : mPoss->equipment) {
+
                 InventoryData::iterator itemIt = mPoss->inventory.find(slot);
                 assert(itemIt != mPoss->inventory.end());
                 if (itemIt->second.equipmentSlot == equipReq.equipSlotId) {
@@ -481,18 +472,13 @@ bool Inventory::equip(int inventorySlot)
     }
 
     // Potential Pre-unequipment process
-    for (std::set<unsigned>::const_iterator itemsToUnequip =
-         slotsToUnequipFirst.begin(),
-         itemsToUnequip_end = slotsToUnequipFirst.end();
-         itemsToUnequip != itemsToUnequip_end; ++itemsToUnequip)
-    {
-        if (!unequip(*itemsToUnequip))
-        {
+    for (const auto &elem : slotsToUnequipFirst) {
+        if (!unequip(elem)) {
             // Something went wrong even when we tested the unequipment process.
             LOG_WARN("Unable to unequip even when unequip was tested. "
                      "Character : "
                      << mCharacter->getComponent<BeingComponent>()->getName()
-                     << ", unequip slot: " << *itemsToUnequip);
+                     << ", unequip slot: " << elem);
             return false;
         }
     }

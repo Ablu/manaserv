@@ -40,7 +40,7 @@ void ScriptManager::initialize(IConfiguration *configuration)
 void ScriptManager::deinitialize()
 {
     delete _currentState;
-    _currentState = 0;
+    _currentState = nullptr;
 }
 
 bool ScriptManager::loadMainScript(const QString &file)

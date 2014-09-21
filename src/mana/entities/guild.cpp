@@ -88,7 +88,7 @@ void Guild::removeInvited(int playerId)
 
 bool Guild::checkInGuild(int playerId) const
 {
-    return getMember(playerId) != 0;
+    return getMember(playerId) != nullptr;
 }
 
 GuildMember *Guild::getMember(int playerId) const
@@ -102,7 +102,7 @@ GuildMember *Guild::getMember(int playerId) const
         ++itr;
     }
 
-    return 0;
+    return nullptr;
 }
 
 bool Guild::canInvite(int playerId) const

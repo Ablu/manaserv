@@ -189,18 +189,28 @@ static void deinitializeServer()
     enet_deinitialize();
 
     // Destroy message handlers
-    delete gameHandler; gameHandler = 0;
-    delete accountHandler; accountHandler = 0;
-    delete postMan; postMan = 0;
-    delete gBandwidth; gBandwidth = 0;
+    delete gameHandler;
+    gameHandler = nullptr;
+    delete accountHandler;
+    accountHandler = nullptr;
+    delete postMan;
+    postMan = nullptr;
+    delete gBandwidth;
+    gBandwidth = nullptr;
 
     // Destroy Managers
-    delete stringFilter; stringFilter = 0;
-    delete monsterManager; monsterManager = 0;
-    delete abilityManager; abilityManager = 0;
-    delete itemManager; itemManager = 0;
-    delete emoteManager; emoteManager = 0;
-    delete settingsManager; settingsManager = 0;
+    delete stringFilter;
+    stringFilter = nullptr;
+    delete monsterManager;
+    monsterManager = nullptr;
+    delete abilityManager;
+    abilityManager = nullptr;
+    delete itemManager;
+    itemManager = nullptr;
+    delete emoteManager;
+    emoteManager = nullptr;
+    delete settingsManager;
+    settingsManager = nullptr;
     MapManager::deinitialize();
     StatusManager::deinitialize();
     ScriptManager::deinitialize();
@@ -255,13 +265,12 @@ static void parseOptions(int argc, char *argv[], CommandLineOptions &options)
 {
     const char *optString = "hv:";
 
-    const struct option longOptions[] =
-    {
-        { "help",       no_argument,       0, 'h' },
-        { "config",     required_argument, 0, 'c' },
-        { "verbosity",  required_argument, 0, 'v' },
-        { "port",       required_argument, 0, 'p' },
-        { 0, 0, 0, 0 }
+    const struct option longOptions[] = {
+        { "help", no_argument, nullptr, 'h' },
+        { "config", required_argument, nullptr, 'c' },
+        { "verbosity", required_argument, nullptr, 'v' },
+        { "port", required_argument, nullptr, 'p' },
+        { nullptr, 0, nullptr, 0 }
     };
 
     while (optind < argc)

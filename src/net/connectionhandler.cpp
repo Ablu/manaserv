@@ -62,7 +62,7 @@ bool ConnectionHandler::startListen(enet_uint16 port,
             0           /* assume any amount of outgoing bandwidth */);
 #endif
 
-    return host != 0;
+    return host != nullptr;
 }
 
 void ConnectionHandler::stopListen()
@@ -156,10 +156,8 @@ void ConnectionHandler::process(enet_uint32 timeout)
 
 void ConnectionHandler::sendToEveryone(const MessageOut &msg)
 {
-    for (NetComputers::iterator i = clients.begin(), i_end = clients.end();
-         i != i_end; ++i)
-    {
-        (*i)->send(msg);
+    for (auto &elem : clients) {
+        (elem)->send(msg);
     }
 }
 

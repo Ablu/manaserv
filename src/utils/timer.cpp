@@ -35,7 +35,7 @@ static uint64_t getTimeInMillisec()
     uint64_t timeInMillisec;
     timeval time;
 
-    gettimeofday(&time, 0);
+    gettimeofday(&time, nullptr);
     timeInMillisec = (uint64_t)time.tv_sec * 1000 + time.tv_usec / 1000;
     return timeInMillisec;
 }
@@ -59,7 +59,7 @@ void Timer::sleep()
     struct timespec req;
     req.tv_sec = 0;
     req.tv_nsec = (interval - (now - lastpulse)) * (1000 * 1000);
-    nanosleep(&req, 0);
+    nanosleep(&req, nullptr);
 #else
     Sleep(interval - (now - lastpulse));
 #endif

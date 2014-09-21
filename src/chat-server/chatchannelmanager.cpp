@@ -103,13 +103,9 @@ std::list<const ChatChannel*> ChatChannelManager::getPublicChannels() const
 {
     std::list<const ChatChannel*> channels;
 
-    for (ChatChannels::const_iterator i = mChatChannels.begin(),
-            i_end = mChatChannels.end();
-         i != i_end; ++i)
-    {
-        if (i->second.canJoin())
-        {
-            channels.push_back(&i->second);
+    for (const auto &elem : mChatChannels) {
+        if (elem.second.canJoin()) {
+            channels.push_back(&elem.second);
         }
     }
 
@@ -118,12 +114,9 @@ std::list<const ChatChannel*> ChatChannelManager::getPublicChannels() const
 
 int ChatChannelManager::getChannelId(const QString &channelName) const
 {
-    for (ChatChannels::const_iterator i = mChatChannels.begin(),
-            i_end = mChatChannels.end();
-         i != i_end; ++i)
-    {
-        if (i->second.getName() == channelName)
-            return i->first;
+    for (const auto &elem : mChatChannels) {
+        if (elem.second.getName() == channelName)
+            return elem.first;
     }
     return 0;
 }
@@ -133,19 +126,17 @@ ChatChannel *ChatChannelManager::getChannel(int channelId)
     ChatChannels::iterator i = mChatChannels.find(channelId);
     if (i != mChatChannels.end())
         return &i->second;
-    return 0;
+    return nullptr;
 }
 
 ChatChannel *ChatChannelManager::getChannel(const QString &name)
 {
-    for (ChatChannels::iterator i = mChatChannels.begin();
-         i != mChatChannels.end(); ++i)
-    {
-        if (i->second.getName() == name)
-            return &(i->second);
+    for (auto &elem : mChatChannels) {
+        if (elem.second.getName() == name)
+            return &(elem.second);
     }
 
-    return 0;
+    return nullptr;
 }
 
 void ChatChannelManager::setChannelTopic(int channelId, const QString &topic)
@@ -182,10 +173,8 @@ bool ChatChannelManager::channelExists(int channelId) const
 
 bool ChatChannelManager::channelExists(const QString &channelName) const
 {
-    for (ChatChannels::const_iterator i = mChatChannels.begin();
-         i != mChatChannels.end(); ++i)
-    {
-        if (i->second.getName() == channelName)
+    for (const auto &elem : mChatChannels) {
+        if (elem.second.getName() == channelName)
             return true;
     }
     return false;

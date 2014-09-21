@@ -109,10 +109,8 @@ Map::Map(int width, int height, int tileWidth, int tileHeight):
 
 Map::~Map()
 {
-    for (std::vector<MapObject*>::iterator it = mMapObjects.begin();
-         it != mMapObjects.end(); ++it)
-    {
-        delete *it;
+    for (auto &elem : mMapObjects) {
+        delete elem;
     }
 }
 
@@ -394,8 +392,8 @@ void FindPath::prepare(const Map *map)
         // Reset closed and open list IDs and clear the whichList values
         mOnClosedList = 1;
         mOnOpenList = 2;
-        for (unsigned i = 0, end = mPathInfos.size(); i < end; ++i)
-            mPathInfos[i].whichList = 0;
+        for (auto &elem : mPathInfos)
+            elem.whichList = 0;
     }
 
     // Make sure we have enough room to cover this map with path information

@@ -40,10 +40,8 @@ GuildManager::GuildManager(IStorage *storage)
 
 GuildManager::~GuildManager()
 {
-    for (std::map<int, Guild*>::iterator it = mGuilds.begin();
-            it != mGuilds.end(); ++it)
-    {
-        delete it->second;
+    for (auto &elem : mGuilds) {
+        delete elem.second;
     }
 }
 
@@ -129,36 +127,30 @@ void GuildManager::removeGuildMember(Guild *guild, int playerId,
 Guild *GuildManager::findById(short id) const
 {
     std::map<int, Guild*>::const_iterator it = mGuilds.find(id);
-    return it == mGuilds.end() ? 0 : it->second;
+    return it == mGuilds.end() ? nullptr : it->second;
 }
 
 Guild *GuildManager::findByName(const QString &name) const
 {
-    for (std::map<int, Guild*>::const_iterator it = mGuilds.begin(),
-            it_end = mGuilds.end();
-            it != it_end; ++it)
-    {
-        Guild *guild = it->second;
+    for (const auto &elem : mGuilds) {
+        Guild *guild = elem.second;
         if (guild->getName() == name)
             return guild;
     }
-    return 0;
+    return nullptr;
 }
 
 bool GuildManager::doesExist(const QString &name) const
 {
-    return findByName(name) != 0;
+    return findByName(name) != nullptr;
 }
 
 std::vector<Guild *> GuildManager::getGuildsForPlayer(int playerId) const
 {
     std::vector<Guild *> guilds;
-    for (std::map<int, Guild*>::const_iterator it = mGuilds.begin();
-         it != mGuilds.end(); ++it)
-    {
-        if (it->second->checkInGuild(playerId))
-        {
-            guilds.push_back(it->second);
+    for (const auto &elem : mGuilds) {
+        if (elem.second->checkInGuild(playerId)) {
+            guilds.push_back(elem.second);
         }
     }
     return guilds;
@@ -166,11 +158,8 @@ std::vector<Guild *> GuildManager::getGuildsForPlayer(int playerId) const
 
 void GuildManager::disconnectPlayer(ChatClient *player)
 {
-    for (std::vector<Guild *>::iterator it = player->guilds.begin(),
-         it_end = player->guilds.end(); it != it_end; ++it)
-    {
-        chatHandler->sendGuildListUpdate(*it,
-                                         player->characterName,
+    for (auto &elem : player->guilds) {
+        chatHandler->sendGuildListUpdate(elem, player->characterName,
                                          GUILD_EVENT_OFFLINE_PLAYER);
     }
 }

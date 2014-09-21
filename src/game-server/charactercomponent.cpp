@@ -62,23 +62,24 @@ static bool executeCallback(Script::Ref function, Entity &entity)
 }
 
 
-CharacterComponent::CharacterComponent(Entity &entity, MessageIn &msg, IConfiguration *configuration):
-    mClient(nullptr),
-    mConnected(true),
-    mTransactionHandler(nullptr),
-    mDatabaseID(-1),
-    mHairStyle(0),
-    mHairColor(0),
-    mSendAttributePointsStatus(false),
-    mAttributePoints(0),
-    mCorrectionPoints(0),
-    mSendAbilityCooldown(false),
-    mParty(0),
-    mTransaction(TRANS_NONE),
-    mTalkNpcId(0),
-    mNpcThread(0),
-    mBaseEntity(&entity),
-    mConfiguration(configuration)
+CharacterComponent::CharacterComponent(Entity &entity, MessageIn &msg,
+                                       IConfiguration *configuration)
+    : mClient(nullptr),
+      mConnected(true),
+      mTransactionHandler(nullptr),
+      mDatabaseID(-1),
+      mHairStyle(0),
+      mHairColor(0),
+      mSendAttributePointsStatus(false),
+      mAttributePoints(0),
+      mCorrectionPoints(0),
+      mSendAbilityCooldown(false),
+      mParty(0),
+      mTransaction(TRANS_NONE),
+      mTalkNpcId(0),
+      mNpcThread(nullptr),
+      mBaseEntity(&entity),
+      mConfiguration(configuration)
 {
     auto *beingComponent = entity.getComponent<BeingComponent>();
 
@@ -282,13 +283,11 @@ void CharacterComponent::serialize(Entity &entity, MessageOut &msg)
     const Possessions &poss = getPossessions();
 
     const InventoryData &inventoryData = poss.getInventory();
-    for (InventoryData::const_iterator itemIt = inventoryData.begin(),
-         itemIt_end = inventoryData.end(); itemIt != itemIt_end; ++itemIt)
-    {
-        msg.writeInt16(itemIt->first);           // slot id
-        msg.writeInt16(itemIt->second.itemId);
-        msg.writeInt16(itemIt->second.amount);
-        msg.writeInt8(itemIt->second.equipmentSlot);
+    for (const auto &elem : inventoryData) {
+        msg.writeInt16(elem.first); // slot id
+        msg.writeInt16(elem.second.itemId);
+        msg.writeInt16(elem.second.amount);
+        msg.writeInt8(elem.second.equipmentSlot);
     }
 }
 
@@ -618,7 +617,7 @@ void CharacterComponent::resumeNpcThread()
         gameHandler->sendTo(mClient, msg);
 
         mTalkNpcId = 0;
-        mNpcThread = 0;
+        mNpcThread = nullptr;
     }
 }
 

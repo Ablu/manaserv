@@ -258,13 +258,12 @@ static void parseOptions(int argc, char *argv[], CommandLineOptions &options)
 {
     const char *optString = "hv:";
 
-    const struct option longOptions[] =
-    {
-        { "help",       no_argument,       0, 'h' },
-        { "config",     required_argument, 0, 'c' },
-        { "verbosity",  required_argument, 0, 'v' },
-        { "port",       required_argument, 0, 'p' },
-        { 0, 0, 0, 0 }
+    const struct option longOptions[] = {
+        { "help", no_argument, nullptr, 'h' },
+        { "config", required_argument, nullptr, 'c' },
+        { "verbosity", required_argument, nullptr, 'v' },
+        { "port", required_argument, nullptr, 'p' },
+        { nullptr, 0, nullptr, 0 }
     };
 
     while (optind < argc)

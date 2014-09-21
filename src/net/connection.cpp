@@ -30,11 +30,7 @@
 #define ENET_CUTOFF 0xFFFFFFFF
 #endif
 
-Connection::Connection():
-    mRemote(0),
-    mLocal(0)
-{
-}
+Connection::Connection() : mRemote(nullptr), mLocal(nullptr) {}
 
 bool Connection::start(const QString &address, int port)
 {
@@ -86,8 +82,8 @@ void Connection::stop()
     if (mLocal)
         enet_host_destroy(mLocal);
 
-    mRemote = 0;
-    mLocal = 0;
+    mRemote = nullptr;
+    mLocal = nullptr;
 }
 
 bool Connection::isConnected() const

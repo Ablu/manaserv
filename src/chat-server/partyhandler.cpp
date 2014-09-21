@@ -197,7 +197,7 @@ void ChatHandler::removeUserFromParty(ChatClient &client)
         if (client.party->userCount() < 1)
         {
             delete client.party;
-            client.party = 0;
+            client.party = nullptr;
         }
     }
 }

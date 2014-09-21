@@ -375,7 +375,7 @@ const Attribute *BeingComponent::getAttribute(AttributeInfo *attribute) const
     {
         LOG_DEBUG("BeingComponent::getAttribute: Attribute "
                   << attribute->id << " not found! Returning 0.");
-        return 0;
+        return nullptr;
     }
     return &ret->second;
 }
@@ -544,12 +544,9 @@ void BeingComponent::update(Entity &entity)
     }
 
     // Update lifetime of effects.
-    for (AttributeMap::iterator it = mAttributes.begin();
-         it != mAttributes.end();
-         ++it)
-    {
-        if (it->second.tick())
-            updateDerivedAttributes(entity, it->first);
+    for (auto &elem : mAttributes) {
+        if (elem.second.tick())
+            updateDerivedAttributes(entity, elem.first);
     }
 
     // Update and run status effects

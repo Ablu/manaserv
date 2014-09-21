@@ -30,8 +30,7 @@
 
 namespace XML
 {
-    Document::Document(const QString &fileName, bool useResman):
-        mDoc(0)
+Document::Document(const QString &fileName, bool useResman) : mDoc(nullptr)
     {
         QString resolvedFileName = fileName;
         if (useResman)
@@ -63,7 +62,7 @@ namespace XML
 
     xmlNodePtr Document::rootNode()
     {
-        return mDoc ? xmlDocGetRootElement(mDoc) : 0;
+        return mDoc ? xmlDocGetRootElement(mDoc) : nullptr;
     }
 
     bool hasProperty(xmlNodePtr node, const char *name)

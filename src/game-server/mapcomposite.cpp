@@ -65,10 +65,9 @@ struct ObjectBucket
 ObjectBucket::ObjectBucket()
   : free(256), next_object(0)
 {
-    for (unsigned i = 0; i < 256 / int_bitsize; ++i)
-    {
+    for (auto &elem : bitmap) {
         // An occupied ID is represented by zero in the bitmap.
-        bitmap[i] = ~0u;
+        elem = ~0u;
     }
 }
 
@@ -342,9 +341,8 @@ MapContent::MapContent(Map *map)
 
 MapContent::~MapContent()
 {
-    for (int i = 0; i < 256; ++i)
-    {
-        delete buckets[i];
+    for (auto &elem : buckets) {
+        delete elem;
     }
     delete[] zones;
 }
@@ -595,16 +593,15 @@ void ActorIterator::operator++()
 Script::Ref MapComposite::mInitializeCallback;
 Script::Ref MapComposite::mUpdateCallback;
 
-MapComposite::MapComposite(int id,
-                           const QString &name,
-                           IConfiguration *configuration):
-    mConfiguration(configuration),
-    mActive(false),
-    mMap(0),
-    mContent(0),
-    mName(name),
-    mID(id),
-    mPvPRules(PVP_NONE)
+MapComposite::MapComposite(int id, const QString &name,
+                           IConfiguration *configuration)
+    : mConfiguration(configuration),
+      mActive(false),
+      mMap(nullptr),
+      mContent(nullptr),
+      mName(name),
+      mID(id),
+      mPvPRules(PVP_NONE)
 {
 }
 
@@ -685,13 +682,12 @@ ZoneIterator MapComposite::getAroundBeingIterator(Entity *obj, int radius) const
                          obj->getComponent<BeingComponent>()->getOldPosition(),
                          radius);
     MapRegion r2 = r1;
-    for (MapRegion::iterator i = r1.begin(), i_end = r1.end(); i != i_end; ++i)
-    {
+    for (auto &elem : r1) {
         /* Fills region with destinations taken around the old position.
            This is necessary to detect two moving objects changing zones at the
            same time and at the border, and going in opposite directions (or
            more simply to detect teleportations, if any). */
-        MapRegion &r4 = mContent->zones[*i].destinations;
+        MapRegion &r4 = mContent->zones[elem].destinations;
         if (!r4.empty())
         {
             MapRegion r3;
@@ -757,10 +753,8 @@ void MapComposite::update()
 {
     // Update object status
     const std::vector< Entity * > &entities = getEverything();
-    for (std::vector< Entity * >::const_iterator it = entities.begin(),
-         it_end = entities.end(); it != it_end; ++it)
-    {
-        (*it)->update();
+    for (const auto &entitie : entities) {
+        (entitie)->update();
     }
 
     if (mUpdateCallback.isValid())
@@ -783,24 +777,22 @@ void MapComposite::update()
     }
 
     // Cannot use a WholeMap iterator as objects will change zones under its feet.
-    for (std::vector< Entity * >::iterator i = mContent->entities.begin(),
-         i_end = mContent->entities.end(); i != i_end; ++i)
-    {
-        if (!(*i)->canMove())
+    for (auto &elem : mContent->entities) {
+        if (!(elem)->canMove())
             continue;
 
         const Point &pos1 =
-                (*i)->getComponent<BeingComponent>()->getOldPosition();
+            (elem)->getComponent<BeingComponent>()->getOldPosition();
         const Point &pos2 =
-                (*i)->getComponent<ActorComponent>()->getPosition();
+            (elem)->getComponent<ActorComponent>()->getPosition();
 
         MapZone &src = mContent->getZone(pos1),
                 &dst = mContent->getZone(pos2);
         if (&src != &dst)
         {
             addZone(src.destinations, &dst - mContent->zones);
-            src.remove(*i);
-            dst.insert(*i);
+            src.remove(elem);
+            dst.insert(elem);
         }
     }
 }
@@ -886,7 +878,7 @@ const MapObject *MapComposite::findMapObject(const QString &name,
             return obj;
         }
     }
-    return 0; // nothing found
+    return nullptr; // nothing found
 }
 
 /**
@@ -899,9 +891,8 @@ void MapComposite::initializeContent()
 
     const std::vector<MapObject *> &objects = mMap->getObjects();
 
-    for (size_t i = 0; i < objects.size(); ++i)
-    {
-        const MapObject *object = objects.at(i);
+    for (auto &objects_i : objects) {
+        const MapObject *object = objects_i;
         const QString &type = object->getType();
 
         if (type.compare("WARP", Qt::CaseInsensitive) == 0)
@@ -1027,7 +1018,7 @@ void MapComposite::initializeContent()
         }
         else if (type.compare("SPAWN", Qt::CaseInsensitive) == 0)
         {
-            MonsterClass *monster = 0;
+            MonsterClass *monster = nullptr;
             int maxBeings = object->getProperty("MAX_BEINGS").toInt();
             int spawnRate = object->getProperty("SPAWN_RATE").toInt();
             QString monsterName = object->getProperty("MONSTER_ID");

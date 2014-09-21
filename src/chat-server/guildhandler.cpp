@@ -61,10 +61,8 @@ void ChatHandler::sendGuildRejoin(ChatClient &client)
 
     client.guilds = guilds;
 
-    for (std::vector<Guild *>::iterator it = guilds.begin(),
-         it_end = guilds.end(); it != it_end; ++it)
-    {
-        Guild *guild = *it;
+    for (auto guild : guilds) {
+
 
         const int permissions = guild->getUserPermissions(client.characterId);
         const QString guildName = guild->getName();

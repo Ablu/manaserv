@@ -43,10 +43,8 @@ const unsigned SYNC_BUFFER_SIZE = 1024;
 /** Maximum number of messages in sync buffer. */
 const int SYNC_BUFFER_LIMIT = 20;
 
-AccountConnection::AccountConnection(IConfiguration *configuration):
-    mSyncBuffer(0),
-    mSyncMessages(0),
-    mConfiguration(configuration)
+AccountConnection::AccountConnection(IConfiguration *configuration)
+    : mSyncBuffer(nullptr), mSyncMessages(0), mConfiguration(configuration)
 {
 }
 
@@ -345,20 +343,16 @@ void AccountConnection::sendStatistics()
 {
     MessageOut msg(GAMSG_STATISTICS);
     const MapManager::Maps &maps = MapManager::getMaps();
-    for (MapManager::Maps::const_iterator i = maps.begin(),
-         i_end = maps.end(); i != i_end; ++i)
-    {
-        MapComposite *m = i->second;
+    for (const auto &maps_i : maps) {
+        MapComposite *m = maps_i.second;
         if (!m->isActive()) continue;
-        msg.writeInt16(i->first);
+        msg.writeInt16(maps_i.first);
         int nbEntities = 0, nbMonsters = 0;
         typedef std::vector< Entity * > Entities;
         const Entities &things = m->getEverything();
         std::vector< int > players;
-        for (Entities::const_iterator j = things.begin(),
-             j_end = things.end(); j != j_end; ++j)
-        {
-            Entity *t = *j;
+        for (auto t : things) {
+
             switch (t->getType())
             {
                 case OBJECT_CHARACTER:

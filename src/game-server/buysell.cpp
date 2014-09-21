@@ -80,14 +80,12 @@ int BuySell::registerPlayerItems()
     auto *component = mChar->getComponent<CharacterComponent>();
     const InventoryData &inventoryData =
             component->getPossessions().getInventory();
-    for (InventoryData::const_iterator it = inventoryData.begin(),
-        it_end = inventoryData.end(); it != it_end; ++it)
-    {
-        unsigned amount = it->second.amount;
+    for (const auto &elem : inventoryData) {
+        unsigned amount = elem.second.amount;
         if (!amount)
             continue;
 
-        unsigned id = it->second.itemId;
+        unsigned id = elem.second.itemId;
         int cost = -1;
         if (itemManager->getItem(id))
         {
@@ -108,13 +106,10 @@ int BuySell::registerPlayerItems()
         // We check if the item Id has been already
         // added. If so, we cumulate the amounts.
         bool itemAlreadyAdded = false;
-        for (TradedItems::iterator i = mItems.begin(),
-            i_end = mItems.end(); i != i_end; ++i)
-        {
-            if (i->itemId == id)
-            {
+        for (auto &_i : mItems) {
+            if (_i.itemId == id) {
                 itemAlreadyAdded = true;
-                i->amount += amount;
+                _i.amount += amount;
                 break;
             }
         }

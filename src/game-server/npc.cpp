@@ -76,7 +76,7 @@ static Script *prepareResume(Entity *ch, Script::ThreadState expectedState)
     Script::Thread *thread =
             ch->getComponent<CharacterComponent>()->getNpcThread();
     if (!thread || thread->mState != expectedState)
-        return 0;
+        return nullptr;
 
     Script *script = ScriptManager::currentState();
     script->prepareResume(thread);

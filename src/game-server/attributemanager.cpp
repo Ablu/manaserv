@@ -44,8 +44,8 @@ void AttributeManager::deinitialize()
         delete it.second;
     mAttributeMap.clear();
 
-    for (unsigned i = 0; i < MaxScope; ++i)
-        mAttributeScopes[i].clear();
+    for (auto &elem : mAttributeScopes)
+        elem.clear();
 }
 
 AttributeInfo *AttributeManager::getAttributeInfo(
@@ -53,7 +53,7 @@ AttributeInfo *AttributeManager::getAttributeInfo(
 {
     auto ret = mAttributeMap.find(id);
     if (ret == mAttributeMap.end())
-        return 0;
+        return nullptr;
     return ret->second;
 }
 
@@ -62,7 +62,7 @@ AttributeInfo *AttributeManager::getAttributeInfo(
 {
     if (mAttributeNameMap.contains(name))
         return mAttributeNameMap.value(name);
-    return 0;
+    return nullptr;
 }
 
 const std::set<AttributeInfo *>
@@ -86,7 +86,7 @@ const QString *AttributeManager::getTag(const ModifierLocation &location) const
         if (it.second == location)
             return &it.first;
     }
-    return 0;
+    return nullptr;
 }
 
 /**

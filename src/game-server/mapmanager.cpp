@@ -51,9 +51,8 @@ void MapManager::initialize(IConfiguration *configuration)
  */
 void MapManager::deinitialize()
 {
-    for (Maps::iterator i = maps.begin(), i_end = maps.end(); i != i_end; ++i)
-    {
-        delete i->second;
+    for (auto &maps_i : maps) {
+        delete maps_i.second;
     }
     maps.clear();
 }

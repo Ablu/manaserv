@@ -382,12 +382,9 @@ void ChatHandler::handleEnterChannelMessage(ChatClient &client, MessageIn &msg)
             reply.writeString(channel->getAnnouncement());
             const ChatChannel::ChannelUsers &users = channel->getUserList();
 
-            for (ChatChannel::ChannelUsers::const_iterator i = users.begin(),
-                    i_end = users.end();
-                    i != i_end; ++i)
-            {
-                reply.writeString((*i)->characterName);
-                reply.writeString(channel->getUserMode((*i)));
+            for (const auto &user : users) {
+                reply.writeString((user)->characterName);
+                reply.writeString(channel->getUserMode((user)));
             }
             // Send an CPMSG_UPDATE_CHANNEL to warn other clients a user went
             // in the channel.
@@ -533,12 +530,9 @@ void ChatHandler::handleListChannelsMessage(ChatClient &client, MessageIn &)
     std::list<const ChatChannel*> channels =
         chatChannelManager->getPublicChannels();
 
-    for (std::list<const ChatChannel*>::iterator i = channels.begin(),
-            i_end = channels.end();
-            i != i_end; ++i)
-    {
-        reply.writeString((*i)->getName());
-        reply.writeInt16((*i)->getUserList().size());
+    for (auto &channel : channels) {
+        reply.writeString((channel)->getName());
+        reply.writeInt16((channel)->getUserList().size());
     }
 
     client.send(reply);
@@ -564,11 +558,9 @@ void ChatHandler::handleListChannelUsersMessage(ChatClient &client,
 
         const ChatChannel::ChannelUsers &users = channel->getUserList();
 
-        for (ChatChannel::ChannelUsers::const_iterator
-             i = users.begin(), i_end = users.end(); i != i_end; ++i)
-        {
-            reply.writeString((*i)->characterName);
-            reply.writeString(channel->getUserMode((*i)));
+        for (const auto &user : users) {
+            reply.writeString((user)->characterName);
+            reply.writeString(channel->getUserMode((user)));
         }
 
         client.send(reply);
@@ -622,11 +614,9 @@ void ChatHandler::sayToPlayer(ChatClient &computer,
     MessageOut result(CPMSG_PRIVMSG);
     result.writeString(computer.characterName);
     result.writeString(text);
-    for (NetComputers::iterator i = clients.begin(), i_end = clients.end();
-         i != i_end; ++i) {
-        if (static_cast< ChatClient * >(*i)->characterName == playerName)
-        {
-            (*i)->send(result);
+    for (auto &elem : clients) {
+        if (static_cast<ChatClient *>(elem)->characterName == playerName) {
+            (elem)->send(result);
             break;
         }
     }
@@ -647,10 +637,8 @@ void ChatHandler::sendInChannel(ChatChannel *channel, MessageOut &msg)
 {
     const ChatChannel::ChannelUsers &users = channel->getUserList();
 
-    for (ChatChannel::ChannelUsers::const_iterator
-         i = users.begin(), i_end = users.end(); i != i_end; ++i)
-    {
-        (*i)->send(msg);
+    for (const auto &user : users) {
+        (user)->send(msg);
     }
 }
 
@@ -662,5 +650,5 @@ ChatClient *ChatHandler::getClient(const QString &name) const
     if (itr != mPlayerMap.end())
         return itr->second;
     else
-        return 0;
+        return nullptr;
 }

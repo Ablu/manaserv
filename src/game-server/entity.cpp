@@ -28,14 +28,14 @@ Entity::Entity(EntityType type, MapComposite *map) :
     mMap(map),
     mType(type)
 {
-    for (int i = 0; i < ComponentTypeCount; ++i)
-        mComponents[i] = nullptr;
+    for (auto &elem : mComponents)
+        elem = nullptr;
 }
 
 Entity::~Entity()
 {
-    for (int i = 0; i < ComponentTypeCount; ++i)
-        delete mComponents[i];
+    for (auto &elem : mComponents)
+        delete elem;
 
     mIdManager.free(mId);
 }
@@ -45,7 +45,7 @@ Entity::~Entity()
  */
 void Entity::update()
 {
-    for (int i = 0; i < ComponentTypeCount; ++i)
-        if (mComponents[i])
-            mComponents[i]->update(*this);
+    for (auto &elem : mComponents)
+        if (elem)
+            elem->update(*this);
 }

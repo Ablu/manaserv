@@ -153,7 +153,7 @@ static Entity *findActorNear(Entity *p, int id)
             return e;
     }
 
-    return 0;
+    return nullptr;
 }
 
 static Entity *findBeingNear(Entity *p, int id)
@@ -162,7 +162,7 @@ static Entity *findBeingNear(Entity *p, int id)
         if (e->hasComponent<BeingComponent>())
             return e;
 
-    return 0;
+    return nullptr;
 }
 
 static Entity *findCharacterNear(Entity *p, int id)
@@ -171,7 +171,7 @@ static Entity *findCharacterNear(Entity *p, int id)
         if (e->getType() == OBJECT_CHARACTER)
             return e;
 
-    return 0;
+    return nullptr;
 }
 
 void GameHandler::processMessage(NetComputer *computer, MessageIn &message)
@@ -410,10 +410,8 @@ void GameHandler::deletePendingConnect(Entity *character)
 
 Entity *GameHandler::getCharacterByNameSlow(const QString &name) const
 {
-    for (NetComputers::const_iterator i = clients.begin(),
-         i_end = clients.end(); i != i_end; ++i)
-    {
-        GameClient *c = static_cast< GameClient * >(*i);
+    for (const auto &elem : clients) {
+        GameClient *c = static_cast<GameClient *>(elem);
         Entity *ch = c->character;
         if (ch && ch->getComponent<BeingComponent>()->getName() == name &&
                 c->status == CLIENT_CONNECTED)
@@ -421,7 +419,7 @@ Entity *GameHandler::getCharacterByNameSlow(const QString &name) const
             return ch;
         }
     }
-    return 0;
+    return nullptr;
 }
 
 void GameHandler::handleSay(GameClient &client, MessageIn &message)
@@ -640,7 +638,7 @@ void GameHandler::handleUseAbilityOnBeing(GameClient &client, MessageIn &message
 
     const int abilityID = message.readInt8();
     const int targetID = message.readInt16(); // 0 when no target is selected
-    Entity *being = 0;
+    Entity *being = nullptr;
     if (targetID != 0)
         being = findBeingNear(client.character, targetID);
 
@@ -763,7 +761,7 @@ void GameHandler::handleDisconnect(GameClient &client, MessageIn &message)
 
     characterComponent->disconnected(*client.character);
     delete client.character;
-    client.character = 0;
+    client.character = nullptr;
     client.status = CLIENT_LOGIN;
 
     client.send(result);

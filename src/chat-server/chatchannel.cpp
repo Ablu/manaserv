@@ -119,5 +119,5 @@ QString ChatChannel::getUserMode(ChatClient *user) const
     if (itr != user->userModes.end())
         return itr->second;
 
-    return 0;
+    return nullptr;
 }
