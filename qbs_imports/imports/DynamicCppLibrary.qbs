@@ -14,5 +14,7 @@ DynamicLibrary {
 
     cpp.cxxFlags: [
         "-std=c++0x",
+        "-Wall",
+        "-Werror",
     ]
 }
