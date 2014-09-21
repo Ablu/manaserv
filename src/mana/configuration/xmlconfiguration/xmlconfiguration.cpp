@@ -45,8 +45,8 @@ static bool readFile(const QString &fileName)
 {
     if (processedFiles.find(fileName) != processedFiles.end())
     {
-        qDebug() << "Cycle include in configuration file '" <<
-                    fileName << "'.";
+        qWarning() << "Cycle include in configuration file '" << fileName
+                   << "'.";
         return false;
     }
     else
@@ -74,7 +74,7 @@ static bool readFile(const QString &fileName)
 
             if (!readFile(includeFileName))
             {
-                qWarning() << "Error ocurred while parsing included " <<
+                qWarning() << "Error ocurred while parsing included "
                               "configuration file '" << includeFileName << "'.";
                 file.close();
                 return false;

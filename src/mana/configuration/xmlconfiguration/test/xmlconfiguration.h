@@ -6,6 +6,7 @@
 class XmlConfigurationTest : public QObject
 {
     Q_OBJECT
+
 public:
     XmlConfigurationTest();
 
