@@ -21,6 +21,9 @@ private slots:
 
     void updateLastLogin();
 
+    void updateCharacterPoints();
+    void updateAttribute();
+
 private:
     SqlStorage *mStorage = nullptr;
 };

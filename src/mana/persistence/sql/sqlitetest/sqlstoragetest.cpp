@@ -85,6 +85,8 @@ static void verifyAccount(const std::unique_ptr<Account> &account)
 static std::unique_ptr<CharacterData> createTestCharacter()
 {
     std::unique_ptr<CharacterData> character(new CharacterData("Test"));
+    character->setAttribute(100, 1.0);
+    character->setModAttribute(100, 5.0);
     return character;
 }
 
@@ -92,6 +94,10 @@ static void verifyCharacter(const std::unique_ptr<CharacterData> &character)
 {
     QVERIFY2(character, "The character was unable to retreive!");
     QCOMPARE(character->getName(), QString("Test"));
+    auto &attributes = character->getAttributes();
+    QCOMPARE(attributes.size(), 1ul);
+    QCOMPARE(attributes.at(100).base, 1.0);
+    QCOMPARE(attributes.at(100).modified, 5.0);
 }
 
 
@@ -162,6 +168,49 @@ void SqlStorageTest::updateLastLogin()
 
     auto accountFromStorage = mStorage->getAccount("test");
     QCOMPARE(accountFromStorage->getLastLogin(), date);
+}
+
+void SqlStorageTest::updateCharacterPoints()
+{
+    auto account = createTestAccount();
+    mStorage->addAccount(*account);
+
+    auto character = createTestCharacter();
+    account->addCharacter(std::move(character));
+    mStorage->flush(*account);
+
+    int characterId = account->getCharacters()[0]->getDatabaseId();
+    int newCharacterPoints = 10;
+    int newCorrectionPoints = 5;
+    mStorage->updateCharacterPoints(characterId, newCharacterPoints,
+                                    newCorrectionPoints);
+    auto characterFromStorage = mStorage->getCharacter("Test");
+    QCOMPARE(characterFromStorage->getAttributePoints(), newCharacterPoints);
+    QCOMPARE(characterFromStorage->getCorrectionPoints(), newCorrectionPoints);
+}
+
+void SqlStorageTest::updateAttribute()
+{
+    auto account = createTestAccount();
+    mStorage->addAccount(*account);
+
+    auto character = createTestCharacter();
+    account->addCharacter(std::move(character));
+    mStorage->flush(*account);
+
+    int characterId = account->getCharacters()[0]->getDatabaseId();
+    int attributeId = 100;
+    double value = 1.3;
+    double modifier = 5.0;
+    mStorage->updateAttribute(characterId, attributeId, value, modifier);
+
+    auto characterFromDatabase = mStorage->getCharacter("Test");
+    auto &attributes = characterFromDatabase->getAttributes();
+    auto it = attributes.find(attributeId);
+    QVERIFY2(it != attributes.end(), "Attribute was not found!");
+    const AttributeValue &attributeValue = it->second;
+    QCOMPARE(attributeValue.base, value);
+    QCOMPARE(attributeValue.modified, modifier);
 }
 
 QTEST_MAIN(SqlStorageTest)
