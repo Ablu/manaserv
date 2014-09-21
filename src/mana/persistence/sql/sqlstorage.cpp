@@ -345,6 +345,7 @@ std::unique_ptr<CharacterData> SqlStorage::getCharacterBySQL(QSqlQuery &sqlQuery
                 "WHERE char_id = " + QString::number(character->getDatabaseId());
 
         QSqlQuery query(mDb);
+        tryExecuteSql(query, sql);
         while(query.next())
         {
             unsigned id = query.value(0).toUInt();
