@@ -24,7 +24,8 @@
 #include <memory>
 #include <QString>
 #include <vector>
-#include <time.h>
+
+#include <QDateTime>
 
 #include "character.h"
 
@@ -38,8 +39,6 @@ public:
     Account(int id = -1)
         : mId(id)
         , mLevel(0)
-        , mRegistrationDate(0)
-        , mLastLogin(0)
     {}
 
     /**
@@ -195,7 +194,7 @@ public:
     /**
      * Get the time of the account registration.
      */
-    time_t getRegistrationDate() const
+    const QDateTime &getRegistrationDate() const
     { return mRegistrationDate; }
 
     /**
@@ -203,12 +202,12 @@ public:
      *
      * @param time of the account registration.
      */
-    void setRegistrationDate(time_t time);
+    void setRegistrationDate(const QDateTime &time);
 
     /**
      * Get the time of the last login.
      */
-    time_t getLastLogin() const
+    const QDateTime &getLastLogin() const
     { return mLastLogin; }
 
     /**
@@ -216,7 +215,7 @@ public:
      *
      * @param time of the last login.
      */
-    void setLastLogin(time_t time);
+    void setLastLogin(const QDateTime &time);
 
 private:
     Account(const Account &rhs) = delete;
@@ -230,8 +229,8 @@ private:
     std::map<unsigned, std::unique_ptr<CharacterData>> mCharacters;   /**< Character data */
     int mId;                  /**< Unique id */
     unsigned char mLevel;     /**< Account level */
-    time_t mRegistrationDate; /**< Date and time of the account registration */
-    time_t mLastLogin;        /**< Date and time of the last login */
+    QDateTime mRegistrationDate; /**< Date and time of the account registration */
+    QDateTime mLastLogin;        /**< Date and time of the last login */
 };
 
 typedef std::vector< Account * > Accounts;

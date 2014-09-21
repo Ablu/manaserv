@@ -57,12 +57,12 @@ void Account::setId(int id)
     mId = id;
 }
 
-void Account::setRegistrationDate(time_t time)
+void Account::setRegistrationDate(const QDateTime &time)
 {
     mRegistrationDate = time;
 }
 
-void Account::setLastLogin(time_t time)
+void Account::setLastLogin(const QDateTime &time)
 {
     mLastLogin = time;
 }

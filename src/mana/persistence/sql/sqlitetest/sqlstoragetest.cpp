@@ -15,6 +15,8 @@
 #include <QTest>
 #include <QTextStream>
 
+#include <memory>
+
 void executeAllFromFile(QFile &file, QSqlDatabase &db)
 {
     QVERIFY2(file.open(QFile::ReadOnly | QFile::Text),
@@ -64,6 +66,9 @@ static std::unique_ptr<Account> createTestAccount()
     account->setName("test");
     account->setEmail("mailtest");
     account->setPassword("secretpw");
+    QDateTime registrationDate(QDate(2005, 3, 6), QTime(22, 6, 58));
+    account->setLastLogin(registrationDate);
+    account->setRegistrationDate(registrationDate);
 
     return account;
 }
@@ -145,6 +150,18 @@ void SqlStorageTest::characterDeletion()
 
     mStorage->delCharacter(characterId);
     QVERIFY2(!mStorage->getCharacter("Test"), "Character is still there!");
+}
+
+void SqlStorageTest::updateLastLogin()
+{
+    auto account = createTestAccount();
+    mStorage->addAccount(*account);
+    QDateTime date(QDate(2014, 9, 21), QTime(12, 10, 1));
+    account->setLastLogin(date);
+    mStorage->updateLastLogin(*account);
+
+    auto accountFromStorage = mStorage->getAccount("test");
+    QCOMPARE(accountFromStorage->getLastLogin(), date);
 }
 
 QTEST_MAIN(SqlStorageTest)

@@ -19,6 +19,8 @@ private slots:
     void accountDeletionWithCharacters();
     void characterDeletion();
 
+    void updateLastLogin();
+
 private:
     SqlStorage *mStorage = nullptr;
 };

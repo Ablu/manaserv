@@ -159,8 +159,12 @@ std::unique_ptr<Account> SqlStorage::getAccountBySQL(QSqlQuery &query)
     account->setName(query.value(1).toString());
     account->setPassword(query.value(2).toString());
     account->setEmail(query.value(3).toString());
-    account->setRegistrationDate(query.value(6).toUInt());
-    account->setLastLogin(query.value(7).toUInt());
+    QDateTime registrationDate;
+    QDateTime lastLoginDate;
+    registrationDate.setTime_t(query.value(6).toUInt());
+    lastLoginDate.setTime_t(query.value(7).toUInt());
+    account->setRegistrationDate(registrationDate);
+    account->setLastLogin(lastLoginDate);
 
     int level = query.value(4).toUInt();
     // Check if the user is permanently banned, or temporarily banned.
@@ -667,13 +671,14 @@ void SqlStorage::addAccount(Account &account)
     assert(account.getCharacters().size() == 0);
 
     // Insert the account
-    QString sql = "insert into " + ACCOUNTS_TBL_NAME
-            + " (username, password, email, level, "
-            + "banned, registration, lastlogin)"
-            + " VALUES (:name, :password, :email, "
-            + QString::number(account.getLevel()) + ", 0, "
-            + QString::number(account.getRegistrationDate()) + ", "
-            + QString::number(account.getLastLogin()) + ");";
+    QString sql = "insert into " + ACCOUNTS_TBL_NAME +
+                  " (username, password, email, level, " +
+                  "banned, registration, lastlogin)" +
+                  " VALUES (:name, :password, :email, " +
+                  QString::number(account.getLevel()) + ", 0, " +
+                  QString::number(account.getRegistrationDate().toTime_t()) +
+                  ", " + QString::number(account.getLastLogin().toTime_t()) +
+                  ");";
     QSqlQuery query(mDb);
     tryPrepare(query, sql);
     query.bindValue(":name", account.getName());
@@ -817,9 +822,9 @@ void SqlStorage::delAccount(Account &account)
 
 void SqlStorage::updateLastLogin(Account &account)
 {
-    QString sql = "UPDATE " + ACCOUNTS_TBL_NAME
-            + "   SET lastlogin = '" + QString::number(account.getLastLogin()) + "'"
-            + " WHERE id = '" + QString::number(account.getId()) + "';";
+    QString sql = "UPDATE " + ACCOUNTS_TBL_NAME + "   SET lastlogin = '" +
+                  QString::number(account.getLastLogin().toTime_t()) + "'" +
+                  " WHERE id = '" + QString::number(account.getId()) + "';";
     mDb.exec(sql);
 }
 

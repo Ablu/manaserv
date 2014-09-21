@@ -426,9 +426,7 @@ void AccountHandler::handleLoginMessage(AccountClient &client, MessageIn &msg)
     // The client successfully logged in...
 
     // Set lastLogin date of the account.
-    time_t login;
-    time(&login);
-    account->setLastLogin(login);
+    account->setLastLogin(QDateTime::currentDateTime());
     mStorage->updateLastLogin(*account);
 
     client.status = CLIENT_CONNECTED;
@@ -551,10 +549,9 @@ void AccountHandler::handleRegisterMessage(AccountClient &client,
         account->setLevel(AL_PLAYER);
 
         // Set the date and time of the account registration, and the last login
-        time_t regdate;
-        time(&regdate);
-        account->setRegistrationDate(regdate);
-        account->setLastLogin(regdate);
+        auto registrationDate = QDateTime::currentDateTime();
+        account->setRegistrationDate(registrationDate);
+        account->setLastLogin(registrationDate);
 
         mStorage->addAccount(*account);
         reply.writeInt8(ERRMSG_OK);
