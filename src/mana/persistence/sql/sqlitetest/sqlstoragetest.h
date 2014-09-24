@@ -25,6 +25,8 @@ private slots:
     void updateAttribute();
     void insertStatusEffect();
 
+    void banCharacter();
+
 private:
     SqlStorage *mStorage = nullptr;
 };

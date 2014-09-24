@@ -235,4 +235,30 @@ void SqlStorageTest::insertStatusEffect()
     QCOMPARE(status.time, ticks);
 }
 
+void SqlStorageTest::banCharacter()
+{
+    auto account = createTestAccount();
+    mStorage->addAccount(*account);
+
+    auto character = createTestCharacter();
+    account->addCharacter(std::move(character));
+    mStorage->flush(*account);
+
+    int characterId = account->getCharacters()[0]->getDatabaseId();
+    QDateTime banEnd = QDateTime::currentDateTime();
+    mStorage->banCharacter(characterId, banEnd);
+
+    {
+        auto accountFromStorage = mStorage->getAccount("test");
+        QCOMPARE((AccessLevel)accountFromStorage->getLevel(), AL_BANNED);
+    }
+
+    mStorage->checkBannedAccounts();
+
+    {
+        auto accountFromStorage = mStorage->getAccount("test");
+        QCOMPARE((AccessLevel)accountFromStorage->getLevel(), AL_PLAYER);
+    }
+}
+
 QTEST_MAIN(SqlStorageTest)

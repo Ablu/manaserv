@@ -420,7 +420,9 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
         {
             int id = msg.readInt32();
             int duration = msg.readInt32();
-            mStorage->banCharacter(id, duration);
+            QDateTime banEnd = QDateTime::currentDateTime();
+            banEnd.addSecs(duration * 60);
+            mStorage->banCharacter(id, banEnd);
         } break;
 
         case GAMSG_CHANGE_ACCOUNT_LEVEL:

@@ -26,6 +26,7 @@
 #include <memory>
 #include <vector>
 
+#include <QDateTime>
 #include <QSqlDatabase>
 
 #include "mana/persistence/interfaces/istorage.h"
@@ -174,7 +175,7 @@ public:
      * @param id character identifier.
      * @param duration duration in minutes.
      */
-    void banCharacter(int id, int duration);
+    void banCharacter(int id, const QDateTime &until);
 
     /**
      * Delete a character in the database.

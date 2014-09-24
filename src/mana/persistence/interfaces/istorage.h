@@ -26,6 +26,7 @@
 #include <memory>
 #include <vector>
 
+#include <QDateTime>
 #include <QString>
 
 #include "common/transaction.h"
@@ -171,7 +172,7 @@ public:
      * @param id character identifier.
      * @param duration duration in minutes.
      */
-    virtual void banCharacter(int id, int duration) = 0;
+    virtual void banCharacter(int id, const QDateTime &until) = 0;
 
     /**
      * Delete a character in the database.

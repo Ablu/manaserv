@@ -1181,29 +1181,24 @@ void SqlStorage::setQuestVar(int id, const QString &name,
     tryExecutePrepared(insertQuery);
 }
 
-void SqlStorage::banCharacter(int id, int duration)
+void SqlStorage::banCharacter(int id, const QDateTime &until)
 {
-    {
-        // check the account of the character
-        QString sql = "select user_id from " + CHARACTERS_TBL_NAME
-                + " where id = '" + QString::number(id) + "';";
-        QSqlQuery query(mDb);
-        tryExecuteSql(query, sql);
-        if (!query.next())
-        {
-            qWarning() << "Tried to ban an unknown user.";
-            return;
-        }
+    // check the account of the character
+    QString accountIdSql = "select user_id from " + CHARACTERS_TBL_NAME +
+                           " where id = '" + QString::number(id) + "';";
+    QSqlQuery query(mDb);
+    tryExecuteSql(query, accountIdSql);
+    if (!query.next()) {
+        qWarning() << "Tried to ban an unknown user.";
+        return;
     }
-    {
-        uint64_t bantime = (uint64_t)time(nullptr) + (uint64_t)duration * 60u;
-        // ban the character
-        QString sql = "update " + ACCOUNTS_TBL_NAME
-                + " set level = '" + AL_BANNED + "', banned = '"
-                + QString::number(bantime)
-                + "' where id = '" + QString::number(id) + "';";
-        mDb.exec(sql);
-    }
+
+    const int accountId = query.value(0).toInt();
+    // ban the character
+    QString sql = "update " + ACCOUNTS_TBL_NAME + " set level = '" + AL_BANNED +
+                  "', banned = '" + QString::number(until.toTime_t()) +
+                  "' where id = '" + QString::number(accountId) + "';";
+    mDb.exec(sql);
 }
 
 void SqlStorage::delCharacter(int charId)
