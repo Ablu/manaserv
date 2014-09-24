@@ -133,12 +133,21 @@ void SqlStorageTest::accountDeletionWithCharacters()
     QVERIFY2(!mStorage->getCharacter("Test"), "Character is still there!");
 }
 
-void SqlStorageTest::characterDeletion()
+void SqlStorageTest::characterDeletionById()
 {
     auto account = provideTestAccountWithCharacter();
     int characterId = account->getCharacters()[0]->getDatabaseId();
 
     mStorage->delCharacter(characterId);
+    QVERIFY2(!mStorage->getCharacter("Test"), "Character is still there!");
+}
+
+void SqlStorageTest::characterDeletionByReference()
+{
+    auto account = provideTestAccountWithCharacter();
+    auto &character = account->getCharacters()[0];
+
+    mStorage->delCharacter(*character);
     QVERIFY2(!mStorage->getCharacter("Test"), "Character is still there!");
 }
 

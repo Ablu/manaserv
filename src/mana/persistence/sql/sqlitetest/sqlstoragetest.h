@@ -21,7 +21,8 @@ private slots:
 
     void accountDeletion();
     void accountDeletionWithCharacters();
-    void characterDeletion();
+    void characterDeletionById();
+    void characterDeletionByReference();
 
     void updateLastLogin();
 

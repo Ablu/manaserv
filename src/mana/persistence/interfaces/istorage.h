@@ -187,7 +187,7 @@ public:
      *
      * @param character character object.
      */
-    virtual void delCharacter(CharacterData *character) = 0;
+    virtual void delCharacter(const CharacterData &character) = 0;
 
     /**
      * Removes expired bans from accounts

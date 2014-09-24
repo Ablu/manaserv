@@ -1238,9 +1238,9 @@ void SqlStorage::delCharacter(int charId)
     mDb.commit();
 }
 
-void SqlStorage::delCharacter(CharacterData *character)
+void SqlStorage::delCharacter(const CharacterData &character)
 {
-    delCharacter(character->getDatabaseId());
+    delCharacter(character.getDatabaseId());
 }
 
 void SqlStorage::checkBannedAccounts()
