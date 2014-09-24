@@ -40,12 +40,12 @@ void CharacterDataUtils::serialize(CharacterData &data, MessageOut &msg)
     }
 
     // status effects currently affecting the character
-    msg.writeInt16(data.getStatusEffectSize());
-    std::map<int, Status>::const_iterator status_it;
-    for (status_it = data.getStatusEffectBegin(); status_it != data.getStatusEffectEnd(); status_it++)
+    auto &statusEffects = data.getStatusEffects();
+    msg.writeInt16(statusEffects.size());
+    for (auto &it : statusEffects)
     {
-        msg.writeInt16(status_it->first);
-        msg.writeInt16(status_it->second.time);
+        msg.writeInt16(it.first);
+        msg.writeInt16(it.second.time);
     }
 
     // location

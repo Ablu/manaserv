@@ -154,14 +154,8 @@ public:
     void applyStatusEffect(int id, int time)
     { mStatusEffects[id].time = time; }
 
-    int getStatusEffectSize() const
-    { return mStatusEffects.size(); }
-
-    const std::map<int, Status>::const_iterator getStatusEffectBegin() const
-    { return mStatusEffects.begin(); }
-
-    const std::map<int, Status>::const_iterator getStatusEffectEnd() const
-    { return mStatusEffects.end(); }
+    const std::map<int, Status> &getStatusEffects() const
+    { return mStatusEffects; }
 
     /**
      * Get / Set kill count

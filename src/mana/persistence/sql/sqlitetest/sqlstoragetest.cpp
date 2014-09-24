@@ -213,4 +213,26 @@ void SqlStorageTest::updateAttribute()
     QCOMPARE(attributeValue.modified, modifier);
 }
 
+void SqlStorageTest::insertStatusEffect()
+{
+    auto account = createTestAccount();
+    mStorage->addAccount(*account);
+
+    auto character = createTestCharacter();
+    account->addCharacter(std::move(character));
+    mStorage->flush(*account);
+
+    int characterId = account->getCharacters()[0]->getDatabaseId();
+    const int statusId = 100;
+    const unsigned ticks = 1000;
+    mStorage->insertStatusEffect(characterId, statusId, ticks);
+
+    auto characterFromDatabase = mStorage->getCharacter("Test");
+    auto &statusEffects = characterFromDatabase->getStatusEffects();
+    auto it = statusEffects.find(statusId);
+    QVERIFY2(it != statusEffects.end(), "Status effect did not exist!");
+    const Status &status = it->second;
+    QCOMPARE(status.time, ticks);
+}
+
 QTEST_MAIN(SqlStorageTest)

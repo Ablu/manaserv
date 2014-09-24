@@ -23,6 +23,7 @@ private slots:
 
     void updateCharacterPoints();
     void updateAttribute();
+    void insertStatusEffect();
 
 private:
     SqlStorage *mStorage = nullptr;

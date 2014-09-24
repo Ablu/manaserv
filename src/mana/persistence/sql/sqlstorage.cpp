@@ -356,6 +356,7 @@ std::unique_ptr<CharacterData> SqlStorage::getCharacterBySQL(QSqlQuery &sqlQuery
                 + " WHERE char_id = " + QString::number(character->getDatabaseId());
 
         QSqlQuery query(mDb);
+        tryExecuteSql(query, sql);
         while(query.next())
         {
             character->applyStatusEffect(
@@ -646,14 +647,10 @@ void SqlStorage::updateCharacter(const CharacterData &character)
         mDb.exec(sql);
     }
 
-    {
-        std::map<int, Status>::const_iterator status_it;
-        for (status_it = character.getStatusEffectBegin();
-             status_it != character.getStatusEffectEnd(); ++status_it)
-        {
-            insertStatusEffect(character.getDatabaseId(),
-                               status_it->first, status_it->second.time);
-        }
+    for (auto &statusIt : character.getStatusEffects()) {
+        const int id = statusIt.first;
+        const int time = statusIt.second.time;
+        insertStatusEffect(character.getDatabaseId(), id, time);
     }
 
     mDb.commit();
