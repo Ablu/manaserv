@@ -1,7 +1,11 @@
 #ifndef SQLSTORAGETEST_H
 #define SQLSTORAGETEST_H
 
+#include "mana/entities/account.h"
+
 #include <QObject>
+
+#include <memory>
 
 class SqlStorage;
 
@@ -28,6 +32,8 @@ private slots:
     void banCharacter();
 
 private:
+    std::unique_ptr<Account> provideTestAccountWithCharacter();
+
     SqlStorage *mStorage = nullptr;
 };
 

@@ -103,12 +103,7 @@ static void verifyCharacter(const std::unique_ptr<CharacterData> &character)
 
 void SqlStorageTest::characterSaveAndGetTest()
 {
-    auto account = createTestAccount();
-    mStorage->addAccount(*account);
-
-    auto character = createTestCharacter();
-    account->addCharacter(std::move(character));
-    mStorage->flush(*account);
+    auto account = provideTestAccountWithCharacter();
     int characterId = account->getCharacters()[0]->getDatabaseId();
 
     verifyAccount(mStorage->getAccount(account->getId()));
@@ -131,13 +126,7 @@ void SqlStorageTest::accountDeletion()
 
 void SqlStorageTest::accountDeletionWithCharacters()
 {
-    auto account = createTestAccount();
-    mStorage->addAccount(*account);
-
-    auto character = createTestCharacter();
-    account->addCharacter(std::move(character));
-    mStorage->flush(*account);
-
+    auto account = provideTestAccountWithCharacter();
     mStorage->delAccount(*account);
 
     QVERIFY2(!mStorage->getAccount("test"), "Account is still there!");
@@ -146,12 +135,7 @@ void SqlStorageTest::accountDeletionWithCharacters()
 
 void SqlStorageTest::characterDeletion()
 {
-    auto account = createTestAccount();
-    mStorage->addAccount(*account);
-
-    auto character = createTestCharacter();
-    account->addCharacter(std::move(character));
-    mStorage->flush(*account);
+    auto account = provideTestAccountWithCharacter();
     int characterId = account->getCharacters()[0]->getDatabaseId();
 
     mStorage->delCharacter(characterId);
@@ -172,14 +156,9 @@ void SqlStorageTest::updateLastLogin()
 
 void SqlStorageTest::updateCharacterPoints()
 {
-    auto account = createTestAccount();
-    mStorage->addAccount(*account);
-
-    auto character = createTestCharacter();
-    account->addCharacter(std::move(character));
-    mStorage->flush(*account);
-
+    auto account = provideTestAccountWithCharacter();
     int characterId = account->getCharacters()[0]->getDatabaseId();
+
     int newCharacterPoints = 10;
     int newCorrectionPoints = 5;
     mStorage->updateCharacterPoints(characterId, newCharacterPoints,
@@ -191,14 +170,9 @@ void SqlStorageTest::updateCharacterPoints()
 
 void SqlStorageTest::updateAttribute()
 {
-    auto account = createTestAccount();
-    mStorage->addAccount(*account);
-
-    auto character = createTestCharacter();
-    account->addCharacter(std::move(character));
-    mStorage->flush(*account);
-
+    auto account = provideTestAccountWithCharacter();
     int characterId = account->getCharacters()[0]->getDatabaseId();
+
     int attributeId = 100;
     double value = 1.3;
     double modifier = 5.0;
@@ -215,14 +189,9 @@ void SqlStorageTest::updateAttribute()
 
 void SqlStorageTest::insertStatusEffect()
 {
-    auto account = createTestAccount();
-    mStorage->addAccount(*account);
-
-    auto character = createTestCharacter();
-    account->addCharacter(std::move(character));
-    mStorage->flush(*account);
-
+    auto account = provideTestAccountWithCharacter();
     int characterId = account->getCharacters()[0]->getDatabaseId();
+
     const int statusId = 100;
     const unsigned ticks = 1000;
     mStorage->insertStatusEffect(characterId, statusId, ticks);
@@ -237,13 +206,7 @@ void SqlStorageTest::insertStatusEffect()
 
 void SqlStorageTest::banCharacter()
 {
-    auto account = createTestAccount();
-    mStorage->addAccount(*account);
-
-    auto character = createTestCharacter();
-    account->addCharacter(std::move(character));
-    mStorage->flush(*account);
-
+    auto account = provideTestAccountWithCharacter();
     int characterId = account->getCharacters()[0]->getDatabaseId();
     QDateTime banEnd = QDateTime::currentDateTime();
     mStorage->banCharacter(characterId, banEnd);
@@ -259,6 +222,18 @@ void SqlStorageTest::banCharacter()
         auto accountFromStorage = mStorage->getAccount("test");
         QCOMPARE((AccessLevel)accountFromStorage->getLevel(), AL_PLAYER);
     }
+}
+
+std::unique_ptr<Account> SqlStorageTest::provideTestAccountWithCharacter()
+{
+    auto account = createTestAccount();
+    mStorage->addAccount(*account);
+
+    auto character = createTestCharacter();
+    account->addCharacter(std::move(character));
+    mStorage->flush(*account);
+
+    return account;
 }
 
 QTEST_MAIN(SqlStorageTest)
