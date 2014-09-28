@@ -41,9 +41,10 @@
 #include "utils/stringfilter.h"
 #include "utils/tokencollector.h"
 #include "utils/tokendispenser.h"
-#include "utils/sha256.h"
 #include "utils/string.h"
 #include "utils/xml.h"
+
+#include <QCryptographicHash>
 
 using namespace ManaServ;
 
@@ -406,9 +407,11 @@ void AccountHandler::handleLoginMessage(AccountClient &client, MessageIn &msg)
     std::unique_ptr<Account> account = std::move(mPendingAccounts.at(username));
     mPendingAccounts.erase(username);
 
-    if (!account || QString::fromStdString(
-                    sha256((account->getPassword() + account->getRandomSalt())
-                               .toStdString())) != password) {
+    QByteArray credentials;
+    credentials.append(account->getPassword());
+    credentials.append(account->getRandomSalt());
+    if (!account || QCryptographicHash::hash(
+                        credentials, QCryptographicHash::Sha256) != password) {
         reply.writeInt8(ERRMSG_INVALID_ARGUMENT);
         client.send(reply);
         account.release();
@@ -502,6 +505,9 @@ void AccountHandler::handleRegisterMessage(AccountClient &client,
     QString email = msg.readString();
     QString captcha = msg.readString();
 
+    QByteArray hashedMail =
+        QCryptographicHash::hash(email.toUtf8(), QCryptographicHash::Sha256);
+
     MessageOut reply(APMSG_REGISTER_RESPONSE);
 
     if (client.status != CLIENT_LOGIN)
@@ -529,7 +535,7 @@ void AccountHandler::handleRegisterMessage(AccountClient &client,
     {
         reply.writeInt8(REGISTER_EXISTS_USERNAME);
     }
-    else if (mStorage->doesEmailAddressExist(QString::fromStdString(sha256(email.toStdString()))))
+    else if (mStorage->doesEmailAddressExist(hashedMail))
     {
         reply.writeInt8(REGISTER_EXISTS_EMAIL);
     }
@@ -541,11 +547,12 @@ void AccountHandler::handleRegisterMessage(AccountClient &client,
     {
         std::unique_ptr<Account> account(new Account);
         account->setName(username);
-        account->setPassword(QString::fromStdString(sha256(password.toStdString())));
+        account->setPassword(QCryptographicHash::hash(
+            QByteArray(password.toUtf8()), QCryptographicHash::Sha256));
         // We hash email server-side for additional privacy
         // we ask for it again when we need it and verify it
         // through comparing it with the hash.
-        account->setEmail(QString::fromStdString(sha256(email.toStdString())));
+        account->setEmail(hashedMail);
         account->setLevel(AL_PLAYER);
 
         // Set the date and time of the account registration, and the last login
@@ -591,9 +598,9 @@ void AccountHandler::handleUnregisterMessage(AccountClient &client,
 
     // See whether the account exists
     const std::unique_ptr<Account> account = mStorage->getAccount(username);
-
-    if (!account || account->getPassword() != QString::fromStdString(sha256(password.toStdString())))
-    {
+    const QByteArray hashedPassword = QCryptographicHash::hash(
+        QByteArray(password.toUtf8()), QCryptographicHash::Sha256);
+    if (!account || account->getPassword() != hashedPassword) {
         reply.writeInt8(ERRMSG_INVALID_ARGUMENT);
         client.send(reply);
         return;
@@ -644,7 +651,7 @@ void AccountHandler::handleEmailChangeMessage(AccountClient &client,
     }
 
     const QString email = msg.readString();
-    const QString emailHash = QString::fromStdString(sha256(email.toStdString()));
+    const QString emailHash = QCryptographicHash::hash(email.toUtf8(), QCryptographicHash::Sha256);
 
     if (!stringFilter->isEmailValid(email))
     {
@@ -671,8 +678,10 @@ void AccountHandler::handleEmailChangeMessage(AccountClient &client,
 void AccountHandler::handlePasswordChangeMessage(AccountClient &client,
                                                  MessageIn &msg)
 {
-    QString oldPassword = QString::fromStdString(sha256(msg.readString().toStdString()));
-    QString newPassword = QString::fromStdString(sha256(msg.readString().toStdString()));
+    QString oldPassword = QCryptographicHash::hash(msg.readString().toUtf8(),
+                                                   QCryptographicHash::Sha256);
+    QString newPassword = QCryptographicHash::hash(msg.readString().toUtf8(),
+                                                   QCryptographicHash::Sha256);
 
     MessageOut reply(APMSG_PASSWORD_CHANGE_RESPONSE);
 

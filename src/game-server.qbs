@@ -123,8 +123,6 @@ CppApplication {
             "point.h",
             "processorutils.cpp",
             "processorutils.h",
-            "sha256.cpp",
-            "sha256.h",
             "speedconv.cpp",
             "speedconv.h",
             "string.cpp",
