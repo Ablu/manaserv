@@ -152,15 +152,15 @@ Path BeingComponent::findPath(Entity &entity)
 {
     auto *actorComponent = entity.getComponent<ActorComponent>();
 
-    Map *map = entity.getMap()->getMap();
-    int tileWidth = map->getTileWidth();
-    int tileHeight = map->getTileHeight();
+    Map &map = entity.getMap()->getMap();
+    int tileWidth = map.getTileWidth();
+    int tileHeight = map.getTileHeight();
     int startX = actorComponent->getPosition().x / tileWidth;
     int startY = actorComponent->getPosition().y / tileHeight;
     int destX = mDst.x / tileWidth, destY = mDst.y / tileHeight;
 
-    return map->findPath(startX, startY, destX, destY,
-                         actorComponent->getWalkMask());
+    return map.findPath(startX, startY, destX, destY,
+                        actorComponent->getWalkMask());
 }
 
 void BeingComponent::updateDirection(Entity &entity,
@@ -205,9 +205,9 @@ void BeingComponent::move(Entity &entity)
         return;
     }
 
-    Map *map = entity.getMap()->getMap();
-    int tileWidth = map->getTileWidth();
-    int tileHeight = map->getTileHeight();
+    Map map = entity.getMap()->getMap();
+    int tileWidth = map.getTileWidth();
+    int tileHeight = map.getTileHeight();
     int tileSX = mOld.x / tileWidth;
     int tileSY = mOld.y / tileHeight;
     int tileDX = mDst.x / tileWidth;
@@ -236,7 +236,7 @@ void BeingComponent::move(Entity &entity)
     {
         const unsigned char walkmask =
                 entity.getComponent<ActorComponent>()->getWalkMask();
-        if (!map->getWalk(point.x, point.y, walkmask))
+        if (!map.getWalk(point.x, point.y, walkmask))
         {
             mPath.clear();
             break;

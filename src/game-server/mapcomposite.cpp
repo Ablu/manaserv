@@ -28,9 +28,8 @@
 #include "common/resourcemanager.h"
 #include "game-server/charactercomponent.h"
 #include "game-server/mapcomposite.h"
-#include "game-server/map.h"
+#include "mana/entities/map.h"
 #include "game-server/mapmanager.h"
-#include "game-server/mapreader.h"
 #include "game-server/monstermanager.h"
 #include "game-server/spawnareacomponent.h"
 #include "game-server/triggerareacomponent.h"
@@ -272,7 +271,7 @@ void MapZone::remove(Entity *obj)
  */
 struct MapContent
 {
-    MapContent(Map *);
+    MapContent(const Map &);
     ~MapContent();
 
     /**
@@ -323,7 +322,7 @@ struct MapContent
     unsigned short mapHeight; /**< Height with respect to zones. */
 };
 
-MapContent::MapContent(Map *map)
+MapContent::MapContent(const Map &map)
   : last_bucket(0), zones(nullptr)
 {
     buckets[0] = new ObjectBucket;
@@ -332,9 +331,9 @@ MapContent::MapContent(Map *map)
     {
         buckets[i] = nullptr;
     }
-    mapWidth = (map->getWidth() * map->getTileWidth() + zoneDiam - 1)
+    mapWidth = (map.getWidth() * map.getTileWidth() + zoneDiam - 1)
                / zoneDiam;
-    mapHeight = (map->getHeight() * map->getTileHeight() + zoneDiam - 1)
+    mapHeight = (map.getHeight() * map.getTileHeight() + zoneDiam - 1)
                 / zoneDiam;
     zones = new MapZone[mapWidth * mapHeight];
 }
@@ -607,16 +606,12 @@ MapComposite::MapComposite(int id, const QString &name,
 
 MapComposite::~MapComposite()
 {
-    delete mMap;
     delete mContent;
 }
 
-bool MapComposite::readMap()
+void MapComposite::setMap(std::unique_ptr<Map> &&map)
 {
-    QString file = "maps/" + mName + ".tmx";
-
-    mMap = MapReader::readMap(file);
-    return mMap;
+    mMap = std::move(map);
 }
 
 bool MapComposite::activate()
@@ -887,7 +882,7 @@ const MapObject *MapComposite::findMapObject(const QString &name,
  */
 void MapComposite::initializeContent()
 {
-    mContent = new MapContent(mMap);
+    mContent = new MapContent(*mMap);
 
     const std::vector<MapObject *> &objects = mMap->getObjects();
 

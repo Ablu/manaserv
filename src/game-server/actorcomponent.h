@@ -21,7 +21,7 @@
 #ifndef ACTORCOMPONENT_H
 #define ACTORCOMPONENT_H
 
-#include "game-server/map.h"
+#include "mana/entities/map.h"
 #include "game-server/entity.h"
 #include "utils/point.h"
 

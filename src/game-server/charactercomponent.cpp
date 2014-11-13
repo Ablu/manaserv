@@ -29,7 +29,7 @@
 #include "game-server/item.h"
 #include "game-server/itemmanager.h"
 #include "game-server/gamehandler.h"
-#include "game-server/map.h"
+#include "mana/entities/map.h"
 #include "game-server/mapcomposite.h"
 #include "game-server/mapmanager.h"
 #include "game-server/state.h"

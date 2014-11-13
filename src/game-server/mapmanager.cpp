@@ -23,9 +23,11 @@
 
 #include "common/resourcemanager.h"
 #include "common/defines.h"
-#include "game-server/map.h"
 #include "game-server/mapcomposite.h"
 #include "utils/logger.h"
+
+#include "mana/entities/map.h"
+#include "mana/mapreader/interfaces/imapreader.h"
 
 #include <cassert>
 
@@ -35,15 +37,18 @@
 static MapManager::Maps maps;
 
 static IConfiguration *mConfiguration;
+static IMapReader *mMapReader;
 
 const MapManager::Maps &MapManager::getMaps()
 {
     return maps;
 }
 
-void MapManager::initialize(IConfiguration *configuration)
+void MapManager::initialize(IConfiguration *configuration,
+                            IMapReader *mapReader)
 {
     mConfiguration = configuration;
+    mMapReader = mapReader;
 }
 
 /**
@@ -100,8 +105,11 @@ void MapManager::readMapNode(xmlNodePtr node)
         if (mapFileExists)
         {
             maps[id] = new MapComposite(id, name, mConfiguration);
-            if (!maps[id]->readMap())
+            auto map = mMapReader->readMap(file);
+            if (!map)
                 LOG_FATAL("Failed to load map \"" << name << "\"!");
+            else
+                maps[id]->setMap(std::move(map));
         }
     }
 }

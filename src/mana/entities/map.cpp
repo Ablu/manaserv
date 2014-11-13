@@ -24,7 +24,7 @@
 #include <cstring>
 #include <limits.h>
 
-#include "game-server/map.h"
+#include "mana/entities/map.h"
 
 #include "common/defines.h"
 
@@ -100,13 +100,6 @@ public:
     int Fcost;              /**< Estimation of total path cost */
 };
 
-Map::Map(int width, int height, int tileWidth, int tileHeight):
-    mWidth(width), mHeight(height),
-    mTileWidth(tileWidth), mTileHeight(tileHeight),
-    mMetaTiles(width * height)
-{
-}
-
 Map::~Map()
 {
     for (auto &elem : mMapObjects) {
@@ -114,12 +107,12 @@ Map::~Map()
     }
 }
 
-void Map::setSize(int width, int height)
+void Map::setSize(const QSize &size)
 {
-    mWidth = width;
-    mHeight = height;
+    mWidth = size.width();
+    mHeight = size.height();
 
-    mMetaTiles.resize(width * height);
+    mMetaTiles.resize(mWidth * mHeight);
 }
 
 const QString &Map::getProperty(const QString &key) const
@@ -196,6 +189,12 @@ bool Map::getWalk(int x, int y, char walkmask) const
 
     // Check if the tile is walkable
     return !(mMetaTiles[x + y * mWidth].blockmask & walkmask);
+}
+
+void Map::setTileSize(int tileWidth, int tileHeight)
+{
+    mTileWidth = tileWidth;
+    mTileHeight = tileHeight;
 }
 
 Path Map::findPath(int startX, int startY,

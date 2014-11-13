@@ -26,6 +26,7 @@
 #include <set>
 
 class IConfiguration;
+class IMapReader;
 
 class SettingsManager
 {
@@ -34,7 +35,7 @@ public:
         mSettingsFile(settingsFile)
     {}
 
-    void initialize(IConfiguration *configuration);
+    void initialize(IConfiguration *configuration, IMapReader *mapReader);
 
     void reload();
 

@@ -69,8 +69,6 @@ CppApplication {
         name: "Utils sources"
         prefix: "utils/"
         files: [
-            "base64.cpp",
-            "base64.h",
             "logger.cpp",
             "logger.h",
             "mathutils.cpp",
@@ -93,8 +91,6 @@ CppApplication {
             "tokendispenser.h",
             "xml.cpp",
             "xml.h",
-            "zlib.cpp",
-            "zlib.h",
         ]
     }
 

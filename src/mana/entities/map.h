@@ -18,13 +18,15 @@
  *  along with The Mana Server.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MAP_H
-#define MAP_H
+#pragma once
 
 #include <list>
 #include <map>
-#include <QString>
 #include <vector>
+
+#include <QDebug>
+#include <QString>
+#include <QSize>
 
 #include "utils/logger.h"
 #include "utils/point.h"
@@ -74,8 +76,8 @@ public:
     void addProperty(const QString &key, const QString &value)
     {
         if (mProperties.contains(key))
-            LOG_WARN("Duplicate property " << key <<
-                     " of object " << mName);
+            qWarning() << "Duplicate property " << key << " of object "
+                       << mName;
         else
             mProperties.insert(key, value);
     }
@@ -112,18 +114,12 @@ private:
 class Map
 {
 public:
-    /**
-     * Constructor that takes initial map size as parameters.
-     */
-    Map(int width, int height,
-        int tileWidth, int tileHeight);
-
     ~Map();
 
     /**
      * Sets the size of the map. This will destroy any existing map data.
      */
-    void setSize(int width, int height);
+    void setSize(const QSize &size);
 
     /**
      * Marks a tile as occupied
@@ -157,6 +153,8 @@ public:
      */
     int getHeight() const
     { return mHeight; }
+
+    void setTileSize(int tileWidth, int tileHeight);
 
     /**
      * Returns the tile width of this map.
@@ -209,13 +207,12 @@ public:
     static const unsigned char BLOCKMASK_MONSTER = 0x02;  // = bin 0000 0010
 
 private:
-    // map properties
-    int mWidth, mHeight;
-    int mTileWidth, mTileHeight;
+    int mWidth = 0;
+    int mHeight = 0;
+    int mTileWidth = 0;
+    int mTileHeight = 0;
     std::map<QString, QString> mProperties;
 
     std::vector<MetaTile> mMetaTiles;
     std::vector<MapObject*> mMapObjects;
 };
-
-#endif

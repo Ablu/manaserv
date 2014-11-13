@@ -46,15 +46,15 @@ void SpawnAreaComponent::update(Entity &entity)
     if (mNextSpawn == 0 && mNumBeings < mMaxBeings && mSpawnRate > 0)
     {
         MapComposite *map = entity.getMap();
-        const Map *realMap = map->getMap();
+        Map &realMap = map->getMap();
 
         // Reset the spawn area to the whole map in case of dimensionless zone
         if (mZone.w == 0 || mZone.h == 0)
         {
             mZone.x = 0;
             mZone.y = 0;
-            mZone.w = realMap->getWidth() * realMap->getTileWidth();
-            mZone.h = realMap->getHeight() * realMap->getTileHeight();
+            mZone.w = realMap.getWidth() * realMap.getTileWidth();
+            mZone.h = realMap.getHeight() * realMap.getTileHeight();
         }
 
         // Find a free spawn location. Give up after 10 tries
@@ -87,9 +87,9 @@ void SpawnAreaComponent::update(Entity &entity)
                 position = Point(x + rand() % width, y + rand() % height);
                 triesLeft--;
             }
-            while (!realMap->getWalk(position.x / realMap->getTileWidth(),
-                                     position.y / realMap->getTileHeight(),
-                                     actorComponent->getWalkMask())
+            while (!realMap.getWalk(position.x / realMap.getTileWidth(),
+                                    position.y / realMap.getTileHeight(),
+                                    actorComponent->getWalkMask())
                    && triesLeft);
 
             if (triesLeft)

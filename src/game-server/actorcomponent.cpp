@@ -20,7 +20,7 @@
 
 #include "game-server/actorcomponent.h"
 
-#include "game-server/map.h"
+#include "mana/entities/map.h"
 #include "game-server/mapcomposite.h"
 
 #include <cassert>
@@ -42,11 +42,11 @@ void ActorComponent::removed(Entity *entity)
     // Free the map position
     if (MapComposite *mapComposite = entity->getMap())
     {
-        Map *map = mapComposite->getMap();
-        int tileWidth = map->getTileWidth();
-        int tileHeight = map->getTileHeight();
+        Map &map = mapComposite->getMap();
+        int tileWidth = map.getTileWidth();
+        int tileHeight = map.getTileHeight();
         Point oldP = getPosition();
-        map->freeTile(oldP.x / tileWidth, oldP.y / tileHeight, getBlockType());
+        map.freeTile(oldP.x / tileWidth, oldP.y / tileHeight, getBlockType());
     }
 }
 
@@ -55,15 +55,15 @@ void ActorComponent::setPosition(Entity &entity, const Point &p)
     // Update blockmap
     if (MapComposite *mapComposite = entity.getMap())
     {
-        Map *map = mapComposite->getMap();
-        int tileWidth = map->getTileWidth();
-        int tileHeight = map->getTileHeight();
+        Map &map = mapComposite->getMap();
+        int tileWidth = map.getTileWidth();
+        int tileHeight = map.getTileHeight();
         if ((mPos.x / tileWidth != p.x / tileWidth
             || mPos.y / tileHeight != p.y / tileHeight))
         {
-            map->freeTile(mPos.x / tileWidth, mPos.y / tileHeight,
-                          getBlockType());
-            map->blockTile(p.x / tileWidth, p.y / tileHeight, getBlockType());
+            map.freeTile(mPos.x / tileWidth, mPos.y / tileHeight,
+                         getBlockType());
+            map.blockTile(p.x / tileWidth, p.y / tileHeight, getBlockType());
         }
     }
 
@@ -74,10 +74,10 @@ void ActorComponent::mapChanged(Entity *entity)
 {
     const Point p = getPosition();
 
-    Map *map = entity->getMap()->getMap();
-    int tileWidth = map->getTileWidth();
-    int tileHeight = map->getTileHeight();
-    map->blockTile(p.x / tileWidth, p.y / tileHeight, getBlockType());
+    Map &map = entity->getMap()->getMap();
+    int tileWidth = map.getTileWidth();
+    int tileHeight = map.getTileHeight();
+    map.blockTile(p.x / tileWidth, p.y / tileHeight, getBlockType());
     /* the last line might look illogical because the current position is
      * invalid on the new map, but it is necessary to block the old position
      * because the next call of setPosition() will automatically free the old

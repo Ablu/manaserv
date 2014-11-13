@@ -28,7 +28,7 @@
 #include "game-server/inventory.h"
 #include "game-server/item.h"
 #include "game-server/itemmanager.h"
-#include "game-server/map.h"
+#include "mana/entities/map.h"
 #include "game-server/mapcomposite.h"
 #include "game-server/mapmanager.h"
 #include "game-server/monster.h"
@@ -554,10 +554,10 @@ bool GameState::insert(Entity *ptr)
 
     // Check that coordinates are actually valid.
     Entity *obj = static_cast< Entity * >(ptr);
-    Map *mp = map->getMap();
+    Map &mp = map->getMap();
     Point pos = obj->getComponent<ActorComponent>()->getPosition();
-    if ((int)pos.x / mp->getTileWidth() >= mp->getWidth() ||
-        (int)pos.y / mp->getTileHeight() >= mp->getHeight())
+    if ((int)pos.x / mp.getTileWidth() >= mp.getWidth() ||
+        (int)pos.y / mp.getTileHeight() >= mp.getHeight())
     {
         LOG_ERROR("Tried to insert an actor at position " << pos.x << ','
                   << pos.y << " outside map " << map->getID() << '.');

@@ -25,9 +25,10 @@
 #include <QString>
 #include <vector>
 #include <map>
+#include <memory>
 
 #include "scripting/script.h"
-#include "game-server/map.h"
+#include "mana/entities/map.h"
 
 class Entity;
 class Map;
@@ -137,7 +138,7 @@ public:
     MapComposite(const MapComposite &) = delete;
     ~MapComposite();
 
-    bool readMap();
+    void setMap(std::unique_ptr<Map> &&map);
 
     /**
      * Loads the map and initializes the map content. Should only be called
@@ -151,8 +152,8 @@ public:
     /**
      * Gets the underlying pathfinding map.
      */
-    Map *getMap() const
-    { return mMap; }
+    Map &getMap() const
+    { return *mMap; }
 
     /**
      * Returns whether the map is active on this server or not.
@@ -280,7 +281,7 @@ private:
 
     IConfiguration *mConfiguration;
     bool mActive;         /**< Status of map. */
-    Map *mMap;            /**< Actual map. */
+    std::unique_ptr<Map> mMap;
     MapContent *mContent; /**< Entities on the map. */
     QString mName;    /**< Name of the map. */
     unsigned short mID;   /**< ID of the map. */

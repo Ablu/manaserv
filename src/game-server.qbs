@@ -14,6 +14,14 @@ CppApplication {
         name: "ManaConfigurationXmlConfiguration"
     }
 
+    Depends {
+        name: "ManaMapReaderTmx"
+    }
+
+    Depends {
+        name: "ManaEntities"
+    }
+
     Group {
         name: "Game server sources"
         prefix: "game-server/"
@@ -61,12 +69,8 @@ CppApplication {
             "main-game.cpp",
             "mapcomposite.cpp",
             "mapcomposite.h",
-            "map.cpp",
-            "map.h",
             "mapmanager.cpp",
             "mapmanager.h",
-            "mapreader.cpp",
-            "mapreader.h",
             "monster.cpp",
             "monster.h",
             "monstermanager.cpp",

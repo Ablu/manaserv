@@ -23,6 +23,8 @@
 
 #include "mana/configuration/xmlconfiguration/xmlconfiguration.h"
 
+#include "mana/mapreader/tmx/tmxreader.h"
+
 #include "common/defines.h"
 #include "common/permissionmanager.h"
 #include "common/resourcemanager.h"
@@ -111,6 +113,7 @@ static void closeGracefully(int)
 }
 
 XmlConfiguration *configuration;
+TmxReader *mapReader;
 
 static void initializeServer()
 {
@@ -142,7 +145,7 @@ static void initializeServer()
     ScriptManager::initialize(configuration);   // Depends on ResourceManager
 
     // load game settings files
-    settingsManager->initialize(configuration);
+    settingsManager->initialize(configuration, mapReader);
 
     PermissionManager::initialize(DEFAULT_PERMISSION_FILE);
 
@@ -315,6 +318,7 @@ int main(int argc, char *argv[])
     parseOptions(argc, argv, options);
 
     configuration = new XmlConfiguration();
+    mapReader = new TmxReader();
 
     if (!configuration->initialize(options.configPath))
     {

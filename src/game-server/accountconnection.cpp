@@ -24,7 +24,7 @@
 
 #include "game-server/charactercomponent.h"
 #include "game-server/gamehandler.h"
-#include "game-server/map.h"
+#include "mana/entities/map.h"
 #include "game-server/mapcomposite.h"
 #include "game-server/mapmanager.h"
 #include "game-server/item.h"

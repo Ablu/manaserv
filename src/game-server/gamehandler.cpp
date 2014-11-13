@@ -33,7 +33,7 @@
 #include "game-server/inventory.h"
 #include "game-server/item.h"
 #include "game-server/itemmanager.h"
-#include "game-server/map.h"
+#include "mana/entities/map.h"
 #include "game-server/mapcomposite.h"
 #include "game-server/npc.h"
 #include "game-server/postman.h"

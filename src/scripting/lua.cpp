@@ -33,7 +33,7 @@
 #include "game-server/inventory.h"
 #include "game-server/item.h"
 #include "game-server/itemmanager.h"
-#include "game-server/map.h"
+#include "mana/entities/map.h"
 #include "game-server/mapcomposite.h"
 #include "game-server/mapmanager.h"
 #include "game-server/monster.h"
@@ -1621,20 +1621,20 @@ static int entity_warp(lua_State *s)
         luaL_argcheck(s, m, 2, "invalid map name");
     }
 
-    Map *map = m->getMap();
+    Map &map = m->getMap();
 
     // If the wanted warp place is unwalkable
-    if (!map->getWalk(x / map->getTileWidth(), y / map->getTileHeight()))
+    if (!map.getWalk(x / map.getTileWidth(), y / map.getTileHeight()))
     {
         int c = 50;
         LOG_INFO("warp called with a non-walkable place.");
         do
         {
-            x = rand() % map->getWidth();
-            y = rand() % map->getHeight();
-        } while (!map->getWalk(x, y) && --c);
-        x *= map->getTileWidth();
-        y *= map->getTileHeight();
+            x = rand() % map.getWidth();
+            y = rand() % map.getHeight();
+        } while (!map.getWalk(x, y) && --c);
+        x *= map.getTileWidth();
+        y *= map.getTileHeight();
     }
     GameState::enqueueWarp(character, m, Point(x, y));
 
@@ -2560,9 +2560,9 @@ static int get_map_id(lua_State *s)
 static int get_map_property(lua_State *s)
 {
     const char *property = luaL_checkstring(s, 1);
-    Map *map = checkCurrentMap(s)->getMap();
+    Map &map = checkCurrentMap(s)->getMap();
 
-    push(s, map->getProperty(property));
+    push(s, map.getProperty(property));
     return 1;
 }
 
@@ -2576,10 +2576,10 @@ static int is_walkable(lua_State *s)
 {
     const int x = luaL_checkint(s, 1);
     const int y = luaL_checkint(s, 2);
-    Map *map = checkCurrentMap(s)->getMap();
+    Map &map = checkCurrentMap(s)->getMap();
 
     // If the wanted warp place is unwalkable
-    if (map->getWalk(x / map->getTileWidth(), y / map->getTileHeight()))
+    if (map.getWalk(x / map.getTileWidth(), y / map.getTileHeight()))
         lua_pushboolean(s, 1);
     else
         lua_pushboolean(s, 0);
@@ -2611,12 +2611,12 @@ static int get_path_length(lua_State *s)
     if (lua_gettop(s) > 5)
         walkmask = checkWalkMask(s, 6);
 
-    Map *map = checkCurrentMap(s)->getMap();
-    Path path = map->findPath(startX / map->getTileWidth(),
-                              startY / map->getTileHeight(),
-                              destX / map->getTileWidth(),
-                              destY / map->getTileHeight(),
-                              walkmask, maxRange);
+    Map &map = checkCurrentMap(s)->getMap();
+    Path path = map.findPath(startX / map.getTileWidth(),
+                             startY / map.getTileHeight(),
+                             destX / map.getTileWidth(),
+                             destY / map.getTileHeight(),
+                             walkmask, maxRange);
     lua_pushinteger(s, path.size());
     return 1;
 }
@@ -3145,7 +3145,7 @@ static int map_get_objects(lua_State *s)
     }
 
     MapComposite *m = checkCurrentMap(s);
-    const std::vector<MapObject*> &objects = m->getMap()->getObjects();
+    const std::vector<MapObject*> &objects = m->getMap().getObjects();
 
     if (!filtered)
         pushSTLContainer<MapObject*>(s, objects);

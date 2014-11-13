@@ -19,6 +19,8 @@ DynamicCppLibrary {
             "character.h",
             "guild.cpp",
             "guild.h",
+            "map.cpp",
+            "map.h",
             "post.cpp",
             "post.h",
         ]

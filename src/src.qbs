@@ -2,7 +2,8 @@ import qbs 1.0
 
 Project {
     references: [
-        "mana/mana.qbs",
+        "3rdparty",
+        "mana",
         "sql/sql.qbs",
         "account-server.qbs",
         "game-server.qbs",
