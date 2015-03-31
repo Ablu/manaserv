@@ -1,5 +1,7 @@
 import qbs 1.0
 
+import BuildHelper
+
 CppApplication {
     name: "manaserv-game"
 
@@ -182,6 +184,15 @@ CppApplication {
             "scriptmanager.h",
         ]
     }
+
+    Group {
+        name: "Binaries"
+        fileTagsFilter: "application"
+        qbs.install: true
+        qbs.installDir: "bin/"
+    }
+
+    cpp.rpaths: BuildHelper.buildRpathForPrefix(project, qbs.targetOS, "..")
 
     cpp.includePaths: [
         ".",
