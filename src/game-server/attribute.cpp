@@ -20,8 +20,9 @@
 
 #include "attribute.h"
 #include "game-server/being.h"
-#include "utils/logger.h"
 #include <cassert>
+
+#include <QDebug>
 
 AttributeModifiersEffect::AttributeModifiersEffect(StackableType stackableType,
                                                    ModifierEffectType effectType) :
@@ -36,15 +37,15 @@ AttributeModifiersEffect::AttributeModifiersEffect(StackableType stackableType,
            || stackableType == NonStackable
            || stackableType == NonStackableBonus);
 
-    LOG_DEBUG("Layer created with effectType " << effectType
-              << " and stackableType " << stackableType << ".");
+    qDebug() << "Layer created with effectType " << effectType
+             << " and stackableType " << stackableType << ".";
 }
 
 AttributeModifiersEffect::~AttributeModifiersEffect()
 {
     // ?
     /*mStates.clear();*/
-    LOG_WARN("DELETION of attribute effect!");
+    qWarning() << "DELETION of attribute effect!";
 }
 
 bool AttributeModifiersEffect::add(unsigned short duration,
@@ -52,9 +53,9 @@ bool AttributeModifiersEffect::add(unsigned short duration,
                                    double prevLayerValue,
                                    int level)
 {
-    LOG_DEBUG("Adding modifier with value " << value <<
-              " with a previous layer value of " << prevLayerValue << ". "
-              "Current mod at this layer: " << mMod << ".");
+    qDebug() << "Adding modifier with value " << value <<
+                " with a previous layer value of " << prevLayerValue << ". "
+                "Current mod at this layer: " << mMod << ".";
     bool ret = false;
     mStates.push_back(new AttributeModifierState(duration, value, level));
     switch (mStackableType) {
@@ -77,8 +78,8 @@ bool AttributeModifiersEffect::add(unsigned short duration,
             }
             break;
         default:
-            LOG_FATAL("Attribute modifiers effect: unhandled type '"
-                      << mEffectType << "' as a stackable!");
+            qCritical() << "Attribute modifiers effect: unhandled type '"
+                     << mEffectType << "' as a stackable!";
             assert(0);
             break;
         }
@@ -95,8 +96,8 @@ bool AttributeModifiersEffect::add(unsigned short duration,
             }
             break;
         default:
-            LOG_FATAL("Attribute modifiers effect: unhandled type '"
-                      << mEffectType << "' as a non-stackable!");
+            qCritical() << "Attribute modifiers effect: unhandled type '"
+                     << mEffectType << "' as a non-stackable!";
             assert(0);
         }
         // A multiplicative type would also be nonsensical
@@ -114,14 +115,14 @@ bool AttributeModifiersEffect::add(unsigned short duration,
             }
             break;
         default:
-            LOG_FATAL("Attribute modifiers effect: unhandled type '"
-                      << mEffectType << "' as a non-stackable bonus!");
+            qCritical() << "Attribute modifiers effect: unhandled type '"
+                     << mEffectType << "' as a non-stackable bonus!";
             assert(0);
         }
         break;
     default:
-        LOG_FATAL("Attribute modifiers effect: unknown stackable type '"
-                  << mStackableType << "'!");
+        qCritical() << "Attribute modifiers effect: unknown stackable type '"
+                 << mStackableType << "'!";
         assert(0);
     }
     return ret;
@@ -196,8 +197,9 @@ void AttributeModifiersEffect::updateMod(double value)
                     mMod *= (*it)->mValue;
             }
         }
-        else LOG_ERROR("Attribute modifiers effect: unhandled type '"
-                       << mEffectType << "' as a stackable in cache update!");
+        else
+            qCritical() << "Attribute modifiers effect: unhandled type '"
+                        << mEffectType << "' as a stackable in cache update!";
     }
     else if (mStackableType == NonStackable || mStackableType == NonStackableBonus)
     {
@@ -215,8 +217,8 @@ void AttributeModifiersEffect::updateMod(double value)
     }
     else
     {
-        LOG_ERROR("Attribute modifiers effect: unknown stackable type '"
-                  << mStackableType << "' in cache update!");
+        qCritical() << "Attribute modifiers effect: unknown stackable type '"
+                    << mStackableType << "' in cache update!";
     }
 }
 
@@ -234,14 +236,14 @@ bool AttributeModifiersEffect::recalculateModifiedValue(double newPrevLayerValue
                 mCacheVal = newPrevLayerValue < mMod ? mMod : newPrevLayerValue;
             break;
             default:
-            LOG_FATAL("Unknown effect type '" << mEffectType << "'!");
+            qCritical() << "Unknown effect type '" << mEffectType << "'!";
             assert(0);
         } break;
         case Multiplicative:
             mCacheVal = mStackableType == Stackable ? newPrevLayerValue * mMod : newPrevLayerValue * mMod;
         break;
         default:
-        LOG_FATAL("Unknown effect type '" << mEffectType << "'!");
+        qCritical() << "Unknown effect type '" << mEffectType << "'!";
         assert(0);
     }
     return oldValue != mCacheVal;
@@ -252,10 +254,10 @@ bool Attribute::add(unsigned short duration, double value,
                     unsigned layer, int id)
 {
     assert(mMods.size() > layer);
-    LOG_DEBUG("Adding modifier to attribute with duration " << duration
-              << ", value " << value
-              << ", at layer " << layer
-              << " with id " << id);
+    qDebug() << "Adding modifier to attribute with duration " << duration
+             << ", value " << value
+             << ", at layer " << layer
+             << " with id " << id;
     if (mMods.at(layer)->add(duration, value,
                             (layer ? mMods.at(layer - 1)->getCachedModifiedValue()
                                    : mBase)
@@ -266,15 +268,15 @@ bool Attribute::add(unsigned short duration, double value,
             if (!mMods.at(layer)->recalculateModifiedValue(
                        mMods.at(layer - 1)->getCachedModifiedValue()))
             {
-                LOG_DEBUG("Modifier added, but modified value not changed.");
+                qDebug() << "Modifier added, but modified value not changed.";
                 return false;
             }
         }
-        LOG_DEBUG("Modifier added. Base value: " << mBase << ", new modified "
-                  "value: " << getModifiedAttribute() << ".");
+        qDebug() << "Modifier added. Base value: " << mBase << ", new modified "
+                    "value: " << getModifiedAttribute() << ".";
         return true;
     }
-    LOG_DEBUG("Failed to add modifier!");
+    qDebug() << "Failed to add modifier!";
     return false;
 }
 
@@ -303,7 +305,7 @@ bool AttributeModifiersEffect::tick()
         if ((*it)->tick())
         {
             double value = (*it)->mValue;
-            LOG_DEBUG("Modifier of value " << value << " expiring!");
+            qDebug() << "Modifier of value " << value << " expiring!";
             delete *it;
             mStates.erase(it++);
             updateMod(value);
@@ -320,15 +322,15 @@ Attribute::Attribute(const AttributeInfo *info):
     mMaxValue(info->maximum)
 {
     const std::vector<AttributeModifier> &modifiers = info->modifiers;
-    LOG_DEBUG("Construction of new attribute with '" << modifiers.size()
-        << "' layers.");
+    qDebug() << "Construction of new attribute with '" << modifiers.size()
+             << "' layers.";
     for (auto &modifier : modifiers) {
-        LOG_DEBUG("Adding layer with stackable type "
-                  << modifier.stackableType << " and effect type "
-                  << modifier.effectType << ".");
+        qDebug() << "Adding layer with stackable type "
+                 << modifier.stackableType << " and effect type "
+                 << modifier.effectType << ".";
         mMods.push_back(new AttributeModifiersEffect(modifier.stackableType,
                                                      modifier.effectType));
-        LOG_DEBUG("Layer added.");
+        qDebug() << "Layer added.";
     }
     mBase = checkBounds(mBase);
 }
@@ -352,8 +354,8 @@ bool Attribute::tick()
     {
         if ((*it)->tick())
         {
-            LOG_DEBUG("Attribute layer " << mMods.begin() - it
-                      << " has expiring modifiers.");
+            qDebug() << "Attribute layer " << mMods.begin() - it
+                     << " has expiring modifiers.";
             ret = true;
         }
         if (ret)
@@ -372,7 +374,7 @@ void Attribute::clearMods()
 void Attribute::setBase(double base)
 {
     base = checkBounds(base);
-    LOG_DEBUG("Setting base attribute from " << mBase << " to " << base << ".");
+    qDebug() << "Setting base attribute from " << mBase << " to " << base << ".";
     double prev = mBase = base;
 
     std::vector<AttributeModifiersEffect *>::iterator it = mMods.begin();
@@ -394,7 +396,7 @@ void AttributeModifiersEffect::clearMods(double baseValue)
 
 double Attribute::checkBounds(double baseValue) const
 {
-    LOG_DEBUG("Checking bounds for value: " << baseValue);
+    qDebug() << "Checking bounds for value: " << baseValue;
     if (baseValue > mMaxValue)
         baseValue = mMaxValue;
     else if (baseValue < mMinValue)

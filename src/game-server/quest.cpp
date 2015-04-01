@@ -22,7 +22,6 @@
 
 #include "game-server/accountconnection.h"
 #include "game-server/charactercomponent.h"
-#include "utils/logger.h"
 
 #include <cassert>
 #include <list>
@@ -172,7 +171,7 @@ void recoveredQuestVar(int id,
     PendingVariables::iterator j = variables.find(name);
     if (j == variables.end())
     {
-        LOG_ERROR("Account server recovered an unexpected quest variable.");
+        qCritical() << "Account server recovered an unexpected quest variable.";
         return;
     }
 

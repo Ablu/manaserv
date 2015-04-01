@@ -27,7 +27,6 @@
 #include "game-server/itemmanager.h"
 #include "game-server/state.h"
 #include "net/messageout.h"
-#include "utils/logger.h"
 
 Inventory::Inventory(Entity *p):
     mPoss(&p->getComponent<CharacterComponent>()->getPossessions()),
@@ -103,10 +102,10 @@ void Inventory::initialize()
         }
         else
         {
-            LOG_WARN("Equipment: deleting unknown item id "
-                     << it->second.itemId << " from the equipment of '"
-                     << mCharacter->getComponent<BeingComponent>()->getName()
-                     << "'!");
+            qWarning() << "Equipment: deleting unknown item id "
+                       << it->second.itemId << " from the equipment of '"
+                       << mCharacter->getComponent<BeingComponent>()->getName()
+                       << "'!";
             mPoss->inventory.erase(it++);
         }
     }
@@ -126,15 +125,15 @@ unsigned Inventory::insert(unsigned itemId, unsigned amount)
     MessageOut invMsg(GPMSG_INVENTORY);
     ItemClass *item = itemManager->getItem(itemId);
     if (!item) {
-        LOG_ERROR("Inventory: Trying to insert invalid item id " << itemId
-                  << " (amount: " << amount << ")");
+        qCritical() << "Inventory: Trying to insert invalid item id " << itemId
+                    << " (amount: " << amount << ")";
         return amount;
     }
     unsigned maxPerSlot = item->getMaxPerSlot();
 
-    LOG_DEBUG("Inventory: Inserting " << amount << " item(s) Id: " << itemId
-              << " for character '"
-              << mCharacter->getComponent<BeingComponent>()->getName() << "'.");
+    qDebug() << "Inventory: Inserting " << amount << " item(s) Id: " << itemId
+             << " for character '"
+             << mCharacter->getComponent<BeingComponent>()->getName() << "'.";
 
     InventoryData::iterator it, it_end = mPoss->inventory.end();
     // Add to slots with existing items of this type first.
@@ -152,14 +151,14 @@ unsigned Inventory::insert(unsigned itemId, unsigned amount)
             {
                 it->second.amount += amount;
                 amount = 0;
-                LOG_DEBUG("Everything inserted at slot id: " << it->first);
+                qDebug() << "Everything inserted at slot id: " << it->first;
             }
             else
             {
                 it->second.amount += spaceLeft;
                 amount -= spaceLeft;
-                LOG_DEBUG(spaceLeft << " item(s) inserted at slot id: "
-                          << it->first);
+                qDebug() << spaceLeft << " item(s) inserted at slot id: "
+                         << it->first;
             }
 
             invMsg.writeInt16(it->first);
@@ -183,7 +182,7 @@ unsigned Inventory::insert(unsigned itemId, unsigned amount)
             mPoss->inventory[slot].itemId = itemId;
             mPoss->inventory[slot].amount = additions;
             amount -= additions;
-            LOG_DEBUG(additions << " item(s) inserted at slot id: " << slot);
+            qDebug() << additions << " item(s) inserted at slot id: " << slot;
             invMsg.writeInt16(slot++); // Last read, so also increment
             invMsg.writeInt16(itemId);
             invMsg.writeInt16(additions);
@@ -226,17 +225,17 @@ unsigned Inventory::remove(unsigned itemId, unsigned amount)
     if (!itemId || !amount)
         return amount;
 
-    LOG_DEBUG("Inventory: Request remove of " << amount << " item(s) id: "
-              << itemId << " for character: '"
-              << mCharacter->getComponent<BeingComponent>()->getName()
-              << "'.");
+    qDebug() << "Inventory: Request remove of " << amount << " item(s) id: "
+             << itemId << " for character: '"
+             << mCharacter->getComponent<BeingComponent>()->getName()
+             << "'.";
 
     MessageOut invMsg(GPMSG_INVENTORY);
     bool triggerLeaveInventory = true;
     for (InventoryData::iterator it = mPoss->inventory.begin();
          it != mPoss->inventory.end();)
     {
-        LOG_DEBUG("Remove: Treating slot id: " << it->first);
+        qDebug() << "Remove: Treating slot id: " << it->first;
         if (it->second.itemId == itemId)
         {
             if (amount)
@@ -253,14 +252,14 @@ unsigned Inventory::remove(unsigned itemId, unsigned amount)
                     // no need to run leave invy triggers.
                     if (!amount)
                         triggerLeaveInventory = false;
-                    LOG_DEBUG("Slot id: " << it->first << " has now "
-                              << it->second.amount << "item(s).");
+                    qDebug() << "Slot id: " << it->first << " has now "
+                             << it->second.amount << "item(s).";
                 }
                 else
                 {
                     invMsg.writeInt16(0);
                     // Ensure the slot is set empty.
-                    LOG_DEBUG("Slot id: " << it->first << " is now empty.");
+                    qDebug() << "Slot id: " << it->first << " is now empty.";
                     mPoss->inventory.erase(it++);
                     continue;
                 }
@@ -292,9 +291,9 @@ unsigned Inventory::removeFromSlot(unsigned slot, unsigned amount)
     if (it == mPoss->inventory.end())
         return amount;
 
-    LOG_DEBUG("Inventory: Request Removal of " << amount << " item(s) in slot: "
-              << slot << " for character: '"
-              << mCharacter->getComponent<BeingComponent>()->getName() << "'.");
+    qDebug() << "Inventory: Request Removal of " << amount << " item(s) in slot: "
+             << slot << " for character: '"
+             << mCharacter->getComponent<BeingComponent>()->getName() << "'.";
 
     MessageOut invMsg(GPMSG_INVENTORY);
     // Check if an item of the same id exists elsewhere in the inventory
@@ -401,7 +400,7 @@ bool Inventory::equip(int inventorySlot)
     InventoryData::iterator itemIt;
     if ((itemIt = mPoss->inventory.find(inventorySlot)) == mPoss->inventory.end())
     {
-        LOG_DEBUG("No existing item in inventory at slot: " << inventorySlot);
+        qDebug() << "No existing item in inventory at slot: " << inventorySlot;
         return false;
     }
 
@@ -420,8 +419,8 @@ bool Inventory::equip(int inventorySlot)
         itemManager->getItem(item.itemId)->getItemEquipRequirement();
     if (!equipReq.equipSlotId)
     {
-        LOG_DEBUG("No equip requirements for item id: " << item.itemId
-            << " at slot: " << inventorySlot);
+        qDebug() << "No equip requirements for item id: " << item.itemId
+                 << " at slot: " << inventorySlot;
         return false;
     }
 
@@ -437,10 +436,10 @@ bool Inventory::equip(int inventorySlot)
     if (itemManager->getEquipSlotCapacity(equipReq.equipSlotId)
             < equipReq.capacityRequired)
     {
-        LOG_DEBUG("Not enough equip capacity at slot: " << equipReq.equipSlotId
-                  << ", total available: "
-                  << itemManager->getEquipSlotCapacity(equipReq.equipSlotId)
-                  << ", required: " << equipReq.capacityRequired);
+        qDebug() << "Not enough equip capacity at slot: " << equipReq.equipSlotId
+                 << ", total available: "
+                 << itemManager->getEquipSlotCapacity(equipReq.equipSlotId)
+                 << ", required: " << equipReq.capacityRequired;
         return false;
     }
 
@@ -475,10 +474,10 @@ bool Inventory::equip(int inventorySlot)
     for (const auto &elem : slotsToUnequipFirst) {
         if (!unequip(elem)) {
             // Something went wrong even when we tested the unequipment process.
-            LOG_WARN("Unable to unequip even when unequip was tested. "
-                     "Character : "
-                     << mCharacter->getComponent<BeingComponent>()->getName()
-                     << ", unequip slot: " << elem);
+            qWarning() << "Unable to unequip even when unequip was tested. "
+                          "Character : "
+                       << mCharacter->getComponent<BeingComponent>()->getName()
+                       << ", unequip slot: " << elem;
             return false;
         }
     }
@@ -524,7 +523,7 @@ bool Inventory::unequip(unsigned itemSlot)
     InventoryData::iterator it = mPoss->inventory.find(itemSlot);
     if (it == mPoss->inventory.end())
     {
-        LOG_DEBUG("Tried to unequip invalid item at slot " << itemSlot);
+        qDebug() << "Tried to unequip invalid item at slot " << itemSlot;
         return false;
     }
 

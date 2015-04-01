@@ -22,12 +22,13 @@
 
 #include "common/resourcemanager.h"
 #include "game-server/statuseffect.h"
-#include "utils/logger.h"
 #include "utils/xml.h"
 
 #include <map>
 #include <set>
 #include <sstream>
+
+#include <QDebug>
 
 typedef std::map< int, StatusEffect * > StatusEffectsMap;
 static StatusEffectsMap statusEffects;
@@ -72,9 +73,9 @@ void StatusManager::readStatusNode(xmlNodePtr node, const QString &filename)
     const int id = XML::getProperty(node, "id", 0);
     if (id < 1)
     {
-        LOG_WARN("Status Manager: The status ID: " << id << " in "
-                 << filename
-                 << " is invalid and will be ignored.");
+        qWarning() << "Status Manager: The status ID: " << id << " in "
+                   << filename
+                   << " is invalid and will be ignored.";
         return;
     }
 
@@ -86,8 +87,8 @@ void StatusManager::readStatusNode(xmlNodePtr node, const QString &filename)
     {
         if (statusEffectsByName.contains(name))
         {
-            LOG_WARN("StatusManager: name not unique for status effect "
-                     << id);
+            qWarning() << "StatusManager: name not unique for status effect "
+                       << id;
         }
         else
         {
@@ -118,6 +119,6 @@ void StatusManager::readStatusNode(xmlNodePtr node, const QString &filename)
  */
 void StatusManager::checkStatus()
 {
-    LOG_INFO("Loaded " << statusEffects.size() << " status effects");
+    qDebug() << "Loaded " << statusEffects.size() << " status effects";
 }
 

@@ -22,7 +22,8 @@
 #include "abilitymanager.h"
 
 #include "utils/xml.h"
-#include "utils/logger.h"
+
+#include <QDebug>
 
 static AbilityManager::TargetMode getTargetByString(const QString &str)
 {
@@ -34,7 +35,7 @@ static AbilityManager::TargetMode getTargetByString(const QString &str)
     else if (strLower == "direction")
         return AbilityManager::TARGET_DIRECTION;
 
-    LOG_WARN("Unknown targetmode " << str << " assuming being.");
+    qCritical() << "Unknown targetmode " << str << " assuming being.";
     return AbilityManager::TARGET_BEING;
 }
 
@@ -43,7 +44,7 @@ static AbilityManager::TargetMode getTargetByString(const QString &str)
  */
 void AbilityManager::checkStatus()
 {
-    LOG_INFO("Loaded " << mAbilitiesInfo.size() << " abilities");
+    qDebug() << "Loaded " << mAbilitiesInfo.size() << " abilities";
 }
 
 void AbilityManager::readAbilityNode(xmlNodePtr abilityNode,
@@ -54,18 +55,18 @@ void AbilityManager::readAbilityNode(xmlNodePtr abilityNode,
 
     if (id <= 0 || name.isEmpty())
     {
-        LOG_WARN("Invalid ability (empty name or id <= 0) in " << filename);
+        qWarning() << "Invalid ability (empty name or id <= 0) in " << filename;
         return;
     }
 
     AbilitiesInfo::iterator it = mAbilitiesInfo.find(id);
     if (it != mAbilitiesInfo.end())
     {
-        LOG_WARN("AbilityManager: The same id: " << id
-                 << " is given for ability names: " << it->first
-                 << " and " << name);
-        LOG_WARN("The ability reference: " << id
-                 << ": '" << name << "' will be ignored.");
+        qWarning() << "AbilityManager: The same id: " << id
+                   << " is given for ability names: " << it->first
+                   << " and " << name;
+        qWarning() << "The ability reference: " << id
+                   << ": '" << name << "' will be ignored.";
         return;
     }
 

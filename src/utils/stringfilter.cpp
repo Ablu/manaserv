@@ -24,7 +24,7 @@
 
 #include "mana/configuration/interfaces/iconfiguration.h"
 
-#include "utils/logger.h"
+#include <QDebug>
 
 namespace utils
 {
@@ -53,7 +53,7 @@ bool StringFilter::loadSlangFilterList()
 bool StringFilter::filterContent(const QString &text) const
 {
     if (!mInitialized) {
-        LOG_DEBUG("Slangs List is not initialized.");
+        qDebug() << "Slangs List is not initialized.";
         return true;
     }
 

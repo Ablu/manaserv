@@ -25,8 +25,6 @@
 
 #include "scripting/scriptmanager.h"
 
-#include "utils/logger.h"
-
 AbilityComponent::AbilityComponent():
     mLastUsedAbilityId(0),
     mLastTargetBeingId(0)
@@ -76,7 +74,7 @@ bool AbilityComponent::abilityUseCheck(AbilityMap::iterator it)
 
     if (it == mAbilities.end())
     {
-        LOG_INFO("Entity uses ability without authorization.");
+        qDebug() << "Entity uses ability without authorization.";
         return false;
     }
 
@@ -84,17 +82,17 @@ bool AbilityComponent::abilityUseCheck(AbilityMap::iterator it)
     AbilityValue &ability = it->second;
     if (!ability.recharged)
     {
-        LOG_INFO("Character uses ability " << it->first
+        qDebug() << "Character uses ability " << it->first
                  << " which is not recharged. ("
                  << ability.rechargeTimeout.remaining()
-                 << " ticks are missing)");
+                 << " ticks are missing)";
         return false;
     }
 
     if (!ability.abilityInfo->useCallback.isValid())
     {
-        LOG_WARN("No callback for use of ability "
-                 << ability.abilityInfo->name << ". Ignoring ability.");
+        qWarning() << "No callback for use of ability "
+                   << ability.abilityInfo->name << ". Ignoring ability.";
         return false;
     }
     return true;
@@ -201,7 +199,7 @@ bool AbilityComponent::giveAbility(int id)
         auto *abilityInfo = abilityManager->getAbilityInfo(id);
         if (!abilityInfo)
         {
-            LOG_ERROR("Tried to give not existing ability id " << id << ".");
+            qCritical() << "Tried to give not existing ability id " << id << ".";
             return false;
         }
         return giveAbility(abilityInfo);

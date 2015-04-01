@@ -22,11 +22,12 @@
 #include "utils/xml.h"
 
 #include "common/resourcemanager.h"
-#include "utils/logger.h"
 #include "utils/string.h"
 
 #include <iostream>
 #include <fstream>
+
+#include <QDebug>
 
 namespace XML
 {
@@ -39,8 +40,8 @@ Document::Document(const QString &fileName, bool useResman) : mDoc(nullptr)
 
             if (resolvedFileName.isEmpty())
             {
-                LOG_ERROR("(XML::Document) File not found in search path: "
-                          << fileName);
+                qWarning() << "(XML::Document) File not found in search path: "
+                           << fileName;
                 return;
             }
         }
@@ -49,8 +50,8 @@ Document::Document(const QString &fileName, bool useResman) : mDoc(nullptr)
 
         if (!mDoc)
         {
-            LOG_ERROR("(XML::Document) Error parsing XML file: "
-                      << resolvedFileName);
+            qWarning() << "(XML::Document) Error parsing XML file: "
+                       << resolvedFileName;
         }
     }
 

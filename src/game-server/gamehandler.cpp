@@ -42,7 +42,6 @@
 #include "net/messagein.h"
 #include "net/messageout.h"
 #include "net/netcomputer.h"
-#include "utils/logger.h"
 #include "utils/tokendispenser.h"
 
 const unsigned TILES_TO_BE_NEAR = 7;
@@ -56,7 +55,7 @@ GameHandler::GameHandler(IConfiguration *configuration)
 
 bool GameHandler::startListen(enet_uint16 port)
 {
-    LOG_INFO("Game handler started:");
+    qDebug() << "Game handler started:";
     return ConnectionHandler::startListen(port);
 }
 
@@ -298,7 +297,7 @@ void GameHandler::processMessage(NetComputer *computer, MessageIn &message)
             break;
 
         default:
-            LOG_WARN("Invalid message type");
+            qWarning() << "Invalid message type";
             client.send(MessageOut(XXMSG_INVALID));
             break;
     }
@@ -644,8 +643,8 @@ void GameHandler::handleUseAbilityOnBeing(GameClient &client, MessageIn &message
 
     const int publicId =
             client.character->getComponent<ActorComponent>()->getPublicID();
-    LOG_DEBUG("Character " << publicId
-              << " tries to use his ability " << abilityID);
+    qDebug() << "Character " << publicId
+              << " tries to use his ability " << abilityID;
     auto *abilityComponent = client.character
             ->getComponent<AbilityComponent>();
     abilityComponent->useAbilityOnBeing(*client.character, abilityID, being);
@@ -662,8 +661,8 @@ void GameHandler::handleUseAbilityOnPoint(GameClient &client, MessageIn &message
 
     const int publicId =
             client.character->getComponent<ActorComponent>()->getPublicID();
-    LOG_DEBUG("Character " << publicId
-              << " tries to use his ability " << abilityID);
+    qDebug() << "Character " << publicId
+             << " tries to use his ability " << abilityID;
     auto *abilityComponent = client.character
             ->getComponent<AbilityComponent>();
     abilityComponent->useAbilityOnPoint(*client.character, abilityID, x, y);
@@ -679,8 +678,8 @@ void GameHandler::handleUseAbilityOnDirection(GameClient &client, MessageIn &mes
 
     const int publicId =
             client.character->getComponent<ActorComponent>()->getPublicID();
-    LOG_DEBUG("Character " << publicId
-              << " tries to use his ability " << abilityID);
+    qDebug() << "Character " << publicId
+             << " tries to use his ability " << abilityID;
     auto *abilityComponent = client.character
             ->getComponent<AbilityComponent>();
     abilityComponent->useAbilityOnDirection(*client.character, abilityID,

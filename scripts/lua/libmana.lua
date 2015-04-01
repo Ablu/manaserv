@@ -67,42 +67,6 @@ world = setmetatable({}, {
     end,
 })
 
---- LUA ERROR (logging)
--- ERROR(string message)
----
--- Will log the ''message'' using the log level LOG_ERROR.
---
--- **Note:** When passing multiple arguments these arguments will get connected
--- using a " ".
-function ERROR(...) log(LOG_ERROR, table.concat({...}, " ")) end
-
---- LUA WARN (logging)
--- WARN(string message)
----
--- Will log the ''message'' using the log level LOG_WARNING.
---
--- **Note:** When passing multiple arguments these arguments will get connected
--- using a " ".
-function WARN(...)  log(LOG_WARN,  table.concat({...}, " ")) end
-
---- LUA INFO (logging)
--- INFO(string message)
----
--- Will log the ''message'' using the log level LOG_INFO.
---
--- **Note:** When passing multiple arguments these arguments will get connected
--- using a " ".
-function INFO(...)  log(LOG_INFO,  table.concat({...}, " ")) end
-
---- LUA DEBUG (logging)
--- DEBUG(string message)
----
--- Will log the ''message'' using the log level LOG_DEBUG.
---
--- **Note:** When passing multiple arguments these arguments will get connected
--- using a " ".
-function DEBUG(...) log(LOG_DEBUG, table.concat({...}, " ")) end
-
 -- Array containing the function registered by atinit.
 local init_fun = {}
 

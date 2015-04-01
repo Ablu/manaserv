@@ -25,7 +25,6 @@
 #include "scripting/scriptmanager.h"
 
 #include "game-server/charactercomponent.h"
-#include "utils/logger.h"
 
 #include <cassert>
 #include <cstring>
@@ -135,9 +134,9 @@ int LuaScript::execute(const Context &context)
     {
         const char *s = lua_tostring(mCurrentState, -1);
 
-        LOG_WARN("Lua Script Error" << "\n"
-                 << "     Script  : " << mScriptFile << "\n"
-                 << "     Error   : " << (s ? s : "") << "\n");
+        qWarning() << "Lua Script Error" << "\n"
+                   << "     Script  : " << mScriptFile << "\n"
+                   << "     Error   : " << (s ? s : "") << "\n";
         lua_pop(mCurrentState, 1);
         return 0;
     }
@@ -166,12 +165,12 @@ bool LuaScript::resume()
     if (result == 0)                // Thread is done
     {
         if (lua_gettop(mCurrentState) > 0)
-            LOG_WARN("Ignoring values returned by script thread!");
+            qWarning() << "Ignoring values returned by script thread!";
     }
     else if (result == LUA_YIELD)   // Thread has yielded
     {
         if (lua_gettop(mCurrentState) > 0)
-            LOG_WARN("Ignoring values passed to yield!");
+            qWarning() << "Ignoring values passed to yield!";
     }
     else                            // Thread encountered an error
     {
@@ -181,8 +180,8 @@ bool LuaScript::resume()
         lua_pushvalue(mCurrentState, -3); // error string as first parameter
         lua_pcall(mCurrentState, 1, 1, 0);
 
-        LOG_WARN("Lua Script Error:"
-                 << "\n" << lua_tostring(mCurrentState, -1));
+        qWarning() << "Lua Script Error:"
+                   << "\n" << lua_tostring(mCurrentState, -1);
     }
 
     lua_settop(mCurrentState, 0);
@@ -232,11 +231,11 @@ void LuaScript::load(const QString &prog, const QString &name,
     {
         switch (res) {
         case LUA_ERRSYNTAX:
-            LOG_ERROR("Syntax error while loading Lua script: "
-                      << lua_tostring(mRootState, -1));
+            qCritical() << "Syntax error while loading Lua script: "
+                        << lua_tostring(mRootState, -1);
             break;
         case LUA_ERRMEM:
-            LOG_ERROR("Memory allocation error while loading Lua script");
+            qCritical() << "Memory allocation error while loading Lua script";
             break;
         }
 
@@ -244,8 +243,8 @@ void LuaScript::load(const QString &prog, const QString &name,
     }
     else if (lua_pcall(mRootState, 0, 0, 1))
     {
-        LOG_ERROR("Failure while initializing Lua script: "
-                  << lua_tostring(mRootState, -1));
+        qCritical() << "Failure while initializing Lua script: "
+                    << lua_tostring(mRootState, -1);
         lua_pop(mRootState, 1);
     }
     mContext = previousContext;

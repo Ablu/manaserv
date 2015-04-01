@@ -30,7 +30,8 @@
 #include <stdint.h>
 
 #include "net/messagein.h"
-#include "utils/logger.h"
+
+#include <QDebug>
 
 // Not enabled by default since this will cause assertions on message errors,
 // which may also originate from the client.
@@ -70,7 +71,7 @@ int MessageIn::readInt8()
     }
     else
     {
-        LOG_DEBUG("Unable to read 1 byte in " << mId << "!");
+        qDebug() << "Unable to read 1 byte in " << mId << "!";
     }
 
     mPos += 1;
@@ -92,7 +93,7 @@ int MessageIn::readInt16()
     }
     else
     {
-        LOG_DEBUG("Unable to read 2 bytes in " << mId << "!");
+        qDebug() << "Unable to read 2 bytes in " << mId << "!";
     }
 
     mPos += 2;
@@ -114,7 +115,7 @@ int MessageIn::readInt32()
     }
     else
     {
-        LOG_DEBUG("Unable to read 4 bytes in " << mId << "!");
+        qDebug() << "Unable to read 4 bytes in " << mId << "!";
     }
 
     mPos += 4;
@@ -152,8 +153,8 @@ QString MessageIn::readString(int length)
 #endif
         if (fixedLength != length)
         {
-            LOG_DEBUG("Expected string of length " << length <<
-                      " but received length " << fixedLength);
+            qDebug() << "Expected string of length " << length <<
+                        " but received length " << fixedLength;
             mPos = mLength + 1;
             return QString();
         }
@@ -197,12 +198,12 @@ bool MessageIn::readValueType(ManaServ::ValueType type)
         }
         else
         {
-            LOG_DEBUG("Attempt to read " << type << " but got " << t);
+            qDebug() << "Attempt to read " << type << " but got " << t;
         }
     }
     else
     {
-        LOG_DEBUG("Attempt to read " << type << " but no more data available");
+        qDebug() << "Attempt to read " << type << " but no more data available";
     }
 
     return false;
@@ -269,4 +270,11 @@ QTextStream &operator<<(QTextStream &os, const MessageIn &msg)
     }
 
     return os;
+}
+
+QDebug &operator <<(QDebug &debug, const MessageIn &msg)
+{
+    QTextStream ss;
+    ss << msg;
+    return debug << ss.string();
 }

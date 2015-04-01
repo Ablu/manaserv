@@ -20,7 +20,6 @@
 
 #include "game-server/settingsmanager.h"
 #include "common/defines.h"
-#include "utils/logger.h"
 #include "utils/xml.h"
 
 #include "common/resourcemanager.h"
@@ -32,6 +31,8 @@
 #include "game-server/monstermanager.h"
 #include "game-server/emotemanager.h"
 #include "game-server/statusmanager.h"
+
+#include <QDebug>
 
 /**
  * Initialize all managers and load configuration into them.
@@ -79,7 +80,7 @@ void SettingsManager::reload()
  */
 void SettingsManager::loadFile(const QString &filename)
 {
-    LOG_INFO("Loading game settings from " << filename);
+    qDebug() << "Loading game settings from " << filename;
 
     XML::Document doc(filename);
     xmlNodePtr node = doc.rootNode();
@@ -90,7 +91,7 @@ void SettingsManager::loadFile(const QString &filename)
     // FIXME: check root node's name when bjorn decides it's time
     if (!node /*|| !xmlStrEqual(node->name, BAD_CAST "settings") */)
     {
-        LOG_FATAL("Settings Manager: " << filename << " is not a valid database file!");
+        qCritical() << "Settings Manager: " << filename << " is not a valid database file!";
         exit(EXIT_XML_BAD_PARAMETER);
     }
 
@@ -117,7 +118,7 @@ void SettingsManager::loadFile(const QString &filename)
                 // check if we're not entering a loop
                 if (mIncludedFiles.find(realIncludeFile) != mIncludedFiles.end())
                 {
-                    LOG_ERROR("Circular include loop detecting while including " << includeFile << " from " << filename);
+                    qCritical() << "Circular include loop detecting while including " << includeFile << " from " << filename;
                 }
                 else
                 {
@@ -169,7 +170,7 @@ void SettingsManager::loadFile(const QString &filename)
         else
         {
             // since the client and server share settings, don't be too strict
-//            LOG_WARN("Unexpected tag <" << childNode->name << "> in " << filename);
+//            qWarning() << "Unexpected tag <" << childNode->name << "> in " << filename;
         }
     }
 

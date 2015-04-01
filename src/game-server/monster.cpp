@@ -31,7 +31,6 @@
 #include "game-server/mapcomposite.h"
 #include "game-server/state.h"
 #include "scripting/scriptmanager.h"
-#include "utils/logger.h"
 #include "utils/speedconv.h"
 
 #include <cmath>
@@ -39,7 +38,7 @@
 MonsterComponent::MonsterComponent(Entity &entity, MonsterClass *specy):
     mSpecy(specy)
 {
-    LOG_DEBUG("Monster spawned! (id: " << mSpecy->getId() << ").");
+    qDebug() << "Monster spawned! (id: " << mSpecy->getId() << ").";
 
     auto *actorComponent = entity.getComponent<ActorComponent>();
     actorComponent->setWalkMask(Map::BLOCKMASK_WALL |

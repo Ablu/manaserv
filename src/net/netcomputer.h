@@ -23,7 +23,7 @@
 
 #include <enet/enet.h>
 
-#include <QTextStream>
+#include <QTextStreamFunction>
 
 class MessageOut;
 
@@ -85,6 +85,7 @@ private:
      * <code> std::cout << comp </code>
      */
     friend QTextStream &operator<<(QTextStream &os, const NetComputer &comp);
+    friend QDebug &operator <<(QDebug &debug, const NetComputer &comp);
 };
 
 #endif // NETCOMPUTER_H

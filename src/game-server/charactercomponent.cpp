@@ -38,8 +38,6 @@
 #include "net/messagein.h"
 #include "net/messageout.h"
 
-#include "utils/logger.h"
-
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -84,8 +82,8 @@ CharacterComponent::CharacterComponent(Entity &entity, MessageIn &msg,
     auto *beingComponent = entity.getComponent<BeingComponent>();
 
     auto &attributeScope = attributeManager->getAttributeScope(CharacterScope);
-    LOG_DEBUG("Character creation: initialisation of "
-              << attributeScope.size() << " attributes.");
+    qDebug() << "Character creation: initialisation of "
+             << attributeScope.size() << " attributes.";
     for (auto &attribute : attributeScope)
         beingComponent->createAttribute(attribute);
 
@@ -302,8 +300,8 @@ void CharacterComponent::respawn(Entity &entity)
 
     if (beingComponent->getAction() != DEAD)
     {
-        LOG_WARN("Character \"" << beingComponent->getName()
-                 << "\" tried to respawn without being dead");
+        qWarning() << "Character \"" << beingComponent->getName()
+                   << "\" tried to respawn without being dead";
         return;
     }
 
@@ -512,7 +510,7 @@ void CharacterComponent::modifiedAllAttributes(Entity &entity)
 {
     auto *beingComponent = entity.getComponent<BeingComponent>();
 
-    LOG_DEBUG("Marking all attributes as changed, requiring recalculation.");
+    qDebug() << "Marking all attributes as changed, requiring recalculation.";
     for (auto attribute : beingComponent->getAttributes())
     {
         beingComponent->recalculateBaseAttribute(entity, attribute.first);

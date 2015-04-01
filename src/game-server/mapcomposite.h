@@ -31,6 +31,7 @@
 #include "mana/entities/map.h"
 
 class Entity;
+class IConfiguration;
 class Map;
 class Point;
 class Rectangle;

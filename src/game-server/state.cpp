@@ -37,7 +37,6 @@
 #include "net/messageout.h"
 #include "scripting/script.h"
 #include "scripting/scriptmanager.h"
-#include "utils/logger.h"
 #include "utils/speedconv.h"
 
 #include <cassert>
@@ -559,8 +558,8 @@ bool GameState::insert(Entity *ptr)
     if ((int)pos.x / mp.getTileWidth() >= mp.getWidth() ||
         (int)pos.y / mp.getTileHeight() >= mp.getHeight())
     {
-        LOG_ERROR("Tried to insert an actor at position " << pos.x << ','
-                  << pos.y << " outside map " << map->getID() << '.');
+        qCritical() << "Tried to insert an actor at position " << pos.x << ','
+                    << pos.y << " outside map " << map->getID() << '.';
         // Set an arbitrary small position.
         pos = Point(100, 100);
         obj->getComponent<ActorComponent>()->setPosition(*ptr, pos);
@@ -569,7 +568,7 @@ bool GameState::insert(Entity *ptr)
     if (!map->insert(obj))
     {
         // The map is overloaded, no room to add a new actor
-        LOG_ERROR("Too many actors on map " << map->getID() << '.');
+        qCritical() << "Too many actors on map " << map->getID() << '.';
         return false;
     }
 
@@ -579,35 +578,35 @@ bool GameState::insert(Entity *ptr)
     switch (obj->getType())
     {
         case OBJECT_ITEM:
-            LOG_DEBUG("Item inserted: "
-                   << obj->getComponent<ItemComponent>()->getItemClass()->getDatabaseID());
+            qDebug() << "Item inserted: "
+                     << obj->getComponent<ItemComponent>()->getItemClass()->getDatabaseID();
             break;
 
         case OBJECT_NPC:
-            LOG_DEBUG("NPC inserted: " << obj->getComponent<NpcComponent>()->getNpcId());
+            qDebug() << "NPC inserted: " << obj->getComponent<NpcComponent>()->getNpcId();
             break;
 
         case OBJECT_CHARACTER:
-            LOG_DEBUG("Player inserted: "
-                      << obj->getComponent<BeingComponent>()->getName());
+            qDebug() << "Player inserted: "
+                     << obj->getComponent<BeingComponent>()->getName();
             break;
 
         case OBJECT_EFFECT:
-            LOG_DEBUG("Effect inserted: "
-                      << obj->getComponent<EffectComponent>()->getEffectId());
+            qDebug() << "Effect inserted: "
+                     << obj->getComponent<EffectComponent>()->getEffectId();
             break;
 
         case OBJECT_MONSTER:
         {
             MonsterComponent *monsterComponent =
                     obj->getComponent<MonsterComponent>();
-            LOG_DEBUG("Monster inserted: "
-                      << monsterComponent->getSpecy()->getId());
+            qDebug() << "Monster inserted: "
+                     << monsterComponent->getSpecy()->getId();
             break;
         }
         case OBJECT_OTHER:
         default:
-            LOG_DEBUG("Entity inserted: " << obj->getType());
+            qDebug() << "Entity inserted: " << obj->getType();
             break;
     }
 
@@ -656,35 +655,35 @@ void GameState::remove(Entity *ptr)
     switch (ptr->getType())
     {
         case OBJECT_ITEM:
-            LOG_DEBUG("Item removed: "
-                   << ptr->getComponent<ItemComponent>()->getItemClass()->getDatabaseID());
+            qDebug() << "Item removed: "
+                     << ptr->getComponent<ItemComponent>()->getItemClass()->getDatabaseID();
             break;
 
         case OBJECT_NPC:
-            LOG_DEBUG("NPC removed: " << ptr->getComponent<NpcComponent>()->getNpcId());
+            qDebug() << "NPC removed: " << ptr->getComponent<NpcComponent>()->getNpcId();
             break;
 
         case OBJECT_CHARACTER:
-            LOG_DEBUG("Player removed: "
-                      << ptr->getComponent<BeingComponent>()->getName());
+            qDebug() << "Player removed: "
+                     << ptr->getComponent<BeingComponent>()->getName();
             break;
 
         case OBJECT_EFFECT:
-            LOG_DEBUG("Effect removed: "
-                      << ptr->getComponent<EffectComponent>()->getEffectId());
+            qDebug() << "Effect removed: "
+                     << ptr->getComponent<EffectComponent>()->getEffectId();
             break;
 
         case OBJECT_MONSTER:
         {
             MonsterComponent *monsterComponent =
                     ptr->getComponent<MonsterComponent>();
-            LOG_DEBUG("Monster removed: "
-                      << monsterComponent->getSpecy()->getId());
+            qDebug() << "Monster removed: "
+                     << monsterComponent->getSpecy()->getId();
             break;
         }
         case OBJECT_OTHER:
         default:
-            LOG_DEBUG("Entity removed: " << ptr->getType());
+            qDebug() << "Entity removed: " << ptr->getType();
             break;
     }
 

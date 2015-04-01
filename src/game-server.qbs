@@ -122,8 +122,6 @@ CppApplication {
         files: [
             "base64.cpp",
             "base64.h",
-            "logger.cpp",
-            "logger.h",
             "mathutils.cpp",
             "mathutils.h",
             "point.h",
@@ -182,6 +180,15 @@ CppApplication {
             "script.h",
             "scriptmanager.cpp",
             "scriptmanager.h",
+        ]
+    }
+
+    Group {
+        name: "Scripting libraries"
+        prefix: "../scripts/"
+        files: [
+            "lua/libmana.lua",
+            "lua/libmana-constants.lua",
         ]
     }
 

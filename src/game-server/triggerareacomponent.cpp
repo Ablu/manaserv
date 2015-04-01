@@ -26,8 +26,6 @@
 #include "game-server/actorcomponent.h"
 #include "game-server/state.h"
 
-#include "utils/logger.h"
-
 #include <cassert>
 
 void WarpAction::process(Entity *obj)
@@ -89,8 +87,8 @@ ScriptAction::ScriptAction(Script *script, Script::Ref callback, int arg) :
 
 void ScriptAction::process(Entity *obj)
 {
-    LOG_DEBUG("Script trigger area activated: "
-              << "(" << obj << ", " << mArg << ")");
+    qDebug() << "Script trigger area activated: "
+             << "(" << obj << ", " << mArg << ")";
 
     mScript->prepare(mCallback);
     mScript->push(obj);

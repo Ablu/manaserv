@@ -36,7 +36,6 @@
 #include "net/messagein.h"
 #include "net/messageout.h"
 #include "net/netcomputer.h"
-#include "utils/logger.h"
 #include "utils/point.h"
 #include "utils/stringfilter.h"
 #include "utils/tokencollector.h"
@@ -45,6 +44,7 @@
 #include "utils/xml.h"
 
 #include <QCryptographicHash>
+#include <QDebug>
 
 using namespace ManaServ;
 
@@ -167,8 +167,8 @@ AccountHandler::AccountHandler(IConfiguration *configuration,
 
     if (!node || !xmlStrEqual(node->name, BAD_CAST "attributes"))
     {
-        LOG_FATAL("Account handler: " << attributesFile << ": "
-                  << " is not a valid database file!");
+        qCritical() << "Account handler: " << attributesFile << ": "
+                    << " is not a valid database file!";
         exit(EXIT_XML_BAD_PARAMETER);
     }
 
@@ -179,9 +179,9 @@ AccountHandler::AccountHandler(IConfiguration *configuration,
             int id = XML::getProperty(attributenode, "id", 0);
             if (!id)
             {
-                LOG_WARN("Account handler: " << attributesFile << ": "
-                         << "An invalid attribute id value (0) has been found "
-                         << "and will be ignored.");
+                qWarning() << "Account handler: " << attributesFile << ": "
+                           << "An invalid attribute id value (0) has been found "
+                           << "and will be ignored.";
                 continue;
             }
 
@@ -207,9 +207,9 @@ AccountHandler::AccountHandler(IConfiguration *configuration,
             // Stops if not all the values are given.
             if (!mStartingPoints || !mAttributeMinimum || !mAttributeMaximum)
             {
-                LOG_FATAL("Account handler: " << attributesFile << ": "
-                          << " The characters starting points "
-                          << "are incomplete or not set!");
+                qCritical() << "Account handler: " << attributesFile << ": "
+                            << " The characters starting points "
+                            << "are incomplete or not set!";
                 exit(EXIT_XML_BAD_PARAMETER);
             }
         }
@@ -217,8 +217,8 @@ AccountHandler::AccountHandler(IConfiguration *configuration,
 
     if (mModifiableAttributes.empty())
     {
-        LOG_FATAL("Account handler: " << attributesFile << ": "
-                  << "No modifiable attributes found!");
+        qCritical() << "Account handler: " << attributesFile << ": "
+                    << "No modifiable attributes found!";
         exit(EXIT_XML_BAD_PARAMETER);
     }
 
@@ -226,14 +226,14 @@ AccountHandler::AccountHandler(IConfiguration *configuration,
     if (attributeCount * mAttributeMaximum < mStartingPoints ||
         attributeCount * mAttributeMinimum > mStartingPoints)
     {
-        LOG_FATAL("Account handler: " << attributesFile << ": "
-                  << "Character's point values make "
-                  << "the character's creation impossible!");
+        qCritical() << "Account handler: " << attributesFile << ": "
+                    << "Character's point values make "
+                    << "the character's creation impossible!";
         exit(EXIT_XML_BAD_PARAMETER);
     }
 
-    LOG_DEBUG("Character start points: " << mStartingPoints << " (Min: "
-              << mAttributeMinimum << ", Max: " << mAttributeMaximum << ")");
+    qDebug() << "Character start points: " << mStartingPoints << " (Min: "
+             << mAttributeMinimum << ", Max: " << mAttributeMaximum << ")";
 }
 
 bool AccountClientHandler::initialize(const QString &attributesFile, int port,
@@ -242,7 +242,7 @@ bool AccountClientHandler::initialize(const QString &attributesFile, int port,
                                       IStorage *storage)
 {
     accountHandler = new AccountHandler(configuration, storage, attributesFile);
-    LOG_INFO("Account handler started:");
+    qDebug() << "Account handler started:";
 
     return accountHandler->startListen(port, host);
 }
@@ -480,8 +480,8 @@ void AccountHandler::handleReconnectMessage(AccountClient &client,
 {
     if (client.status != CLIENT_LOGIN)
     {
-        LOG_DEBUG("Account tried to reconnect, but was already logged in "
-                  "or queued.");
+        qDebug() << "Account tried to reconnect, but was already logged in "
+                    "or queued.";
         return;
     }
 
@@ -575,7 +575,7 @@ void AccountHandler::handleRegisterMessage(AccountClient &client,
 void AccountHandler::handleUnregisterMessage(AccountClient &client,
                                              MessageIn &msg)
 {
-    LOG_DEBUG("AccountHandler::handleUnregisterMessage");
+    qDebug() << "AccountHandler::handleUnregisterMessage";
 
     MessageOut reply(APMSG_UNREGISTER_RESPONSE);
 
@@ -607,8 +607,8 @@ void AccountHandler::handleUnregisterMessage(AccountClient &client,
     }
 
     // Delete account and associated characters
-    LOG_INFO("Unregistered \"" << username
-             << "\", AccountID: " << account->getId());
+    qDebug() << "Unregistered \"" << username
+             << "\", AccountID: " << account->getId();
     mStorage->delAccount(*account);
     reply.writeInt8(ERRMSG_OK);
 
@@ -618,7 +618,7 @@ void AccountHandler::handleUnregisterMessage(AccountClient &client,
 void AccountHandler::handleRequestRegisterInfoMessage(AccountClient &client,
                                                       MessageIn &)
 {
-    LOG_INFO("AccountHandler::handleRequestRegisterInfoMessage");
+    qDebug() << "AccountHandler::handleRequestRegisterInfoMessage";
     MessageOut reply(APMSG_REGISTER_INFO_RESPONSE);
     if (!mConfiguration->getBoolValue("account_allowRegister", true))
     {
@@ -851,8 +851,8 @@ void AccountHandler::handleCharacterCreateMessage(AccountClient &client,
 
             account->addCharacter(std::move(newCharacter));
 
-            LOG_INFO("Character " << name << " was created for "
-                     << account->getName() << "'s account.");
+            qDebug() << "Character " << name << " was created for "
+                     << account->getName() << "'s account.";
 
             mStorage->flush(*account); // flush changes
             return;
@@ -893,7 +893,7 @@ void AccountHandler::handleCharacterSelectMessage(AccountClient &client,
     if (!GameServerHandler::getGameServerFromMap
             (selectedChar.getMapId(), address, port))
     {
-        LOG_ERROR("Character Selection: No game server for map #"<<selectedChar.getMapId());
+        qCritical() << "Character Selection: No game server for map #"<<selectedChar.getMapId();
         reply.writeInt8(ERRMSG_FAILURE);
         client.send(reply);
         return;
@@ -901,7 +901,7 @@ void AccountHandler::handleCharacterSelectMessage(AccountClient &client,
 
     reply.writeInt8(ERRMSG_OK);
 
-    LOG_DEBUG(selectedChar.getName() << " is trying to enter the servers.");
+    qDebug() << selectedChar.getName() << " is trying to enter the servers.";
 
     QString magic_token(utils::getMagicToken());
     reply.writeString(magic_token, MAGIC_TOKEN_LENGTH);
@@ -958,7 +958,7 @@ void AccountHandler::handleCharacterDeleteMessage(AccountClient &client,
     }
 
     QString characterName = chars[slot]->getName();
-    LOG_INFO("Character deleted:" << characterName);
+    qDebug() << "Character deleted:" << characterName;
 
     // Log transaction
     Transaction trans;
@@ -1025,68 +1025,68 @@ void AccountHandler::processMessage(NetComputer *comp, MessageIn &message)
     switch (message.getId())
     {
         case PAMSG_LOGIN_RNDTRGR:
-            LOG_DEBUG("Received msg ... PAMSG_LOGIN_RANDTRIGGER");
+            qDebug() << "Received msg ... PAMSG_LOGIN_RANDTRIGGER";
             handleLoginRandTriggerMessage(client, message);
             break;
 
         case PAMSG_LOGIN:
-            LOG_DEBUG("Received msg ... PAMSG_LOGIN");
+            qDebug() << "Received msg ... PAMSG_LOGIN";
             handleLoginMessage(client, message);
             break;
 
         case PAMSG_LOGOUT:
-            LOG_DEBUG("Received msg ... PAMSG_LOGOUT");
+            qDebug() << "Received msg ... PAMSG_LOGOUT";
             handleLogoutMessage(client);
             break;
 
         case PAMSG_RECONNECT:
-            LOG_DEBUG("Received msg ... PAMSG_RECONNECT");
+            qDebug() << "Received msg ... PAMSG_RECONNECT";
             handleReconnectMessage(client, message);
             break;
 
         case PAMSG_REGISTER:
-            LOG_DEBUG("Received msg ... PAMSG_REGISTER");
+            qDebug() << "Received msg ... PAMSG_REGISTER";
             handleRegisterMessage(client, message);
             break;
 
         case PAMSG_UNREGISTER:
-            LOG_DEBUG("Received msg ... PAMSG_UNREGISTER");
+            qDebug() << "Received msg ... PAMSG_UNREGISTER";
             handleUnregisterMessage(client, message);
             break;
 
         case PAMSG_REQUEST_REGISTER_INFO :
-            LOG_DEBUG("Received msg ... REQUEST_REGISTER_INFO");
+            qDebug() << "Received msg ... REQUEST_REGISTER_INFO";
             handleRequestRegisterInfoMessage(client, message);
             break;
 
         case PAMSG_EMAIL_CHANGE:
-            LOG_DEBUG("Received msg ... PAMSG_EMAIL_CHANGE");
+            qDebug() << "Received msg ... PAMSG_EMAIL_CHANGE";
             handleEmailChangeMessage(client, message);
             break;
 
         case PAMSG_PASSWORD_CHANGE:
-            LOG_DEBUG("Received msg ... PAMSG_PASSWORD_CHANGE");
+            qDebug() << "Received msg ... PAMSG_PASSWORD_CHANGE";
             handlePasswordChangeMessage(client, message);
             break;
 
         case PAMSG_CHAR_CREATE:
-            LOG_DEBUG("Received msg ... PAMSG_CHAR_CREATE");
+            qDebug() << "Received msg ... PAMSG_CHAR_CREATE";
             handleCharacterCreateMessage(client, message);
             break;
 
         case PAMSG_CHAR_SELECT:
-            LOG_DEBUG("Received msg ... PAMSG_CHAR_SELECT");
+            qDebug() << "Received msg ... PAMSG_CHAR_SELECT";
             handleCharacterSelectMessage(client, message);
             break;
 
         case PAMSG_CHAR_DELETE:
-            LOG_DEBUG("Received msg ... PAMSG_CHAR_DELETE");
+            qDebug() << "Received msg ... PAMSG_CHAR_DELETE";
             handleCharacterDeleteMessage(client, message);
             break;
 
         default:
-            LOG_WARN("AccountHandler::processMessage, Invalid message type "
-                     << message.getId());
+            qWarning() << "AccountHandler::processMessage, Invalid message type "
+                       << message.getId();
             MessageOut result(XXMSG_INVALID);
             client.send(result);
             break;

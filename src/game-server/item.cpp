@@ -34,7 +34,7 @@
 
 bool ItemEffectAttrMod::apply(Entity *itemUser)
 {
-    LOG_DEBUG("Applying modifier.");
+    qDebug() << "Applying modifier.";
     itemUser->getComponent<BeingComponent>()->applyModifier(*itemUser,
                                                             mAttribute,
                                                             mMod,
@@ -46,7 +46,7 @@ bool ItemEffectAttrMod::apply(Entity *itemUser)
 
 void ItemEffectAttrMod::dispell(Entity *itemUser)
 {
-    LOG_DEBUG("Dispelling modifier.");
+    qDebug() << "Dispelling modifier.";
     itemUser->getComponent<BeingComponent>()->removeModifier(*itemUser,
                                                              mAttribute,
                                                              mMod,

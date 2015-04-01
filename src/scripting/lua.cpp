@@ -49,7 +49,6 @@
 #include "scripting/luautil.h"
 #include "scripting/luascript.h"
 #include "scripting/scriptmanager.h"
-#include "utils/logger.h"
 #include "utils/speedconv.h"
 
 #include <string.h>
@@ -423,8 +422,8 @@ static int trigger_create(lua_State *s)
 
     triggerEntity->addComponent(area);
 
-    LOG_INFO("Created script trigger at " << x << "," << y
-             << " (" << width << "x" << height << ") id: " << id);
+    qDebug() << "Created script trigger at " << x << "," << y
+             << " (" << width << "x" << height << ") id: " << id;
 
     bool ret = GameState::insertOrDelete(triggerEntity);
     lua_pushboolean(s, ret);
@@ -961,10 +960,10 @@ static int entity_inv_change(lua_State *s)
             nb = inv.remove(id, -nb);
             if (nb)
             {
-                LOG_WARN("inv_change removed more items than owned: "
-                     << "character: "
-                     << q->getComponent<BeingComponent>()->getName()
-                     << " item id: " << id);
+                qWarning() << "inv_change removed more items than owned: "
+                           << "character: "
+                           << q->getComponent<BeingComponent>()->getName()
+                           << " item id: " << id;
             }
         }
         else
@@ -1627,7 +1626,7 @@ static int entity_warp(lua_State *s)
     if (!map.getWalk(x / map.getTileWidth(), y / map.getTileHeight()))
     {
         int c = 50;
-        LOG_INFO("warp called with a non-walkable place.");
+        qDebug() << "warp called with a non-walkable place.";
         do
         {
             x = rand() % map.getWidth();
@@ -2762,29 +2761,57 @@ static int setvar_world(lua_State *s)
 /** LUA_CATEGORY Logging (logging)
  */
 
-/** LUA log (logging)
- * log(int log_level, string message)
- **
- * Log something at the specified log level. The available log levels are:
- * | 0 | LOG_FATAL    |
- * | 1 | LOG_ERROR    |
- * | 2 | LOG_WARNING  |
- * | 3 | LOG_INFO     |
- * | 4 | LOG_DEBUG    |
- */
-static int log(lua_State *s)
+
+static void logToDebug(lua_State *s, QDebug output)
 {
-    using utils::Logger;
+    int numberOfArguments = lua_gettop(s);
+    for (int i = 1; i <= numberOfArguments; ++i) {
+        output << lua_tostring(s, i);
+    }
+}
 
-    const int loglevel = luaL_checkint(s, 1);
-    luaL_argcheck(s,
-                  loglevel >= Logger::Fatal && loglevel <= Logger::Debug,
-                  1,
-                  "invalid log level");
+/** LUA ERROR (logging)
+ * ERROR(string message)
+ **
+ * Will log the ''message'' as error.
+ *
+ * **Note:** When passing multiple arguments these arguments will get connected
+ */
+static int error(lua_State *s)
+{
+    logToDebug(s, qCritical());
+    return 0;
+}
 
-    const QString message = luaL_checkstring(s, 2);
+/** LUA WARN (logging)
+ * WARN(string message)
+ **
+ * Will log the ''message'' as warning.
+ *
+ * **Note:** When passing multiple arguments these arguments will get connected
+ */
+static int warn(lua_State *s)
+{
+    logToDebug(s, qWarning());
+    return 0;
+}
 
-    Logger::output(message, (Logger::Level) loglevel);
+/** LUA DEBUG (logging)
+ * DEBUG(string message)
+ **
+ * Will log the ''message'' as debug message.
+ *
+ * **Note:** When passing multiple arguments these arguments will get connected
+ */
+static int debug(lua_State *s)
+{
+    logToDebug(s, qDebug());
+    return 0;
+}
+
+static int info(lua_State *s)
+{
+    debug(s);
     return 0;
 }
 
@@ -3301,14 +3328,14 @@ static int test_tableget(lua_State *s)
     std::map<QString, QString> map;
     std::set<int> set;
 
-    LOG_INFO("Pushing Float List");
+    qDebug() << "Pushing Float List";
     list.push_back(12.636);
     list.push_back(0.0000000045656);
     list.push_back(185645445634566.346);
     list.push_back(7835458.11);
     pushSTLContainer<float>(s, list);
 
-    LOG_INFO("Pushing String Vector");
+    qDebug() << "Pushing String Vector";
     svector.push_back("All");
     svector.push_back("your");
     svector.push_back("base");
@@ -3318,21 +3345,21 @@ static int test_tableget(lua_State *s)
     svector.push_back("us!");
     pushSTLContainer<QString>(s, svector);
 
-    LOG_INFO("Pushing Integer Vector");
+    qDebug() << "Pushing Integer Vector";
     ivector.resize(10);
     for (int i = 1; i < 10; i++)
         ivector[i - 1] = i * i;
 
     pushSTLContainer<int>(s, ivector);
 
-    LOG_INFO("Pushing String/String Map");
+    qDebug() << "Pushing String/String Map";
     map["Apple"] = "red";
     map["Banana"] = "yellow";
     map["Lime"] = "green";
     map["Plum"] = "blue";
     pushSTLContainer<QString, QString>(s, map);
 
-    LOG_INFO("Pushing Integer Set");
+    qDebug() << "Pushing Integer Set";
     set.insert(12);
     set.insert(8);
     set.insert(14);
@@ -3431,7 +3458,10 @@ LuaScript::LuaScript():
         { "get_path_length",                get_path_length                   },
         { "map_get_pvp",                    map_get_pvp                       },
         { "item_drop",                      item_drop                         },
-        { "log",                            log                               },
+        { "error",                          error                             },
+        { "warn",                           warn                              },
+        { "debug",                          debug                             },
+        { "info",                           info                              },
         { "get_distance",                   get_distance                      },
         { "map_get_objects",                map_get_objects                   },
         { "announce",                       announce                          },

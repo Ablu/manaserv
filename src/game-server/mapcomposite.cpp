@@ -35,7 +35,6 @@
 #include "game-server/triggerareacomponent.h"
 #include "scripting/script.h"
 #include "scripting/scriptmanager.h"
-#include "utils/logger.h"
 #include "utils/point.h"
 
 /******************************************************************************
@@ -75,7 +74,7 @@ int ObjectBucket::allocate()
     // Any free ID in the bucket?
     if (!free)
     {
-        LOG_INFO("No free id in bucket");
+        qDebug() << "No free id in bucket";
         return -1;
     }
 
@@ -373,7 +372,7 @@ bool MapContent::allocate(Entity *obj)
                new bucket. */
             b = new ObjectBucket;
             buckets[i] = b;
-            LOG_DEBUG("New bucket created");
+            qDebug() << "New bucket created";
         }
         int j = b->allocate();
         if (j >= 0)
@@ -386,7 +385,7 @@ bool MapContent::allocate(Entity *obj)
     }
 
     // All the IDs are currently used, fail.
-    LOG_ERROR("unable to allocate id");
+    qCritical() << "unable to allocate id";
     return false;
 }
 
@@ -636,7 +635,7 @@ bool MapComposite::activate()
 
     if (!mInitializeCallback.isValid())
     {
-        LOG_WARN("No callback for map initialization found");
+        qWarning() << "No callback for map initialization found";
     }
     else
     {
@@ -905,8 +904,8 @@ void MapComposite::initializeContent()
                     continue;
                 }
 
-                LOG_ERROR("Warp \"" << object->getName() << "\" targets missing map \""
-                          << destMapName << "\" in " << getName());
+                qCritical() << "Warp \"" << object->getName() << "\" targets missing map \""
+                            << destMapName << "\" in " << getName();
                 continue;
             }
 
@@ -921,9 +920,9 @@ void MapComposite::initializeContent()
                 const MapObject *destination = destMap->findMapObject(destMapObjectName, "WARP");
                 if (!destination)
                 {
-                    LOG_ERROR("Warp \"" << object->getName() << "\" from map " << getName()
-                              << " targets missing warp \"" << destMapObjectName << "\" "
-                              << " on map " << destMap->getName());
+                    qCritical() << "Warp \"" << object->getName() << "\" from map " << getName()
+                                << " targets missing warp \"" << destMapObjectName << "\" "
+                                << " on map " << destMap->getName();
                     continue;
                 }
 
@@ -965,17 +964,17 @@ void MapComposite::initializeContent()
                         // invalid or missing exit direction
                         if (exit.isEmpty())
                         {
-                            LOG_ERROR("Warp target \"" << destMapObjectName << "\" on map "
-                                    << destMap->getName()
-                                    << " is missing exit direction!");
+                            qCritical() << "Warp target \"" << destMapObjectName << "\" on map "
+                                        << destMap->getName()
+                                        << " is missing exit direction!";
                         }
                         else
                         {
-                            LOG_ERROR("Warp target \"" << destMapObjectName << "\" on map "
-                                    << destMap->getName()
-                                    << " has an invalid exit direction \""
-                                    << exit
-                                    << "\"!");
+                            qCritical() << "Warp target \"" << destMapObjectName << "\" on map "
+                                        << destMap->getName()
+                                        << " has an invalid exit direction \""
+                                        << exit
+                                        << "\"!";
                         }
                         continue;
                     }
@@ -994,9 +993,9 @@ void MapComposite::initializeContent()
             }
             else
             {
-                LOG_ERROR("Warp \"" << object->getName() << "\" on map "
-                          << getName()
-                          << " is invalid!");
+                qCritical() << "Warp \"" << object->getName() << "\" on map "
+                            << getName()
+                            << " is invalid!";
                 continue;
             }
 
@@ -1024,8 +1023,8 @@ void MapComposite::initializeContent()
                 monster = monsterManager->getMonster(monsterId);
                 if (!monster)
                 {
-                    LOG_WARN("Couldn't find monster ID " << monsterId <<
-                             " for spawn area");
+                    qWarning() << "Couldn't find monster ID " << monsterId <<
+                                  " for spawn area";
                 }
             }
             else
@@ -1033,8 +1032,8 @@ void MapComposite::initializeContent()
                 monster = monsterManager->getMonsterByName(monsterName);
                 if (!monster)
                 {
-                    LOG_WARN("Couldn't find monster " << monsterName <<
-                             " for spawn area");
+                    qWarning() << "Couldn't find monster " << monsterName <<
+                                  " for spawn area";
                 }
             }
 
@@ -1065,7 +1064,7 @@ void MapComposite::initializeContent()
             }
             else
             {
-                LOG_WARN("Unrecognized format for npc");
+                qWarning() << "Unrecognized format for npc";
             }
         }
         else if (type.compare("SCRIPT", Qt::CaseInsensitive) == 0)
@@ -1088,7 +1087,7 @@ void MapComposite::initializeContent()
             }
             else
             {
-                LOG_WARN("Unrecognized format for script");
+                qWarning() << "Unrecognized format for script";
             }
         }
     }

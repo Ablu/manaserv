@@ -71,8 +71,6 @@ CppApplication {
         name: "Utils sources"
         prefix: "utils/"
         files: [
-            "logger.cpp",
-            "logger.h",
             "mathutils.cpp",
             "mathutils.h",
             "point.h",
@@ -159,5 +157,9 @@ CppApplication {
         "enet",
         "physfs",
         "z",
+    ]
+
+    cpp.linkerFlags: [
+        '-rdynamic'
     ]
 }

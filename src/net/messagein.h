@@ -92,6 +92,7 @@ private:
      * the message contents instead of the length.
      */
     friend QTextStream &operator <<(QTextStream &os, const MessageIn &msg);
+    friend QDebug &operator <<(QDebug &debug, const MessageIn &msg);
 };
 
 #endif

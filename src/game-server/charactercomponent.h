@@ -33,8 +33,6 @@
 
 #include "scripting/script.h"
 
-#include "utils/logger.h"
-
 #include <map>
 #include <set>
 #include <QString>

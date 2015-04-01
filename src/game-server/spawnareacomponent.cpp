@@ -23,7 +23,6 @@
 #include "game-server/mapcomposite.h"
 #include "game-server/monster.h"
 #include "game-server/state.h"
-#include "utils/logger.h"
 
 SpawnAreaComponent::SpawnAreaComponent(MonsterClass *specy,
                                        const Rectangle &zone,
@@ -74,7 +73,7 @@ void SpawnAreaComponent::update(Entity &entity)
         auto *hpAttribute = attributeManager->getAttributeInfo(ATTR_MAX_HP);
         if (beingComponent->getModifiedAttribute(hpAttribute) <= 0)
         {
-            LOG_WARN("Refusing to spawn dead monster " << mSpecy->getId());
+            qWarning() << "Refusing to spawn dead monster " << mSpecy->getId();
             delete being;
             being = nullptr;
         }
@@ -105,10 +104,10 @@ void SpawnAreaComponent::update(Entity &entity)
             }
             else
             {
-                LOG_WARN("Unable to find a free spawn location for monster "
-                         << mSpecy->getId() << " on map " << map->getName()
-                         << " (" << x << ',' << y << ','
-                         << width << ',' << height << ')');
+                qWarning() << "Unable to find a free spawn location for monster "
+                           << mSpecy->getId() << " on map " << map->getName()
+                           << " (" << x << ',' << y << ','
+                           << width << ',' << height << ')';
                 delete being;
             }
         }

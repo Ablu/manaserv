@@ -58,7 +58,7 @@ bool ScriptManager::performCraft(Entity *crafter,
 {
     if (!_craftCallback.isValid())
     {
-        LOG_WARN("No crafting callback set! Crafting disabled.");
+        qWarning() << "No crafting callback set! Crafting disabled.";
         return false;
     }
     _currentState->prepare(_craftCallback);

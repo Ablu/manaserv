@@ -45,7 +45,6 @@
 #include "net/bandwidth.h"
 #include "net/connectionhandler.h"
 #include "net/messageout.h"
-#include "utils/logger.h"
 #include "utils/processorutils.h"
 #include "utils/stringfilter.h"
 #include "utils/timer.h"
@@ -58,9 +57,8 @@
 #include <physfs.h>
 #include <enet/enet.h>
 
+#include <QDebug>
 #include <QTime>
-
-using utils::Logger;
 
 // Default options that automake should be able to override.
 #define DEFAULT_LOG_FILE          "manaserv-account.log"
@@ -110,13 +108,11 @@ static void initialize()
     // Initialize PhysicsFS
     PHYSFS_init("");
 
-    Logger::initialize(logFile, configuration);
-
     // Indicate in which file the statistics are put.
     statisticsFile = configuration->getValue("log_statisticsFile",
                                              DEFAULT_STATS_FILE);
 
-    LOG_INFO("Using statistics file: " << statisticsFile);
+    qDebug() << "Using statistics file: " << statisticsFile;
 
     ResourceManager::initialize(configuration);
 
@@ -128,7 +124,7 @@ static void initialize()
     }
     catch (QString &error)
     {
-        LOG_FATAL("Error opening the database: " << error);
+        qCritical() << "Error opening the database: " << error;
         exit(EXIT_DB_EXCEPTION);
     }
 
@@ -147,7 +143,7 @@ static void initialize()
     // --- Initialize enet.
     if (enet_initialize() != 0)
     {
-        LOG_FATAL("An error occurred while initializing ENet");
+        qCritical() << "An error occurred while initializing ENet";
         exit(EXIT_NET_EXCEPTION);
     }
 
@@ -236,7 +232,6 @@ static void printHelp()
 struct CommandLineOptions
 {
     CommandLineOptions():
-        verbosity(Logger::Warn),
         verbosityChanged(false),
         port(DEFAULT_SERVER_PORT),
         portChanged(false)
@@ -244,7 +239,6 @@ struct CommandLineOptions
 
     QString configPath;
 
-    Logger::Level verbosity;
     bool verbosityChanged;
 
     int port;
@@ -261,7 +255,6 @@ static void parseOptions(int argc, char *argv[], CommandLineOptions &options)
     const struct option longOptions[] = {
         { "help", no_argument, nullptr, 'h' },
         { "config", required_argument, nullptr, 'c' },
-        { "verbosity", required_argument, nullptr, 'v' },
         { "port", required_argument, nullptr, 'p' },
         { nullptr, 0, nullptr, 0 }
     };
@@ -283,11 +276,6 @@ static void parseOptions(int argc, char *argv[], CommandLineOptions &options)
             case 'c':
                 // Change config filename and path.
                 options.configPath = optarg;
-                break;
-            case 'v':
-                options.verbosity = static_cast<Logger::Level>(atoi(optarg));
-                options.verbosityChanged = true;
-                LOG_INFO("Using log verbosity level " << options.verbosity);
                 break;
             case 'p':
                 options.port = atoi(optarg);
@@ -311,14 +299,14 @@ int main(int argc, char *argv[])
 
     if (!configuration->initialize(options.configPath))
     {
-        LOG_FATAL("Refusing to run without configuration!");
+        qCritical() << "Refusing to run without configuration!";
         exit(EXIT_CONFIG_NOT_FOUND);
     }
 
     // Check inter-server password.
     if (configuration->getValue("net_password", QString()).isEmpty())
     {
-        LOG_FATAL("SECURITY WARNING: 'net_password' not set!");
+        qCritical() << "SECURITY WARNING: 'net_password' not set!";
         exit(EXIT_BAD_CONFIG_PARAMETER);
     }
 
@@ -326,20 +314,14 @@ int main(int argc, char *argv[])
     initialize();
 
 #ifdef PACKAGE_VERSION
-    LOG_INFO("The Mana Account+Chat Server v" << PACKAGE_VERSION);
+    qDebug() << "The Mana Account+Chat Server v" << PACKAGE_VERSION;
 #else
-    LOG_INFO("The Mana Account+Chat Server (unknown version)");
+    qDebug() << "The Mana Account+Chat Server (unknown version)";
 #endif
-    LOG_INFO("Manaserv Protocol version " << ManaServ::PROTOCOL_VERSION
+    qDebug() << "Manaserv Protocol version " << ManaServ::PROTOCOL_VERSION
              << ", Enet version " << ENET_VERSION_MAJOR << "."
              << ENET_VERSION_MINOR << "." << ENET_VERSION_PATCH
-             << ", Database version " << ManaServ::SUPPORTED_DB_VERSION);
-
-    if (!options.verbosityChanged)
-        options.verbosity = static_cast<Logger::Level>(
-                            configuration->getValue("log_accountServerLogLevel",
-                                                    options.verbosity) );
-    Logger::setVerbosity(options.verbosity);
+             << ", Database version " << ManaServ::SUPPORTED_DB_VERSION;
 
     QString accountHost = configuration->getValue("net_accountHost",
                                                       "localhost");
@@ -371,7 +353,7 @@ int main(int argc, char *argv[])
                                        configuration, storage) ||
         !chatHandler->startListen(chatClientPort, chatHost))
     {
-        LOG_FATAL("Unable to create an ENet server host.");
+        qCritical() << "Unable to create an ENet server host.";
         return EXIT_NET_EXCEPTION;
     }
 
@@ -403,7 +385,7 @@ int main(int argc, char *argv[])
             storage->checkBannedAccounts();
     }
 
-    LOG_INFO("Received: Quit signal, closing down...");
+    qDebug() << "Received: Quit signal, closing down...";
     chatHandler->stopListen();
     deinitializeServer();
 

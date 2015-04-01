@@ -21,10 +21,11 @@
 
 #include "account-server/mapmanager.h"
 
-#include "utils/logger.h"
 #include "utils/xml.h"
 
 #include <map>
+
+#include <QDebug>
 
 static std::map<int, QString> maps;
 
@@ -37,11 +38,11 @@ void MapManager::initialize(const QString &mapReferenceFile)
 
     if (!rootNode || !xmlStrEqual(rootNode->name, BAD_CAST "maps"))
     {
-        LOG_ERROR("Map Manager: Error while parsing map database ("
-                  << mapReferenceFile << ")!");
+        qCritical() << "Map Manager: Error while parsing map database ("
+                    << mapReferenceFile << ")!";
         return;
     }
-    LOG_INFO("Loading map reference: " << mapReferenceFile);
+    qDebug() << "Loading map reference: " << mapReferenceFile;
     for_each_xml_child_node(node, rootNode)
     {
         if (!xmlStrEqual(node->name, BAD_CAST "map"))

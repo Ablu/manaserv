@@ -33,7 +33,6 @@
 #include "game-server/quest.h"
 #include "game-server/state.h"
 #include "net/messagein.h"
-#include "utils/logger.h"
 #include "utils/tokendispenser.h"
 #include "utils/tokencollector.h"
 
@@ -70,11 +69,11 @@ bool AccountConnection::start(int gameServerPort)
 
     if (!Connection::start(accountServerAddress, accountServerPort))
     {
-        LOG_INFO("Unable to create a connection to an account server.");
+        qDebug() << "Unable to create a connection to an account server.";
         return false;
     }
 
-    LOG_INFO("Connection established to the account server.");
+    qDebug() << "Connection established to the account server.";
 
     const QString gameServerName =
         mConfiguration->getValue("net_gameServerName", QString());
@@ -112,7 +111,7 @@ void AccountConnection::sendCharacterData(Entity *p)
 
 void AccountConnection::processMessage(MessageIn &msg)
 {
-    LOG_DEBUG("Received message " << msg << " from account server");
+    qDebug() << "Received message " << msg << " from account server";
 
     switch (msg.getId())
     {
@@ -120,20 +119,20 @@ void AccountConnection::processMessage(MessageIn &msg)
         {
             if (msg.readInt16() != DATA_VERSION_OK)
             {
-                LOG_ERROR("Item database is outdated! Please update to "
-                          "prevent inconsistencies");
+                qCritical() << "Item database is outdated! Please update to "
+                            "prevent inconsistencies";
                 stop();  // Disconnect gracefully from account server.
                 // Stop gameserver to prevent inconsistencies.
                 exit(EXIT_DB_EXCEPTION);
             }
             else
             {
-                LOG_DEBUG("Local item database is "
-                          "in sync with account server.");
+                qDebug() << "Local item database is "
+                            "in sync with account server.";
             }
             if (msg.readInt16() != PASSWORD_OK)
             {
-                LOG_ERROR("This game server sent a invalid password");
+                qCritical() << "This game server sent a invalid password";
                 stop();
                 exit(EXIT_BAD_CONFIG_PARAMETER);
             }
@@ -178,7 +177,7 @@ void AccountConnection::processMessage(MessageIn &msg)
                 }
 
                 // Recreate potential persistent floor items
-                LOG_DEBUG("Recreate persistant items on map " << mapId);
+                qDebug() << "Recreate persistant items on map " << mapId;
                 int floorItemsNumber = msg.readInt16();
 
                 for (int i = 0; i < floorItemsNumber; ++i)
@@ -197,8 +196,8 @@ void AccountConnection::processMessage(MessageIn &msg)
                         if (!GameState::insertOrDelete(item))
                         {
                             // The map is full.
-                            LOG_WARN("Couldn't add floor item(s) " << itemId
-                                     << " into map " << mapId);
+                            qWarning() << "Couldn't add floor item(s) " << itemId
+                                       << " into map " << mapId;
                             return;
                         }
                     }
@@ -211,8 +210,8 @@ void AccountConnection::processMessage(MessageIn &msg)
             QString key = msg.readString();
             QString value = msg.readString();
             GameState::setVariableFromDbserver(key, value);
-            LOG_DEBUG("Global variable \"" << key << "\" has changed to \""
-                      << value << "\"");
+            qDebug() << "Global variable \"" << key << "\" has changed to \""
+                     << value << "\"";
         } break;
 
         case AGMSG_REDIRECT_RESPONSE:
@@ -276,7 +275,7 @@ void AccountConnection::processMessage(MessageIn &msg)
         } break;
 
         default:
-            LOG_WARN("Invalid message type");
+            qWarning() << "Invalid message type";
             break;
     }
 }
@@ -284,7 +283,7 @@ void AccountConnection::processMessage(MessageIn &msg)
 void AccountConnection::playerReconnectAccount(int id,
                                                const QString &magic_token)
 {
-    LOG_DEBUG("Send GAMSG_PLAYER_RECONNECT.");
+    qDebug() << "Send GAMSG_PLAYER_RECONNECT.";
     MessageOut msg(GAMSG_PLAYER_RECONNECT);
     msg.writeInt32(id);
     msg.writeString(magic_token, MAGIC_TOKEN_LENGTH);
@@ -385,7 +384,7 @@ void AccountConnection::sendPost(Entity *c, MessageIn &msg)
 {
     // send message to account server with id of sending player,
     // the id of receiving player, the letter receiver and contents, and attachments
-    LOG_DEBUG("Sending GCMSG_STORE_POST.");
+    qDebug() << "Sending GCMSG_STORE_POST.";
     MessageOut out(GCMSG_STORE_POST);
     out.writeInt32(c->getComponent<CharacterComponent>()->getDatabaseID());
     out.writeString(msg.readString()); // name of receiver
@@ -405,7 +404,7 @@ void AccountConnection::getPost(Entity *c)
     postMan->addCharacter(c);
 
     // send message to account server with id of retrieving player
-    LOG_DEBUG("Sending GCMSG_REQUEST_POST");
+    qDebug() << "Sending GCMSG_REQUEST_POST";
     MessageOut out(GCMSG_REQUEST_POST);
     out.writeInt32(c->getComponent<CharacterComponent>()->getDatabaseID());
     send(out);
@@ -433,8 +432,8 @@ void AccountConnection::syncChanges(bool force)
         mSyncMessages > SYNC_BUFFER_LIMIT ||
         mSyncBuffer->getLength() > SYNC_BUFFER_SIZE )
     {
-        LOG_DEBUG("Sending GAMSG_PLAYER_SYNC with "
-                << mSyncMessages << " messages." );
+        qDebug() << "Sending GAMSG_PLAYER_SYNC with "
+                 << mSyncMessages << " messages." ;
 
         send(*mSyncBuffer);
         delete mSyncBuffer;
@@ -444,7 +443,7 @@ void AccountConnection::syncChanges(bool force)
     }
     else
     {
-        LOG_DEBUG("No changes to sync with account server.");
+        qDebug() << "No changes to sync with account server.";
     }
 }
 

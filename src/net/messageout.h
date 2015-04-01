@@ -104,6 +104,7 @@ private:
      * Streams message ID and length to the given output stream.
      */
     friend QTextStream &operator<<(QTextStream &os, const MessageOut &msg);
+    friend QDebug &operator <<(QDebug &debug, const MessageOut &msg);
 };
 
 #endif // MESSAGEOUT_H

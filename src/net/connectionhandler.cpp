@@ -28,7 +28,8 @@
 #include "net/messagein.h"
 #include "net/messageout.h"
 #include "net/netcomputer.h"
-#include "utils/logger.h"
+
+#include <QDebug>
 
 #ifdef ENET_VERSION_CREATE
 #define ENET_CUTOFF ENET_VERSION_CREATE(1,3,0)
@@ -46,7 +47,7 @@ bool ConnectionHandler::startListen(enet_uint16 port,
     if (!listenHost.isEmpty())
         enet_address_set_host(&address, listenHost.toStdString().c_str());
 
-    LOG_INFO("Listening on port " << port << "...");
+    qDebug() << "Listening on port " << port << "...";
 #if defined(ENET_VERSION) && ENET_VERSION >= ENET_CUTOFF
     host = enet_host_create(
             &address    /* the address to bind the server host to */,
@@ -102,9 +103,9 @@ void ConnectionHandler::process(enet_uint32 timeout)
             {
                 NetComputer *comp = computerConnected(event.peer);
                 clients.push_back(comp);
-                LOG_INFO("A new client connected from " << *comp << ":"
+                qDebug() << "A new client connected from " << *comp << ":"
                          << event.peer->address.port << " to port "
-                         << host->address.port);
+                         << host->address.port;
 
                 // Store any relevant client information here.
                 event.peer->data = (void *)comp;
@@ -122,14 +123,14 @@ void ConnectionHandler::process(enet_uint32 timeout)
                 if (event.packet->dataLength >= 2) {
                     MessageIn msg((char *)event.packet->data,
                                   event.packet->dataLength);
-                    LOG_DEBUG("Received message " << msg << " from "
-                              << *comp);
+                    qDebug() << "Received message " << msg << " from "
+                              << *comp;
 
                     gBandwidth->increaseClientInput(comp, event.packet->dataLength);
 
                     processMessage(comp, msg);
                 } else {
-                    LOG_ERROR("Message too short from " << *comp);
+                    qCritical() << "Message too short from " << *comp;
                 }
 
                 /* Clean up the packet now that we're done using it. */
@@ -141,7 +142,7 @@ void ConnectionHandler::process(enet_uint32 timeout)
                 NetComputer *comp =
                     static_cast<NetComputer*>(event.peer->data);
 
-                LOG_INFO("" << *comp << " disconnected.");
+                qDebug() << "" << *comp << " disconnected.";
 
                 // Reset the peer's client information.
                 computerDisconnected(comp);

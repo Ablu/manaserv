@@ -20,6 +20,7 @@
 
 #include <list>
 #include <algorithm>
+#include <QDebug>
 #include <QString>
 #include <sstream>
 
@@ -37,7 +38,6 @@
 #include "net/messagein.h"
 #include "net/messageout.h"
 #include "net/netcomputer.h"
-#include "utils/logger.h"
 #include "utils/stringfilter.h"
 #include "utils/tokendispenser.h"
 
@@ -63,7 +63,7 @@ ChatHandler::ChatHandler(IConfiguration *configuration, IStorage *storage):
 
 bool ChatHandler::startListen(enet_uint16 port, const QString &host)
 {
-    LOG_INFO("Chat handler started:");
+    qDebug() << "Chat handler started:";
     return ConnectionHandler::startListen(port, host);
 }
 
@@ -239,8 +239,8 @@ void ChatHandler::processMessage(NetComputer *comp, MessageIn &message)
             break;
 
         default:
-            LOG_WARN("ChatHandler::processMessage, Invalid message type"
-                     << message.getId());
+            qWarning() << "ChatHandler::processMessage, Invalid message type"
+                       << message.getId();
             MessageOut result(XXMSG_INVALID);
             computer.send(result);
             break;
@@ -249,7 +249,7 @@ void ChatHandler::processMessage(NetComputer *comp, MessageIn &message)
 
 void ChatHandler::handleCommand(ChatClient &computer, const QString &command)
 {
-    LOG_INFO("Chat: Received unhandled command: " << command);
+    qDebug() << "Chat: Received unhandled command: " << command;
     MessageOut result(CPMSG_ERROR);
     result.writeInt8(CHAT_UNHANDLED_COMMAND);
     computer.send(result);
@@ -262,7 +262,7 @@ void ChatHandler::warnPlayerAboutBadWords(ChatClient &computer)
     result.writeInt8(CHAT_USING_BAD_WORDS); // The Channel
     computer.send(result);
 
-    LOG_INFO(computer.characterName << " says bad words.");
+    qDebug() << computer.characterName << " says bad words.";
 }
 
 void ChatHandler::handleChatMessage(ChatClient &client, MessageIn &msg)

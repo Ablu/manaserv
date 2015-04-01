@@ -28,6 +28,7 @@
 #include "scripting/script.h"
 
 class Entity;
+class IConfiguration;
 class ItemClass;
 class MapComposite;
 

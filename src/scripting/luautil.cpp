@@ -29,8 +29,6 @@
 #include "game-server/monstermanager.h"
 #include "game-server/npc.h"
 
-#include "utils/logger.h"
-
 #include "scripting/luascript.h"
 
 
@@ -42,7 +40,7 @@ void raiseWarning(lua_State *, const char *format, ...)
     vsprintf(message, format, args);
     va_end( args );
 
-    LOG_WARN("Lua script error: " << message);
+    qWarning() << "Lua script error: " << message;
 }
 
 

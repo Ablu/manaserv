@@ -93,10 +93,10 @@ int BuySell::registerPlayerItems()
         }
         else
         {
-            LOG_WARN("registerPlayersItems(): The character Id: "
-                << mChar->getComponent<ActorComponent>()->getPublicID()
-                << " has unknown items (Id: " << id
-                << "). They have been ignored.");
+            qWarning() << "registerPlayersItems(): The character Id: "
+                       << mChar->getComponent<ActorComponent>()->getPublicID()
+                       << " has unknown items (Id: " << id
+                       << "). They have been ignored.";
             continue;
         }
 

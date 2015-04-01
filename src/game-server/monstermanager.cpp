@@ -25,7 +25,6 @@
 #include "game-server/attributemanager.h"
 #include "game-server/itemmanager.h"
 #include "game-server/monster.h"
-#include "utils/logger.h"
 
 #define MAX_MUTATION 99
 #define DEFAULT_MONSTER_SIZE 16
@@ -76,17 +75,17 @@ void MonsterManager::readMonsterNode(xmlNodePtr node, const QString &filename)
 
     if (monsterId < 1)
     {
-        LOG_WARN("Monster Manager: Ignoring monster ("
-                 << name << ") without Id in "
-                 << filename << "! It has been ignored.");
+        qWarning() << "Monster Manager: Ignoring monster ("
+                   << name << ") without Id in "
+                   << filename << "! It has been ignored.";
         return;
     }
 
     MonsterClasses::iterator i = mMonsterClasses.find(monsterId);
     if (i != mMonsterClasses.end())
     {
-        LOG_WARN("Monster Manager: Ignoring duplicate definition of "
-                 "monster '" << monsterId << "'!");
+        qWarning() << "Monster Manager: Ignoring duplicate definition of "
+                      "monster '" << monsterId << "'!";
         return;
     }
 
@@ -98,8 +97,8 @@ void MonsterManager::readMonsterNode(xmlNodePtr node, const QString &filename)
         monster->setName(name);
 
         if (mMonsterClassesByName.contains(name))
-            LOG_WARN("Monster Manager: Name not unique for monster "
-                     << monsterId);
+            qWarning() << "Monster Manager: Name not unique for monster "
+                       << monsterId;
         else
             mMonsterClassesByName.insert(name, monster);
     }
@@ -123,8 +122,8 @@ void MonsterManager::readMonsterNode(xmlNodePtr node, const QString &filename)
 
             if (!itemClass)
             {
-                LOG_WARN("Monster Manager: Invalid item name \"" << item
-                         << "\"");
+                qWarning() << "Monster Manager: Invalid item name \"" << item
+                           << "\"";
                 break;
             }
 
@@ -146,19 +145,19 @@ void MonsterManager::readMonsterNode(xmlNodePtr node, const QString &filename)
             // Checking attributes for completeness and plausibility
             if (monster->getMutation() > MAX_MUTATION)
             {
-                LOG_WARN(filename
-                         << ": Mutation of monster Id:" << monsterId
-                         << " more than " << MAX_MUTATION
-                         << "%. Defaulted to 0.");
+                qWarning() << filename
+                           << ": Mutation of monster Id:" << monsterId
+                           << " more than " << MAX_MUTATION
+                           << "%. Defaulted to 0.";
                 monster->setMutation(0);
             }
 
             if (monster->getSize() == -1)
             {
-                LOG_WARN(filename
-                         << ": No size set for monster Id:" << monsterId << ". "
-                         << "Defaulted to " << DEFAULT_MONSTER_SIZE
-                         << " pixels.");
+                qWarning() << filename
+                           << ": No size set for monster Id:" << monsterId << ". "
+                           << "Defaulted to " << DEFAULT_MONSTER_SIZE
+                           << " pixels.";
                 monster->setSize(DEFAULT_MONSTER_SIZE);
             }
         }
@@ -180,10 +179,10 @@ void MonsterManager::readMonsterNode(xmlNodePtr node, const QString &filename)
 
             if (!info)
             {
-                LOG_WARN(filename
-                         << ": Invalid attribute id " << attributeIdString
-                         << " for monster Id: " << monsterId
-                         << ". Skipping!");
+                qWarning() << filename
+                           << ": Invalid attribute id " << attributeIdString
+                           << " for monster Id: " << monsterId
+                           << ". Skipping!";
                 continue;
             }
 
@@ -209,10 +208,10 @@ void MonsterManager::readMonsterNode(xmlNodePtr node, const QString &filename)
 
             if (!info)
             {
-                LOG_WARN(filename
-                         << ": Invalid ability id " << idText
-                         << " for monster id: " << monsterId
-                         << " Skipping!");
+                qWarning() << filename
+                           << ": Invalid ability id " << idText
+                           << " for monster id: " << monsterId
+                           << " Skipping!";
                 continue;
             }
 
@@ -228,5 +227,5 @@ void MonsterManager::readMonsterNode(xmlNodePtr node, const QString &filename)
  */
 void MonsterManager::checkStatus()
 {
-    LOG_INFO("Loaded " << mMonsterClasses.size() << " monsters");
+    qDebug() << "Loaded " << mMonsterClasses.size() << " monsters";
 }

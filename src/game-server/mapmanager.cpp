@@ -24,12 +24,13 @@
 #include "common/resourcemanager.h"
 #include "common/defines.h"
 #include "game-server/mapcomposite.h"
-#include "utils/logger.h"
 
 #include "mana/entities/map.h"
 #include "mana/mapreader/interfaces/imapreader.h"
 
 #include <cassert>
+
+#include <QDebug>
 
 /**
  * List of all the game maps, be they present or not on this server.
@@ -68,7 +69,7 @@ void MapManager::deinitialize()
 void MapManager::reload()
 {
     // TODO: this method needs proper map reloading
-    LOG_ERROR("MapManager::reload() not implemented yet");
+    qCritical() << "MapManager::reload() not implemented yet";
 }
 
 /**
@@ -82,12 +83,12 @@ void MapManager::readMapNode(xmlNodePtr node)
 
     if (id <= 0)
     {
-        LOG_WARN("Invalid map Id: " << id << " for map: "
-                 << name << '.');
+        qWarning() << "Invalid map Id: " << id << " for map: "
+                   << name << '.';
     }
     else if (name.isEmpty())
     {
-        LOG_WARN("Invalid unnamed map Id: " << id << '.');
+        qWarning() << "Invalid unnamed map Id: " << id << '.';
     }
     else
     {
@@ -107,7 +108,7 @@ void MapManager::readMapNode(xmlNodePtr node)
             maps[id] = new MapComposite(id, name, mConfiguration);
             auto map = mMapReader->readMap(file);
             if (!map)
-                LOG_FATAL("Failed to load map \"" << name << "\"!");
+                qCritical() << "Failed to load map \"" << name << "\"!";
             else
                 maps[id]->setMap(std::move(map));
         }
@@ -122,11 +123,11 @@ void MapManager::checkStatus()
     int loadedMaps = maps.size();
     if (loadedMaps > 0)
     {
-        LOG_INFO(loadedMaps << " valid map file references were loaded.");
+        qDebug() << loadedMaps << " valid map file references were loaded.";
     }
     else
     {
-        LOG_FATAL("The Game Server can't find any valid/available maps.");
+        qDebug() << "The Game Server can't find any valid/available maps.";
         exit(EXIT_MAP_FILE_NOT_FOUND);
     }
 }
@@ -157,14 +158,14 @@ bool MapManager::activateMap(int mapId)
 
     if (composite->activate())
     {
-        LOG_INFO("Activated map \"" << composite->getName()
-                 << "\" (id " << mapId << ")");
+        qDebug() << "Activated map \"" << composite->getName()
+                 << "\" (id " << mapId << ")";
         return true;
     }
     else
     {
-        LOG_WARN("Couldn't activate invalid map \"" << composite->getName()
-                 << "\" (id " << mapId << ")");
+        qDebug() << "Couldn't activate invalid map \"" << composite->getName()
+                 << "\" (id " << mapId << ")";
         return false;
     }
 }

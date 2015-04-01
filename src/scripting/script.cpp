@@ -24,7 +24,6 @@
 
 #include "common/resourcemanager.h"
 #include "game-server/being.h"
-#include "utils/logger.h"
 
 #include <cassert>
 #include <cstdlib>
@@ -70,7 +69,7 @@ Script *Script::create(const QString &engine)
             return i->second();
         }
     }
-    LOG_ERROR("No scripting engine named " << engine);
+    qCritical() << "No scripting engine named " << engine;
     return nullptr;
 }
 
@@ -78,7 +77,7 @@ void Script::update()
 {
     if (!mUpdateCallback.isValid())
     {
-        LOG_ERROR("Could not find callback for update function!");
+        qCritical() << "Could not find callback for update function!";
         return;
     }
     prepare(mUpdateCallback);
@@ -117,8 +116,8 @@ void Script::loadNPC(const QString &name,
 {
     if (!mCreateNpcDelayedCallback.isValid())
     {
-        LOG_ERROR("No callback for creating npcs delayed assigned. "
-                  "Could not enabled NPC");
+        qCritical() << "No callback for creating npcs delayed assigned. "
+                       "Could not enabled NPC";
         return;
     }
     Context context;

@@ -21,7 +21,8 @@
 #include "emotemanager.h"
 
 #include "utils/xml.h"
-#include "utils/logger.h"
+
+#include <QDebug>
 
 void EmoteManager::initialize()
 {
@@ -42,8 +43,8 @@ void EmoteManager::readEmoteNode(xmlNodePtr node, const QString &filename)
     int id = XML::getProperty(node, "id", -1);
     if (id < 0)
     {
-        LOG_WARN("The " << filename << " file is containing an invalid id"
-                 "(" << id << ") and will be ignored.");
+        qWarning() << "The " << filename << " file is containing an invalid id"
+                      "(" << id << ") and will be ignored.";
         return;
     }
 
@@ -55,7 +56,7 @@ void EmoteManager::readEmoteNode(xmlNodePtr node, const QString &filename)
  */
 void EmoteManager::checkStatus()
 {
-    LOG_INFO(mEmoteIds.size() << " emotes available.");
+    qDebug() << mEmoteIds.size() << " emotes available.";
 }
 
 

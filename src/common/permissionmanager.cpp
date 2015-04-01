@@ -21,7 +21,6 @@
 #include "common/permissionmanager.h"
 
 #include "game-server/charactercomponent.h"
-#include "utils/logger.h"
 #include "utils/xml.h"
 
 #include <string.h>
@@ -56,12 +55,12 @@ void PermissionManager::reload()
 
     if (!rootNode || !xmlStrEqual(rootNode->name, BAD_CAST "permissions"))
     {
-        LOG_ERROR("Permission Manager: " << permissionFile
-                  << " is not a valid database file!");
+        qCritical() << "Permission Manager: " << permissionFile
+                    << " is not a valid database file!";
         return;
     }
 
-    LOG_INFO("Loading permission reference...");
+    qDebug() << "Loading permission reference...";
     for_each_xml_child_node(node, rootNode)
     {
         unsigned char classmask = 0x01;
@@ -72,11 +71,11 @@ void PermissionManager::reload()
         int level = XML::getProperty(node, "level", 0);
         if (level < 1 || level > 8)
         {
-            LOG_WARN("PermissionManager: Illegal class level "
-                    <<level
-                    <<" in "
-                    <<permissionFile
-                    <<" (allowed range: 1..8)");
+            qWarning() << "PermissionManager: Illegal class level "
+                       << level
+                       << " in "
+                       << permissionFile
+                       << " (allowed range: 1..8)";
             continue;
         }
         classmask = classmask << (level-1);
@@ -117,7 +116,7 @@ PermissionManager::Result PermissionManager::checkPermission(unsigned char level
 
     if (iP == permissions.end())
     {
-        LOG_WARN("PermissionManager: Check for unknown permission \""<<permission<<"\" requested.");
+        qWarning() << "PermissionManager: Check for unknown permission \""<<permission<<"\" requested.";
         return PMR_UNKNOWN;
     }
     if (level & iP->second)

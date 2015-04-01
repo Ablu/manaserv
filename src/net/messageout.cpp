@@ -32,6 +32,8 @@
 #include <QString>
 #include <enet/enet.h>
 
+#include <QDebug>
+
 /** Initial amount of bytes allocated for the messageout data buffer. */
 const unsigned INITIAL_DATA_CAPACITY = 16;
 
@@ -184,4 +186,11 @@ QTextStream &operator<<(QTextStream &os, const MessageOut &msg)
 void MessageOut::setDebugModeEnabled(bool enabled)
 {
     debugModeEnabled = enabled;
+}
+
+QDebug &operator <<(QDebug &debug, const MessageOut &msg)
+{
+    QTextStream ss;
+    ss << msg;
+    return debug << ss.string();
 }

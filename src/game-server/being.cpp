@@ -32,7 +32,6 @@
 #include "game-server/effect.h"
 #include "game-server/statuseffect.h"
 #include "game-server/statusmanager.h"
-#include "utils/logger.h"
 #include "utils/speedconv.h"
 #include "scripting/scriptmanager.h"
 
@@ -48,12 +47,12 @@ BeingComponent::BeingComponent(Entity &entity):
     mEmoteId(0)
 {
     auto &attributeScope = attributeManager->getAttributeScope(BeingScope);
-    LOG_DEBUG("Being creation: initialisation of " << attributeScope.size()
-              << " attributes.");
+    qDebug() << "Being creation: initialisation of " << attributeScope.size()
+             << " attributes.";
     for (auto &attribute : attributeScope)
     {
-        LOG_DEBUG("Attempting to create attribute '"
-                  << attribute->id << "'.");
+        qDebug() << "Attempting to create attribute '"
+                 << attribute->id << "'.";
         mAttributes.insert(std::make_pair(attribute, Attribute(attribute)));
     }
 
@@ -118,8 +117,8 @@ void BeingComponent::died(Entity &entity)
     if (mAction == DEAD)
         return;
 
-    LOG_DEBUG("Being " << entity.getComponent<ActorComponent>()->getPublicID()
-              << " died.");
+    qDebug() << "Being " << entity.getComponent<ActorComponent>()->getPublicID()
+             << " died.";
     setAction(entity, DEAD);
     // dead beings stay where they are
     clearDestination(entity);
@@ -350,10 +349,10 @@ void BeingComponent::setAttribute(Entity &entity,
         /*
          * The attribute does not yet exist, so we must attempt to create it.
          */
-        LOG_ERROR("Being: Attempt to access non-existing attribute '"
-                  << attribute->id << "'!");
-        LOG_WARN("Being: Creation of new attributes dynamically is not "
-                 "implemented yet!");
+        qCritical() << "Being: Attempt to access non-existing attribute '"
+                    << attribute->id << "'!";
+        qWarning() << "Being: Creation of new attributes dynamically is not "
+                      "implemented yet!";
     }
     else
     {
@@ -373,8 +372,8 @@ const Attribute *BeingComponent::getAttribute(AttributeInfo *attribute) const
     AttributeMap::const_iterator ret = mAttributes.find(attribute);
     if (ret == mAttributes.end())
     {
-        LOG_DEBUG("BeingComponent::getAttribute: Attribute "
-                  << attribute->id << " not found! Returning 0.");
+        qDebug() << "BeingComponent::getAttribute: Attribute "
+                 << attribute->id << " not found! Returning 0.";
         return nullptr;
     }
     return &ret->second;
@@ -385,8 +384,8 @@ double BeingComponent::getAttributeBase(AttributeInfo *attribute) const
     AttributeMap::const_iterator ret = mAttributes.find(attribute);
     if (ret == mAttributes.end())
     {
-        LOG_DEBUG("BeingComponent::getAttributeBase: Attribute "
-                  << attribute->id << " not found! Returning 0.");
+        qDebug() << "BeingComponent::getAttributeBase: Attribute "
+                 << attribute->id << " not found! Returning 0.";
         return 0;
     }
     return ret->second.getBase();
@@ -398,8 +397,8 @@ double BeingComponent::getModifiedAttribute(AttributeInfo *attribute) const
     AttributeMap::const_iterator ret = mAttributes.find(attribute);
     if (ret == mAttributes.end())
     {
-        LOG_DEBUG("BeingComponent::getModifiedAttribute: Attribute "
-                  << attribute->id << " not found! Returning 0.");
+        qDebug() << "BeingComponent::getModifiedAttribute: Attribute "
+                 << attribute->id << " not found! Returning 0.";
         return 0;
     }
     return ret->second.getModifiedAttribute();
@@ -408,11 +407,11 @@ double BeingComponent::getModifiedAttribute(AttributeInfo *attribute) const
 void BeingComponent::recalculateBaseAttribute(Entity &entity,
                                               AttributeInfo *attribute)
 {
-    LOG_DEBUG("Being: Received update attribute recalculation request for "
-              << attribute << ".");
+    qDebug() << "Being: Received update attribute recalculation request for "
+             << attribute << ".";
     if (!mAttributes.count(attribute))
     {
-        LOG_DEBUG("BeingComponent::recalculateBaseAttribute: " << attribute->id << " not found!");
+        qDebug() << "BeingComponent::recalculateBaseAttribute: " << attribute->id << " not found!";
         return;
     }
 
@@ -442,7 +441,7 @@ void BeingComponent::updateDerivedAttributes(Entity &entity,
 {
     emit attributeChanged(&entity, attribute);
 
-    LOG_DEBUG("Being: Updating derived attribute(s) of: " << attribute);
+    qDebug() << "Being: Updating derived attribute(s) of: " << attribute;
 
     // Handle default actions before handing over to the script engine
     switch (attribute->id)
@@ -484,7 +483,7 @@ void BeingComponent::applyStatusEffect(int id, int timer)
     }
     else
     {
-        LOG_ERROR("No status effect with ID " << id);
+        qCritical() << "No status effect with ID " << id;
     }
 }
 

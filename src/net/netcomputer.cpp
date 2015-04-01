@@ -26,8 +26,9 @@
 #include "messageout.h"
 #include "netcomputer.h"
 
-#include "../utils/logger.h"
 #include "../utils/processorutils.h"
+
+#include <QDebug>
 
 NetComputer::NetComputer(ENetPeer *peer):
     mPeer(peer)
@@ -59,7 +60,7 @@ void NetComputer::disconnect(const MessageOut &msg)
 void NetComputer::send(const MessageOut &msg, bool reliable,
                        unsigned channel)
 {
-    LOG_DEBUG("Sending message " << msg << " to " << *this);
+    qDebug() << "Sending message " << msg << " to " << *this;
 
     gBandwidth->increaseClientOutput(this, msg.getLength());
 
@@ -74,7 +75,7 @@ void NetComputer::send(const MessageOut &msg, bool reliable,
     }
     else
     {
-        LOG_ERROR("Failure to create packet!");
+        qCritical() << "Failure to create packet!";
     }
 }
 
@@ -95,6 +96,13 @@ QTextStream &operator <<(QTextStream &os, const NetComputer &comp)
            << ((comp.mPeer->address.host & 0x000000ff));
 
     return os;
+}
+
+QDebug &operator <<(QDebug &debug, const NetComputer &comp)
+{
+    QTextStream ss;
+    ss << comp;
+    return debug << ss.string();
 }
 
 int NetComputer::getIP() const

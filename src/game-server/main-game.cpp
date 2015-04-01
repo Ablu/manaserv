@@ -48,7 +48,6 @@
 #include "net/connectionhandler.h"
 #include "net/messageout.h"
 #include "scripting/scriptmanager.h"
-#include "utils/logger.h"
 #include "utils/processorutils.h"
 #include "utils/stringfilter.h"
 #include "utils/timer.h"
@@ -71,8 +70,6 @@
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
 #endif
-
-using utils::Logger;
 
 #define DEFAULT_LOG_FILE                    "manaserv-game.log"
 #define DEFAULT_MAIN_SCRIPT_FILE            "scripts/main.lua"
@@ -135,8 +132,6 @@ static void initializeServer()
     // Initialize PhysicsFS
     PHYSFS_init("");
 
-    Logger::initialize(logFile, configuration);
-
     // --- Initialize the managers
     // Initialize the slang's and double quotes filter.
     stringFilter = new utils::StringFilter(configuration);
@@ -165,7 +160,7 @@ static void initializeServer()
     // --- Initialize enet.
     if (enet_initialize() != 0)
     {
-        LOG_FATAL("An error occurred while initializing ENet");
+        qCritical() << "An error occurred while initializing ENet";
         exit(EXIT_NET_EXCEPTION);
     }
 
@@ -246,7 +241,6 @@ static void printHelp()
 struct CommandLineOptions
 {
     CommandLineOptions():
-        verbosity(Logger::Warn),
         verbosityChanged(false),
         port(DEFAULT_SERVER_PORT + 3),
         portChanged(false)
@@ -254,7 +248,6 @@ struct CommandLineOptions
 
     QString configPath;
 
-    Logger::Level verbosity;
     bool verbosityChanged;
 
     int port;
@@ -271,7 +264,6 @@ static void parseOptions(int argc, char *argv[], CommandLineOptions &options)
     const struct option longOptions[] = {
         { "help", no_argument, nullptr, 'h' },
         { "config", required_argument, nullptr, 'c' },
-        { "verbosity", required_argument, nullptr, 'v' },
         { "port", required_argument, nullptr, 'p' },
         { nullptr, 0, nullptr, 0 }
     };
@@ -293,11 +285,6 @@ static void parseOptions(int argc, char *argv[], CommandLineOptions &options)
             case 'c':
                 // Change config filename and path.
                 options.configPath = optarg;
-                break;
-            case 'v':
-                options.verbosity = static_cast<Logger::Level>(atoi(optarg));
-                options.verbosityChanged = true;
-                LOG_INFO("Using log verbosity level " << options.verbosity);
                 break;
             case 'p':
                 options.port = atoi(optarg);
@@ -322,34 +309,28 @@ int main(int argc, char *argv[])
 
     if (!configuration->initialize(options.configPath))
     {
-        LOG_FATAL("Refusing to run without configuration!");
+        qCritical() << "Refusing to run without configuration!";
         exit(EXIT_CONFIG_NOT_FOUND);
     }
 
     // Check inter-server password.
     if (configuration->getValue("net_password", QString()).isEmpty())
     {
-        LOG_FATAL("SECURITY WARNING: 'net_password' not set!");
+        qCritical() << "SECURITY WARNING: 'net_password' not set!";
         exit(EXIT_BAD_CONFIG_PARAMETER);
     }
-
-    if (!options.verbosityChanged)
-        options.verbosity = static_cast<Logger::Level>(
-                               configuration->getValue("log_gameServerLogLevel",
-                                                       options.verbosity) );
-    Logger::setVerbosity(options.verbosity);
 
     // General initialization
     initializeServer();
 
 #ifdef PACKAGE_VERSION
-    LOG_INFO("The Mana Game Server v" << PACKAGE_VERSION);
+    qDebug() << "The Mana Game Server v" << PACKAGE_VERSION;
 #else
-    LOG_INFO("The Mana Game Server (unknown version)");
+    qDebug() << "The Mana Game Server (unknown version)";
 #endif
-    LOG_INFO("Manaserv Protocol version " << ManaServ::PROTOCOL_VERSION
+    qDebug() << "Manaserv Protocol version " << ManaServ::PROTOCOL_VERSION
              << ", " << "Enet version " << ENET_VERSION_MAJOR << "."
-             << ENET_VERSION_MINOR << "." << ENET_VERSION_PATCH);
+             << ENET_VERSION_MINOR << "." << ENET_VERSION_PATCH;
 
     // When the gameListenToClientPort is set, we use it.
     // Otherwise, we use the accountListenToClientPort + 3 if the option is set.
@@ -376,18 +357,18 @@ int main(int argc, char *argv[])
     int waittime = 0;
     while (!isConnected && running)
     {
-        LOG_INFO("Connecting to account server");
+        qDebug() << "Connecting to account server";
         isConnected = accountHandler->start(options.port);
         if (!isConnected)
         {
-            LOG_INFO("Retrying in " << ++waittime << " seconds");
+            qDebug() << "Retrying in " << ++waittime << " seconds";
             usleep(waittime * 1000);
         }
     }
 
     if (!gameHandler->startListen(options.port))
     {
-        LOG_FATAL("Unable to create an ENet server host.");
+        qCritical() << "Unable to create an ENet server host.";
         return EXIT_NET_EXCEPTION;
     }
 
@@ -409,7 +390,7 @@ int main(int argc, char *argv[])
 
         if (elapsedTicks > WORLD_TICK_SKIP)
         {
-            LOG_WARN("Skipping "<< elapsedTicks - 1 << " ticks.");
+            qWarning() << "Skipping "<< elapsedTicks - 1 << " ticks.";
             elapsedTicks = 1;
         }
 
@@ -420,7 +401,7 @@ int main(int argc, char *argv[])
 
             // Print world time at 10 second intervals to show we're alive
             if (currentTick % 100 == 0)
-                LOG_INFO("World time: " << currentTick);
+                qDebug() << "World time: " << currentTick;
 
             if (accountHandler->isConnected())
             {
@@ -437,10 +418,10 @@ int main(int argc, char *argv[])
                 if (currentTick % 300 == 0)
                 {
                     accountHandler->sendStatistics();
-                    LOG_INFO("Total Account Output: " << gBandwidth->totalInterServerOut() << " Bytes");
-                    LOG_INFO("Total Account Input: " << gBandwidth->totalInterServerIn() << " Bytes");
-                    LOG_INFO("Total Client Output: " << gBandwidth->totalClientOut() << " Bytes");
-                    LOG_INFO("Total Client Input: " << gBandwidth->totalClientIn() << " Bytes");
+                    qDebug() << "Total Account Output: " << gBandwidth->totalInterServerOut() << " Bytes";
+                    qDebug() << "Total Account Input: " << gBandwidth->totalInterServerIn() << " Bytes";
+                    qDebug() << "Total Client Output: " << gBandwidth->totalClientOut() << " Bytes";
+                    qDebug() << "Total Client Input: " << gBandwidth->totalClientIn() << " Bytes";
                 }
             }
             else
@@ -449,7 +430,7 @@ int main(int argc, char *argv[])
                 // Every players have to be logged out
                 if (!accountServerLost)
                 {
-                    LOG_WARN("The connection to the account server was lost.");
+                    qWarning() << "The connection to the account server was lost.";
                     accountServerLost = true;
                 }
 
@@ -467,7 +448,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    LOG_INFO("Received: Quit signal, closing down...");
+    qDebug() << "Received: Quit signal, closing down...";
     gameHandler->stopListen();
     accountHandler->stop();
     deinitializeServer();

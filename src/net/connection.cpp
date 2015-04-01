@@ -22,7 +22,8 @@
 #include "net/bandwidth.h"
 #include "net/messagein.h"
 #include "net/messageout.h"
-#include "utils/logger.h"
+
+#include <QDebug>
 
 #ifdef ENET_VERSION_CREATE
 #define ENET_CUTOFF ENET_VERSION_CREATE(1,3,0)
@@ -94,7 +95,7 @@ bool Connection::isConnected() const
 void Connection::send(const MessageOut &msg, bool reliable, unsigned channel)
 {
     if (!mRemote) {
-        LOG_WARN("Can't send message to unconnected host! (" << msg << ")");
+        qWarning() << "Can't send message to unconnected host! (" << msg << ")";
         return;
     }
 
@@ -108,7 +109,7 @@ void Connection::send(const MessageOut &msg, bool reliable, unsigned channel)
     if (packet)
         enet_peer_send(mRemote, channel, packet);
     else
-        LOG_ERROR("Failure to create packet!");
+        qCritical() << "Failure to create packet!";
 }
 
 void Connection::process()
@@ -129,7 +130,7 @@ void Connection::process()
                 }
                 else
                 {
-                    LOG_WARN("Message too short.");
+                    qWarning() << "Message too short.";
                 }
                 // Clean up the packet now that we are done using it.
                 enet_packet_destroy(event.packet);

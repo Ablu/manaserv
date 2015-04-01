@@ -23,23 +23,23 @@
 
 #include "utils/zlib.h"
 
-#include "utils/logger.h"
+#include <QDebug>
 
 static void logZlibError(int error)
 {
     switch (error)
     {
         case Z_MEM_ERROR:
-            LOG_ERROR("Out of memory while decompressing data!");
+            qCritical() << "Out of memory while decompressing data!";
             break;
         case Z_VERSION_ERROR:
-            LOG_ERROR("Incompatible zlib version!");
+            qCritical() << "Incompatible zlib version!";
             break;
         case Z_DATA_ERROR:
-            LOG_ERROR("Incorrect zlib compressed data!");
+            qCritical() << "Incorrect zlib compressed data!";
             break;
         default:
-            LOG_ERROR("Unknown error while decompressing data!");
+            qCritical() << "Unknown error while decompressing data!";
     }
 }
 

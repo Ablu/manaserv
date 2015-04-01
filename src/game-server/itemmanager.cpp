@@ -26,7 +26,6 @@
 #include "game-server/item.h"
 #include "scripting/script.h"
 #include "scripting/scriptmanager.h"
-#include "utils/logger.h"
 
 #include <map>
 #include <set>
@@ -97,8 +96,8 @@ bool ItemManager::isEquipSlotVisible(unsigned id) const
  */
 void ItemManager::checkStatus()
 {
-    LOG_INFO("Loaded " << mItemClasses.size() << " items");
-    LOG_INFO("Loaded " << mEquipSlotsInfo.size() << " slot types");
+    qDebug() << "Loaded " << mItemClasses.size() << " items";
+    qDebug() << "Loaded " << mEquipSlotsInfo.size() << " slot types";
 }
 
 /**
@@ -114,17 +113,17 @@ void ItemManager::readEquipSlotNode(xmlNodePtr node)
 
     if (slotId <= 0 || name.isEmpty() || capacity <= 0)
     {
-        LOG_WARN("Item Manager: equip slot " << slotId
-            << ": (" << name << ") has no name or zero count. "
-            "The slot has been ignored.");
+        qWarning() << "Item Manager: equip slot " << slotId
+                   << ": (" << name << ") has no name or zero count. "
+                      "The slot has been ignored.";
         return;
     }
 
     if (slotId > 255)
     {
-        LOG_WARN("Item Manager: equip slot " << slotId
-            << ": (" << name << ") is superior to 255 "
-            "and has been ignored.");
+        qWarning() << "Item Manager: equip slot " << slotId
+                   << ": (" << name << ") is superior to 255 "
+                      "and has been ignored.";
         return;
     }
 
@@ -136,13 +135,13 @@ void ItemManager::readEquipSlotNode(xmlNodePtr node)
 
     if (i != mEquipSlotsInfo.end())
     {
-        LOG_WARN("Item Manager: Ignoring duplicate definition "
-                 "of equip slot '" << slotId << "'!");
+        qWarning() << "Item Manager: Ignoring duplicate definition "
+                      "of equip slot '" << slotId << "'!";
         return;
     }
 
-    LOG_DEBUG("Adding equip slot, id: " << slotId << ", name: " << name
-        << ", capacity: " << capacity << ", visible? " << visible);
+    qDebug() << "Adding equip slot, id: " << slotId << ", name: " << name
+             << ", capacity: " << capacity << ", visible? " << visible;
     EquipSlotInfo *equipSlotInfo =
         new EquipSlotInfo(slotId, name, capacity, visible);
     mEquipSlotsInfo.insert(std::make_pair(slotId, equipSlotInfo));
@@ -158,8 +157,8 @@ void ItemManager::readItemNode(xmlNodePtr itemNode, const QString &filename)
     const int id = XML::getProperty(itemNode, "id", 0);
     if (id < 1)
     {
-        LOG_WARN("Item Manager: Item ID: " << id << " is invalid in "
-                 << filename << ", and will be ignored.");
+        qWarning() << "Item Manager: Item ID: " << id << " is invalid in "
+                   << filename << ", and will be ignored.";
         return;
     }
 
@@ -172,16 +171,16 @@ void ItemManager::readItemNode(xmlNodePtr itemNode, const QString &filename)
 
     if (i != mItemClasses.end())
     {
-        LOG_WARN("Item Manager: Ignoring duplicate definition of item '" << id
-                 << "'!");
+        qWarning() << "Item Manager: Ignoring duplicate definition of item '" << id
+                   << "'!";
         return;
     }
 
     unsigned maxPerSlot = XML::getProperty(itemNode, "max-per-slot", 0);
     if (!maxPerSlot)
     {
-        LOG_WARN("Item Manager: Missing max-per-slot property for "
-                 "item " << id << " in " << filename << '.');
+        qWarning() << "Item Manager: Missing max-per-slot property for "
+                      "item " << id << " in " << filename << '.';
         maxPerSlot = 1;
     }
 
@@ -194,7 +193,7 @@ void ItemManager::readItemNode(xmlNodePtr itemNode, const QString &filename)
         item->setName(name);
 
         if (mItemClassesByName.contains(name))
-            LOG_WARN("Item Manager: Name not unique for item " << id);
+            qWarning() << "Item Manager: Name not unique for item " << id;
         else
             mItemClassesByName.insert(name, item);
     }
@@ -225,15 +224,15 @@ void ItemManager::readEquipNode(xmlNodePtr equipNode, ItemClass *item)
         {
             if (item->mEquipReq.equipSlotId)
             {
-                LOG_WARN("Item Manager: duplicate equip slot definitions!"
-                         " Only the first will apply.");
+                qWarning() << "Item Manager: duplicate equip slot definitions!"
+                              " Only the first will apply.";
                 break;
             }
 
             QString slotString = XML::getProperty(subNode, "type", QString());
             if (slotString.isEmpty())
             {
-                LOG_WARN("Item Manager: empty equip slot definition!");
+                qWarning() << "Item Manager: empty equip slot definition!";
                 continue;
             }
             bool wasNumeric;
@@ -255,9 +254,9 @@ void ItemManager::readEquipNode(xmlNodePtr equipNode, ItemClass *item)
 
     if (!item->mEquipReq.equipSlotId)
     {
-        LOG_WARN("Item Manager: empty equip requirement "
-                 "definition for item " << item->getDatabaseID() << "!"
-                 " The item will be unequippable.");
+        qWarning() << "Item Manager: empty equip requirement "
+                      "definition for item " << item->getDatabaseID() << "!"
+                      " The item will be unequippable.";
         return;
     }
 }
@@ -302,8 +301,8 @@ void ItemManager::readEffectNode(xmlNodePtr effectNode, ItemClass *item)
              it = triggerTable.find(triggerName);
 
     if (it == triggerTable.end()) {
-        LOG_WARN("Item Manager: Unable to find effect trigger type \""
-                 << triggerName << "\", skipping!");
+        qWarning() << "Item Manager: Unable to find effect trigger type \""
+                   << triggerName << "\", skipping!";
         return;
     }
     triggerType = it->second;
@@ -312,8 +311,8 @@ void ItemManager::readEffectNode(xmlNodePtr effectNode, ItemClass *item)
     if (!dispellTrigger.isEmpty())
     {
         if ((it = triggerTable.find(dispellTrigger)) == triggerTable.end())
-            LOG_WARN("Item Manager: Unable to find dispell effect "
-                     "trigger type \"" << dispellTrigger << "\"!");
+            qWarning() << "Item Manager: Unable to find dispell effect "
+                          "trigger type \"" << dispellTrigger << "\"!";
         else
             triggerType.dispell = it->second.apply;
     }
@@ -326,8 +325,8 @@ void ItemManager::readEffectNode(xmlNodePtr effectNode, ItemClass *item)
                                                QString());
             if (tag.isEmpty())
             {
-                LOG_WARN("Item Manager: Warning, modifier found "
-                         "but no attribute specified!");
+                qWarning() << "Item Manager: Warning, modifier found "
+                              "but no attribute specified!";
                 continue;
             }
             unsigned duration = XML::getProperty(subNode,
@@ -347,12 +346,12 @@ void ItemManager::readEffectNode(xmlNodePtr effectNode, ItemClass *item)
         // Having a dispell for the next three is nonsensical.
         else if (xmlStrEqual(subNode->name, BAD_CAST "cooldown"))
         {
-            LOG_WARN("Item Manager: Cooldown property not implemented yet!");
+            qWarning() << "Item Manager: Cooldown property not implemented yet!";
             // TODO: Also needs unique items before this action will work
         }
         else if (xmlStrEqual(subNode->name, BAD_CAST "g-cooldown"))
         {
-            LOG_WARN("Item Manager: G-Cooldown property not implemented yet!");
+            qWarning() << "Item Manager: G-Cooldown property not implemented yet!";
             // TODO
         }
         else if (xmlStrEqual(subNode->name, BAD_CAST "consumes"))
@@ -366,8 +365,8 @@ void ItemManager::readEffectNode(xmlNodePtr effectNode, ItemClass *item)
                                                              QString());
             if (activateEventName.isEmpty())
             {
-                LOG_WARN("Item Manager: Empty name for 'activate' item script "
-                         "event, skipping effect!");
+                qWarning() << "Item Manager: Empty name for 'activate' item script "
+                              "event, skipping effect!";
                 continue;
             }
 

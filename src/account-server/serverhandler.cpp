@@ -22,6 +22,8 @@
 #include <sstream>
 #include <list>
 
+#include <QDebug>
+
 #include "account-server/serverhandler.h"
 
 #include "mana/configuration/interfaces/iconfiguration.h"
@@ -44,7 +46,6 @@
 #include "net/connectionhandler.h"
 #include "net/messageout.h"
 #include "net/netcomputer.h"
-#include "utils/logger.h"
 #include "utils/tokendispenser.h"
 
 using namespace ManaServ;
@@ -122,7 +123,7 @@ bool GameServerHandler::initialize(int port,
 
     MapManager::initialize(DEFAULT_MAPSDB_FILE);
     serverHandler = new ServerHandler(configuration, storage);
-    LOG_INFO("Game server handler started:");
+    qDebug() << "Game server handler started:";
     return serverHandler->startListen(port, host);
 }
 
@@ -144,7 +145,7 @@ NetComputer *ServerHandler::computerConnected(ENetPeer *peer)
 
 void ServerHandler::computerDisconnected(NetComputer *comp)
 {
-    LOG_INFO("Game-server disconnected.");
+    qDebug() << "Game-server disconnected.";
     delete comp;
 }
 
@@ -202,7 +203,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
     {
         case GAMSG_REGISTER:
         {
-            LOG_DEBUG("GAMSG_REGISTER");
+            qDebug() << "GAMSG_REGISTER";
             // TODO: check the credentials of the game server
             server->name = msg.readString();
             server->address = msg.readString();
@@ -211,19 +212,19 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
 
             // checks the version of the remote item database with our local copy
             unsigned dbversion = msg.readInt32();
-            LOG_INFO("Game server uses itemsdatabase with version " << dbversion);
+            qDebug() << "Game server uses itemsdatabase with version " << dbversion;
 
-            LOG_DEBUG("AGMSG_REGISTER_RESPONSE");
+            qDebug() << "AGMSG_REGISTER_RESPONSE";
             MessageOut outMsg(AGMSG_REGISTER_RESPONSE);
             if (dbversion == mStorage->getItemDatabaseVersion())
             {
-                LOG_DEBUG("Item databases between account server and "
-                    "gameserver are in sync");
+                qDebug() << "Item databases between account server and "
+                    "gameserver are in sync";
                 outMsg.writeInt16(DATA_VERSION_OK);
             }
             else
             {
-                LOG_DEBUG("Item database of game server has a wrong version");
+                qDebug() << "Item database of game server has a wrong version";
                 outMsg.writeInt16(DATA_VERSION_OUTDATED);
             }
             if (password == mConfiguration->getValue("net_password", "changeMe"))
@@ -244,15 +245,15 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
             }
             else
             {
-                LOG_INFO("The password given by " << server->address << ':'
-                         << server->port << " was bad.");
+                qDebug() << "The password given by " << server->address << ':'
+                         << server->port << " was bad.";
                 outMsg.writeInt16(PASSWORD_BAD);
                 comp->disconnect(outMsg);
                 break;
             }
 
-            LOG_INFO("Game server " << server->address << ':' << server->port
-                     << " asks for maps to activate.");
+            qDebug() << "Game server " << server->address << ':' << server->port
+                     << " asks for maps to activate.";
 
             const std::map<int, QString> &maps = MapManager::getMaps();
             for (const auto &maps_it : maps) {
@@ -264,9 +265,9 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
 
                     // Map variables
                     outMsg.writeInt16(id);
-                    LOG_DEBUG("Issued server " << server->name << "("
-                              << server->address << ":" << server->port << ") "
-                              << "to enable map " << id);
+                    qDebug() << "Issued server " << server->name << "("
+                             << server->address << ":" << server->port << ") "
+                             << "to enable map " << id;
                     std::map<QString, QString> variables;
                     variables = mStorage->getAllWorldStateVars(id);
 
@@ -303,7 +304,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
 
         case GAMSG_PLAYER_DATA:
         {
-            LOG_DEBUG("GAMSG_PLAYER_DATA");
+            qDebug() << "GAMSG_PLAYER_DATA";
             int id = msg.readInt32();
             if (auto ptr = mStorage->getCharacter(id, nullptr))
             {
@@ -312,20 +313,20 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
             }
             else
             {
-                LOG_ERROR("Received data for non-existing character "
-                          << id << '.');
+                qCritical() << "Received data for non-existing character "
+                            << id << '.';
             }
         } break;
 
         case GAMSG_PLAYER_SYNC:
         {
-            LOG_DEBUG("GAMSG_PLAYER_SYNC");
+            qDebug() << "GAMSG_PLAYER_SYNC";
             GameServerHandler::syncDatabase(msg);
         } break;
 
         case GAMSG_REDIRECT:
         {
-            LOG_DEBUG("GAMSG_REDIRECT");
+            qDebug() << "GAMSG_REDIRECT";
             int id = msg.readInt32();
             QString magic_token(utils::getMagicToken());
             if (auto ptr = mStorage->getCharacter(id, nullptr))
@@ -343,20 +344,20 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
                 }
                 else
                 {
-                    LOG_ERROR("Server Change: No game server for map " <<
-                              mapId << '.');
+                    qCritical() << "Server Change: No game server for map " <<
+                                mapId << '.';
                 }
             }
             else
             {
-                LOG_ERROR("Received data for non-existing character "
-                          << id << '.');
+                qCritical() << "Received data for non-existing character "
+                            << id << '.';
             }
         } break;
 
         case GAMSG_PLAYER_RECONNECT:
         {
-            LOG_DEBUG("GAMSG_PLAYER_RECONNECT");
+            qDebug() << "GAMSG_PLAYER_RECONNECT";
             int id = msg.readInt32();
             QString magic_token = msg.readString(MAGIC_TOKEN_LENGTH);
 
@@ -367,8 +368,8 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
             }
             else
             {
-                LOG_ERROR("Received data for non-existing character "
-                          << id << '.');
+                qCritical() << "Received data for non-existing character "
+                            << id << '.';
             }
         } break;
 
@@ -446,9 +447,9 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
                 ServerStatistics::iterator i = server->maps.find(mapId);
                 if (i == server->maps.end())
                 {
-                    LOG_ERROR("Server " << server->address << ':'
-                              << server->port << " should not be sending stati"
-                              "stics for map " << mapId << '.');
+                    qCritical() << "Server " << server->address << ':'
+                                << server->port << " should not be sending stati"
+                                "stics for map " << mapId << '.';
                     // Skip remaining data.
                     break;
                 }
@@ -467,7 +468,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
         case GCMSG_REQUEST_POST:
         {
             // Retrieve the post for user
-            LOG_DEBUG("GCMSG_REQUEST_POST");
+            qDebug() << "GCMSG_REQUEST_POST";
             MessageOut result(CGMSG_POST_RESPONSE);
 
             // get the character id
@@ -481,7 +482,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
             if (!ptr)
             {
                 // Invalid character
-                LOG_ERROR("Error finding character id for post");
+                qCritical() << "Error finding character id for post";
                 break;
             }
 
@@ -515,7 +516,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
         case GCMSG_STORE_POST:
         {
             // Store the letter for the user
-            LOG_DEBUG("GCMSG_STORE_POST");
+            qDebug() << "GCMSG_STORE_POST";
             MessageOut result(CGMSG_STORE_POST_RESPONSE);
 
             // get the sender and receiver
@@ -531,7 +532,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
             if (!sender || !receiver)
             {
                 // Invalid character
-                LOG_ERROR("Error finding character id for post");
+                qCritical() << "Error finding character id for post";
                 result.writeInt8(ERRMSG_INVALID_ARGUMENT);
                 break;
             }
@@ -546,7 +547,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
             }
 
             // save the letter
-            LOG_DEBUG("Creating letter");
+            qDebug() << "Creating letter";
             Letter *letter = new Letter(0, std::move(sender), std::move(receiver));
             letter->addText(contents);
             for (auto &items_i : items) {
@@ -569,7 +570,7 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
 
         case GAMSG_TRANSACTION:
         {
-            LOG_DEBUG("TRANSACTION");
+            qDebug() << "TRANSACTION";
             int id = msg.readInt32();
             int action = msg.readInt32();
             QString message = msg.readString();
@@ -593,8 +594,8 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
             int posX = msg.readInt16();
             int posY = msg.readInt16();
 
-            LOG_DEBUG("Gameserver create item " << itemId
-                << " on map " << mapId);
+            qDebug() << "Gameserver create item " << itemId
+                     << " on map " << mapId;
 
             mStorage->addFloorItem(mapId, itemId, amount, posX, posY);
         } break;
@@ -607,8 +608,8 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
             int posX = msg.readInt16();
             int posY = msg.readInt16();
 
-            LOG_DEBUG("Gameserver removed item " << itemId
-                << " from map " << mapId);
+            qDebug() << "Gameserver removed item " << itemId
+                     << " from map " << mapId;
 
             mStorage->removeFloorItem(mapId, itemId, amount, posX, posY);
         } break;
@@ -622,8 +623,8 @@ void ServerHandler::processMessage(NetComputer *comp, MessageIn &msg)
         } break;
 
         default:
-            LOG_WARN("ServerHandler::processMessage, Invalid message type: "
-                     << msg.getId());
+            qWarning() << "ServerHandler::processMessage, Invalid message type: "
+                       << msg.getId();
             MessageOut result(XXMSG_INVALID);
             comp->send(result);
             break;
@@ -682,7 +683,7 @@ void GameServerHandler::syncDatabase(MessageIn &msg)
         {
             case SYNC_CHARACTER_POINTS:
             {
-                LOG_DEBUG("received SYNC_CHARACTER_POINTS");
+                qDebug() << "received SYNC_CHARACTER_POINTS";
                 int charId = msg.readInt32();
                 int charPoints = msg.readInt32();
                 int corrPoints = msg.readInt32();
@@ -691,7 +692,7 @@ void GameServerHandler::syncDatabase(MessageIn &msg)
 
             case SYNC_CHARACTER_ATTRIBUTE:
             {
-                LOG_DEBUG("received SYNC_CHARACTER_ATTRIBUTE");
+                qDebug() << "received SYNC_CHARACTER_ATTRIBUTE";
                 int    charId = msg.readInt32();
                 int    attrId = msg.readInt32();
                 double base   = msg.readDouble();
@@ -701,7 +702,7 @@ void GameServerHandler::syncDatabase(MessageIn &msg)
 
             case SYNC_ONLINE_STATUS:
             {
-                LOG_DEBUG("received SYNC_ONLINE_STATUS");
+                qDebug() << "received SYNC_ONLINE_STATUS";
                 int charId = msg.readInt32();
                 bool online = (msg.readInt8() == 1);
                 mStorage->setOnlineStatus(charId, online);

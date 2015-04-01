@@ -23,7 +23,8 @@
 #include "common/defines.h"
 #include "game-server/attributeinfo.h"
 #include "utils/string.h"
-#include "utils/logger.h"
+
+#include <QDebug>
 
 void AttributeManager::initialize()
 {
@@ -99,16 +100,16 @@ void AttributeManager::readAttributeNode(xmlNodePtr attributeNode)
 
     if (id <= 0)
     {
-        LOG_WARN("Attribute manager: attribute '" << id
-                 << "' has an invalid id and will be ignored.");
+        qWarning() << "Attribute manager: attribute '" << id
+                   << "' has an invalid id and will be ignored.";
         return;
     }
 
     QString name = XML::getProperty(attributeNode, "name", QString());
     if (name.isEmpty())
     {
-        LOG_WARN("Attribute manager: attribute '" << id
-                 << "' does not have a name! Skipping...");
+        qWarning() << "Attribute manager: attribute '" << id
+                   << "' does not have a name! Skipping...";
         return;
     }
 
@@ -132,29 +133,29 @@ void AttributeManager::readAttributeNode(xmlNodePtr attributeNode)
     if (scope.contains("CHARACTER"))
     {
         mAttributeScopes[CharacterScope].insert(attribute);
-        LOG_DEBUG("Attribute manager: attribute '" << id
-                  << "' added to default character scope.");
+        qDebug() << "Attribute manager: attribute '" << id
+                 << "' added to default character scope.";
         hasScope = true;
     }
     if (scope.contains("MONSTER"))
     {
         mAttributeScopes[MonsterScope].insert(attribute);
-        LOG_DEBUG("Attribute manager: attribute '" << id
-                  << "' added to default monster scope.");
+        qDebug() << "Attribute manager: attribute '" << id
+                 << "' added to default monster scope.";
         hasScope = true;
     }
     if (scope == "BEING")
     {
         mAttributeScopes[BeingScope].insert(attribute);
-        LOG_DEBUG("Attribute manager: attribute '" << id
-                  << "' added to default being scope.");
+        qDebug() << "Attribute manager: attribute '" << id
+                 << "' added to default being scope.";
         hasScope = true;
     }
 
     if (!hasScope)
     {
-        LOG_WARN("Attribute manager: attribute '" << id
-                  << "' has no (valid) scope. Skipping...");
+        qWarning() << "Attribute manager: attribute '" << id
+                   << "' has no (valid) scope. Skipping...";
         delete attribute;
         return;
     }
@@ -176,37 +177,37 @@ void AttributeManager::readAttributeNode(xmlNodePtr attributeNode)
  */
 void AttributeManager::checkStatus()
 {
-    LOG_DEBUG("attribute map:");
-    LOG_DEBUG("Stackable is " << Stackable << ", NonStackable is " << NonStackable
-              << ", NonStackableBonus is " << NonStackableBonus << ".");
-    LOG_DEBUG("Additive is " << Additive << ", Multiplicative is " << Multiplicative << ".");
+    qDebug() << "attribute map:";
+    qDebug() << "Stackable is " << Stackable << ", NonStackable is " << NonStackable
+             << ", NonStackableBonus is " << NonStackableBonus << ".";
+    qDebug() << "Additive is " << Additive << ", Multiplicative is " << Multiplicative << ".";
     const QString *tag;
     unsigned count = 0;
     for (auto &attributeIt : mAttributeMap)
     {
         unsigned lCount = 0;
-        LOG_DEBUG("  "<< attributeIt.first<<" : ");
+        qDebug() << "  "<< attributeIt.first<<" : ";
         for (auto &modifierIt : attributeIt.second->modifiers)
         {
             tag = getTag(ModifierLocation(attributeIt.first, lCount));
             QString end = tag ? "tag of '" + (*tag) + "'." : "no tag.";
-            LOG_DEBUG("    stackableType: " << modifierIt.stackableType
-                      << ", effectType: " << modifierIt.effectType << ", and "
-                      << end);
+            qDebug() << "    stackableType: " << modifierIt.stackableType
+                     << ", effectType: " << modifierIt.effectType << ", and "
+                     << end;
             ++lCount;
             ++count;
         }
     }
-    LOG_INFO("Loaded '" << mAttributeMap.size() << "' attributes with '"
-             << count << "' modifier layers.");
+    qDebug() << "Loaded '" << mAttributeMap.size() << "' attributes with '"
+             << count << "' modifier layers.";
 
     for (auto &tagIt : mTagMap)
     {
-        LOG_DEBUG("Tag '" << tagIt.first << "': '" << tagIt.second.attributeId
-                  << "', '" << tagIt.second.layer << "'.");
+        qDebug() << "Tag '" << tagIt.first << "': '" << tagIt.second.attributeId
+                 << "', '" << tagIt.second.layer << "'.";
     }
 
-    LOG_INFO("Loaded '" << mTagMap.size() << "' modifier tags.");
+    qDebug() << "Loaded '" << mTagMap.size() << "' modifier tags.";
 }
 
 void AttributeManager::readModifierNode(xmlNodePtr modifierNode,
@@ -221,15 +222,15 @@ void AttributeManager::readModifierNode(xmlNodePtr modifierNode,
 
     if (stackableTypeString.isEmpty())
     {
-        LOG_WARN("Attribute manager: attribute '" << attributeId <<
-                 "' has undefined stackable type, skipping modifier!");
+        qWarning() << "Attribute manager: attribute '" << attributeId <<
+                      "' has undefined stackable type, skipping modifier!";
         return;
     }
 
     if (effectTypeString.isEmpty())
     {
-        LOG_WARN("Attribute manager: attribute '" << attributeId
-                 << "' has undefined modification type, skipping modifier!");
+        qWarning() << "Attribute manager: attribute '" << attributeId
+                   << "' has undefined modification type, skipping modifier!";
         return;
     }
 
@@ -244,9 +245,9 @@ void AttributeManager::readModifierNode(xmlNodePtr modifierNode,
         stackableType = NonStackableBonus;
     else
     {
-        LOG_WARN("Attribute manager: attribute '"
-                 << attributeId << "' has unknown stackable type '"
-                 << stackableTypeString << "', skipping modifier!");
+        qWarning() << "Attribute manager: attribute '"
+                   << attributeId << "' has unknown stackable type '"
+                   << stackableTypeString << "', skipping modifier!";
         return;
     }
 
@@ -256,18 +257,18 @@ void AttributeManager::readModifierNode(xmlNodePtr modifierNode,
         effectType = Multiplicative;
     else
     {
-        LOG_WARN("Attribute manager: attribute '" << attributeId
-                 << "' has unknown modification type '"
-                 << effectTypeString << "', skipping modifier!");
+        qWarning() << "Attribute manager: attribute '" << attributeId
+                   << "' has unknown modification type '"
+                   << effectTypeString << "', skipping modifier!";
         return;
     }
 
     if (stackableType == NonStackable && effectType == Multiplicative)
     {
-        LOG_WARN("Attribute manager: attribute '" << attributeId
-                 << "' has a non sense modifier. "
-                 << "Having NonStackable and Multiplicative makes no sense! "
-                 << "Skipping modifier!");
+        qWarning() << "Attribute manager: attribute '" << attributeId
+                   << "' has a non sense modifier. "
+                   << "Having NonStackable and Multiplicative makes no sense! "
+                   << "Skipping modifier!";
         return;
     }
 

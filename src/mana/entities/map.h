@@ -28,7 +28,6 @@
 #include <QString>
 #include <QSize>
 
-#include "utils/logger.h"
 #include "utils/point.h"
 #include "utils/string.h"
 

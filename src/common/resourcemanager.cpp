@@ -22,12 +22,12 @@
 
 #include "mana/configuration/interfaces/iconfiguration.h"
 
-#include "utils/logger.h"
-
 #include <sys/stat.h>
 #include <cstdlib>
 #include <cstring>
 #include <vector>
+
+#include <QDebug>
 
 #ifdef _WIN32
 #include <io.h>
@@ -99,8 +99,8 @@ char *ResourceManager::loadFile(const QString &fileName, int &fileSize)
     // If the handler is an invalid pointer indicate failure
     if (file == nullptr)
     {
-        LOG_WARN("Failed to load '" << fileName << "': "
-                 << PHYSFS_getLastError());
+        qWarning() << "Failed to load '" << fileName << "': "
+                   << PHYSFS_getLastError();
         return nullptr;
     }
 
@@ -112,8 +112,8 @@ char *ResourceManager::loadFile(const QString &fileName, int &fileSize)
     if (PHYSFS_read(file, buffer, 1, fileSize) != fileSize)
     {
         free(buffer);
-        LOG_WARN("Failed to load '" << fileName << "': "
-                 << PHYSFS_getLastError());
+        qWarning() << "Failed to load '" << fileName << "': "
+                   << PHYSFS_getLastError();
         return nullptr;
     }
 

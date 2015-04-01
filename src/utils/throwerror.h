@@ -21,8 +21,6 @@
 #ifndef UTILS_THROWERROR_H
 #define UTILS_THROWERROR_H
 
-#include "utils/logger.h"
-
 #include <QDebug>
 
 namespace utils
