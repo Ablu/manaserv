@@ -8,7 +8,8 @@ Project {
 
 
     references: [
-        "src/src.qbs"
+        "src/src.qbs",
+        "example",
     ]
 
     qbsSearchPaths: [
