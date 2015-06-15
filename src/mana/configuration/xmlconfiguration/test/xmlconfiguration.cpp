@@ -27,7 +27,6 @@ void verifySimpleConfig(XmlConfiguration &config)
 void XmlConfigurationTest::testSimpleConfig()
 {
     XmlConfiguration config;
-    QTest::ignoreMessage(QtDebugMsg, QRegularExpression("Using config file:.*"));
     QVERIFY(config.initialize(directoryPrefix + "/testdata/simple_config.xml"));
     verifySimpleConfig(config);
     config.deinitialize();
@@ -36,7 +35,6 @@ void XmlConfigurationTest::testSimpleConfig()
 void XmlConfigurationTest::testDefaultValues()
 {
     XmlConfiguration config;
-    QTest::ignoreMessage(QtDebugMsg, QRegularExpression("Using config file:.*"));
     QVERIFY(config.initialize(directoryPrefix + "/testdata/simple_config.xml"));
 
     QVERIFY(config.getValue("nonexistingvalue", "default") == "default");
@@ -49,7 +47,6 @@ void XmlConfigurationTest::testDefaultValues()
 void XmlConfigurationTest::testSimpleInclude()
 {
     XmlConfiguration config;
-    QTest::ignoreMessage(QtDebugMsg, QRegularExpression("Using config file:.*"));
     QVERIFY(config.initialize(directoryPrefix + "/testdata/simple_include.xml"));
     verifySimpleConfig(config);
     config.deinitialize();
@@ -58,7 +55,6 @@ void XmlConfigurationTest::testSimpleInclude()
 void XmlConfigurationTest::testCircleInclude()
 {
     XmlConfiguration config;
-    QTest::ignoreMessage(QtDebugMsg, QRegularExpression("Using config file:.*"));
     QTest::ignoreMessage(QtWarningMsg, QRegularExpression("Cycle include in configuration.*"));
     QTest::ignoreMessage(QtWarningMsg, QRegularExpression("Error ocurred while parsing included configuration file.*"));
     QVERIFY(!config.initialize(directoryPrefix + "/testdata/circle_include.xml"));
@@ -81,7 +77,6 @@ void XmlConfigurationTest::testHiddenCircleInclude()
 void XmlConfigurationTest::testValueOverride()
 {
     XmlConfiguration config;
-    QTest::ignoreMessage(QtDebugMsg, QRegularExpression("Using config file:.*"));
     QVERIFY(config.initialize(directoryPrefix + "/testdata/overriden_value.xml"));
     QCOMPARE(config.getValue("test", ""), QString("overriden"));
     config.deinitialize();
