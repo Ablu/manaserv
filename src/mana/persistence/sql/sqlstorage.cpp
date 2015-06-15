@@ -115,7 +115,10 @@ void SqlStorage::open()
         return;
 
     // Open a connection to the database.
-    mDb.open();
+    if (!mDb.open()) {
+        qCritical() << mDb.lastError().text();
+        qFatal("Unable to open database");
+    }
 
     // Check database version here
     int dbversion = getWorldStateVar(DB_VERSION_PARAMETER, SystemMap).toInt();
