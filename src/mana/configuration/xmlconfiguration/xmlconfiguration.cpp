@@ -53,9 +53,10 @@ static bool readFile(const QString &fileName)
         processedFiles.insert(fileName);
 
     QFile file(fileName);
-    file.open(QFile::ReadOnly);
+    bool openSuccessful = file.open(QFile::ReadOnly);
     QXmlStreamReader reader(&file);
-    if (!reader.readNextStartElement() || reader.name() != "configuration")
+    if (!openSuccessful || !reader.readNextStartElement() ||
+        reader.name() != "configuration")
     {
         qWarning() << "No configuration file '" << fileName << "'.";
         file.close();
@@ -106,7 +107,8 @@ bool XmlConfiguration::initialize(const QString &fileName)
 
     const bool success = readFile(configPath);
 
-    qDebug() << "Using config file: " << configPath;
+    if (success)
+        qDebug() << "Using config file: " << configPath;
 
     return success;
 }
