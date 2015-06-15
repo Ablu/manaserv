@@ -119,7 +119,13 @@ static void initialize()
     // Open database
     try
     {
+        auto database = QSqlDatabase::addDatabase("QSQLITE", "db");
+        database.setDatabaseName(configuration->getValue("sqlite_database", "mana.db"));
+        if (!database.open()) {
+            qFatal("Opening the database failed!");
+        }
         storage = new SqlStorage();
+        storage->setDatabase(database);
         storage->open();
     }
     catch (QString &error)
