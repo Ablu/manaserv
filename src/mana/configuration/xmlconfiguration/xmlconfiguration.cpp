@@ -58,7 +58,7 @@ static bool readFile(const QString &fileName)
     if (!openSuccessful || !reader.readNextStartElement() ||
         reader.name() != "configuration")
     {
-        qWarning() << "No configuration file '" << fileName << "'.";
+        qWarning() << "No configuration file" << fileName;
         file.close();
         return false;
     }
