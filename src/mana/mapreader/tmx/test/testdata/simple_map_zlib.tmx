@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="10" height="10" tilewidth="32" tileheight="32">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="10" height="10" tilewidth="32" tileheight="32" nextobjectid="2">
+ <properties>
+  <property name="TestProperty" value="Value"/>
+ </properties>
  <tileset firstgid="1" name="collision" tilewidth="32" tileheight="32">
   <image source="collision.png" width="64" height="32"/>
  </tileset>
@@ -8,4 +11,11 @@
    eJxjYmBgYELD2AC6msGmjlJArPnUVocOAET4AEU=
   </data>
  </layer>
+ <objectgroup name="Objects">
+  <object id="1" name="Test" type="TestType" x="32" y="64" width="64" height="96">
+   <properties>
+    <property name="ObjectProperty" value="Value1"/>
+   </properties>
+  </object>
+ </objectgroup>
 </map>
