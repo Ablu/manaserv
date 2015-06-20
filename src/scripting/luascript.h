@@ -40,7 +40,7 @@ public:
      * Constructor. Initializes a new Lua state, registers the native API
      * and loads the libmana.lua file.
      */
-    LuaScript();
+    LuaScript(const QString &worldDataPath);
 
     ~LuaScript();
 
@@ -110,9 +110,9 @@ private:
     friend class LuaThread;
 };
 
-static Script *LuaFactory()
+static Script *LuaFactory(const QString &worldDataPath)
 {
-    return new LuaScript();
+    return new LuaScript(worldDataPath);
 }
 
 struct LuaRegister

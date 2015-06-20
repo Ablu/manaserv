@@ -34,7 +34,8 @@ void ScriptManager::initialize(IConfiguration *configuration)
 {
     mConfiguration = configuration;
     const QString engine = mConfiguration->getValue("script_engine", "lua");
-    _currentState = Script::create(engine);
+    const QString worldDataPath = mConfiguration->getValue("worldDataPath", "example");
+    _currentState = Script::create(engine, worldDataPath);
 }
 
 void ScriptManager::deinitialize()

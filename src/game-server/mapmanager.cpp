@@ -21,12 +21,12 @@
 
 #include "game-server/mapmanager.h"
 
-#include "common/resourcemanager.h"
 #include "common/defines.h"
 #include "game-server/mapcomposite.h"
 
 #include "mana/entities/map.h"
 #include "mana/mapreader/interfaces/imapreader.h"
+#include "mana/configuration/interfaces/iconfiguration.h"
 
 #include <cassert>
 
@@ -92,19 +92,15 @@ void MapManager::readMapNode(xmlNodePtr node)
     }
     else
     {
-        // Testing if the file is actually in the maps folder
-        QString file = QString("maps/") + name + ".tmx";
-        bool mapFileExists = ResourceManager::exists(file);
+        maps[id] = new MapComposite(id, name, mConfiguration);
 
-        if (mapFileExists)
-        {
-            maps[id] = new MapComposite(id, name, mConfiguration);
-            auto map = mMapReader->readMap(file);
-            if (!map)
-                qCritical() << "Failed to load map \"" << name << "\"!";
-            else
-                maps[id]->setMap(std::move(map));
-        }
+        QString worldPath = mConfiguration->getValue("worldDataPath", "example");
+        QString file = worldPath + "/" + QString("maps/") + name + ".tmx";
+        auto map = mMapReader->readMap(file);
+        if (!map)
+            qCritical() << "Failed to load map \"" << name << "\"!";
+        else
+            maps[id]->setMap(std::move(map));
     }
 }
 

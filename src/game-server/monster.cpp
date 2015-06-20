@@ -22,7 +22,6 @@
 
 #include "mana/configuration/interfaces/iconfiguration.h"
 
-#include "common/resourcemanager.h"
 #include "game-server/attributemanager.h"
 #include "game-server/charactercomponent.h"
 #include "game-server/collisiondetection.h"

@@ -23,7 +23,6 @@
 #include <cassert>
 
 #include "common/defines.h"
-#include "common/resourcemanager.h"
 #include "game-server/accountconnection.h"
 #include "game-server/buysell.h"
 #include "game-server/charactercomponent.h"
@@ -53,6 +52,8 @@
 
 #include <string.h>
 #include <math.h>
+
+#include <QFileInfo>
 
 /*
  * This file includes all script bindings available to LUA scripts.
@@ -3373,14 +3374,18 @@ static int test_tableget(lua_State *s)
 
 static int require_loader(lua_State *s)
 {
+    Script *script = getScript(s);
+
     // Add .lua extension (maybe only do this when it doesn't have it already)
     const char *file = luaL_checkstring(s, 1);
-    QString filename = file;
+    QString filename = script->getWorldDataPath();
+    filename.append("/");
+    filename.append(file);
     filename.append(".lua");
 
-    const QString path = ResourceManager::resolve(filename);
-    if (!path.isEmpty())
-        luaL_loadfile(s, path.toStdString().c_str());
+    QFileInfo pathInfo(filename);
+    if (pathInfo.exists())
+        luaL_loadfile(s, filename.toStdString().c_str());
     else
         lua_pushliteral(s, "File not found");
 
@@ -3388,8 +3393,9 @@ static int require_loader(lua_State *s)
 }
 
 
-LuaScript::LuaScript():
-    nbArgs(-1)
+LuaScript::LuaScript(const QString &worldDataPath)
+    : Script(worldDataPath)
+    , nbArgs(-1)
 {
     mRootState = luaL_newstate();
     mCurrentState = mRootState;

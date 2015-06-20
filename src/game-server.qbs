@@ -110,8 +110,6 @@ CppApplication {
             "manaserv_protocol.h",
             "permissionmanager.cpp",
             "permissionmanager.h",
-            "resourcemanager.cpp",
-            "resourcemanager.h",
             "transaction.h",
         ]
     }

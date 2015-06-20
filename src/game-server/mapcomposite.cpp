@@ -25,7 +25,6 @@
 #include "mana/configuration/interfaces/iconfiguration.h"
 
 #include "accountconnection.h"
-#include "common/resourcemanager.h"
 #include "game-server/charactercomponent.h"
 #include "game-server/mapcomposite.h"
 #include "mana/entities/map.h"

@@ -47,7 +47,7 @@ public:
      * @param useResman whether to resolve the full path to the file
      *                  using the resource manager (true by default).
      */
-    Document(const QString &fileName, bool useResman = true);
+    Document(const QString &fileName);
 
     /**
      * Destructor. Frees the loaded XML file.

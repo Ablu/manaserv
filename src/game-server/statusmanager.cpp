@@ -20,7 +20,6 @@
 
 #include "game-server/statusmanager.h"
 
-#include "common/resourcemanager.h"
 #include "game-server/statuseffect.h"
 #include "utils/xml.h"
 

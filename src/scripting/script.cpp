@@ -22,7 +22,6 @@
 
 #include "mana/configuration/interfaces/iconfiguration.h"
 
-#include "common/resourcemanager.h"
 #include "game-server/being.h"
 
 #include <cassert>
@@ -31,6 +30,8 @@
 
 #include <string.h>
 
+#include <QFile>
+
 typedef std::map< QString, Script::Factory > Engines;
 
 static Engines *engines = nullptr;
@@ -38,7 +39,11 @@ static Engines *engines = nullptr;
 Script::Ref Script::mCreateNpcDelayedCallback;
 Script::Ref Script::mUpdateCallback;
 
-Script::Script() : mCurrentThread(nullptr), mContext(nullptr) {}
+Script::Script(const QString &mWorldDataPath)
+    : mCurrentThread(nullptr)
+    , mContext(nullptr)
+    , worldDataPath(mWorldDataPath)
+{}
 
 Script::~Script()
 {
@@ -59,14 +64,14 @@ void Script::registerEngine(const QString &name, Factory f)
     (*engines)[name] = f;
 }
 
-Script *Script::create(const QString &engine)
+Script *Script::create(const QString &engine, const QString worldDataPath)
 {
     if (engines)
     {
         Engines::const_iterator i = engines->find(engine);
         if (i != engines->end())
         {
-            return i->second();
+            return i->second(worldDataPath);
         }
     }
     qCritical() << "No scripting engine named " << engine;
@@ -94,17 +99,15 @@ static char *skipPotentialBom(char *text)
 
 bool Script::loadFile(const QString &name, const Context &context)
 {
-    int size;
-    char *buffer = ResourceManager::loadFile(name, size);
-    if (buffer)
-    {
-        mScriptFile = name;
-        load(skipPotentialBom(buffer), name, context);
-        free(buffer);
-        return true;
-    } else {
+    QFile file(name);
+    if (!file.open(QFile::ReadOnly)) {
         return false;
     }
+
+    QByteArray contents = file.readAll();
+    mScriptFile = name;
+    load(skipPotentialBom(contents.data()), name, context);
+    return true;
 }
 
 void Script::loadNPC(const QString &name,
@@ -137,6 +140,11 @@ int Script::execute(MapComposite *map)
     Context context;
     context.map = map;
     return execute(context);
+}
+
+const QString &Script::getWorldDataPath() const
+{
+    return mScriptFile;
 }
 
 

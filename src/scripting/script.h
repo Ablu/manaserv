@@ -60,7 +60,7 @@ public:
     /**
      * Defines a function that creates a Script instance.
      */
-    typedef Script *(*Factory)();
+    typedef Script *(*Factory)(const QString &worldDataPath);
 
     /**
      * Registers a new scripting engine.
@@ -70,7 +70,7 @@ public:
     /**
      * Creates a new script context for a given engine.
      */
-    static Script *create(const QString &engine);
+    static Script *create(const QString &engine, const QString worldDataPath);
 
     /**
      * A reference to a script object. It wraps an integer value, but adds
@@ -112,7 +112,7 @@ public:
         Context mContext;
     };
 
-    Script();
+    Script(const QString &worldDataPath);
 
     virtual ~Script();
 
@@ -247,6 +247,8 @@ public:
     const Context *getContext() const
     { return mContext; }
 
+    const QString &getWorldDataPath() const;
+
     static void setCreateNpcDelayedCallback(Script *script)
     { script->assignCallback(mCreateNpcDelayedCallback); }
 
@@ -264,6 +266,7 @@ protected:
 
 private:
     std::vector<Thread*> mThreads;
+    QString worldDataPath;
 
     static Ref mCreateNpcDelayedCallback;
     static Ref mUpdateCallback;

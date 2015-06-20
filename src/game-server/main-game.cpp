@@ -27,7 +27,6 @@
 
 #include "common/defines.h"
 #include "common/permissionmanager.h"
-#include "common/resourcemanager.h"
 
 #include "game-server/accountconnection.h"
 #include "game-server/attributemanager.h"
@@ -136,7 +135,6 @@ static void initializeServer()
     // Initialize the slang's and double quotes filter.
     stringFilter = new utils::StringFilter(configuration);
 
-    ResourceManager::initialize(configuration);
     ScriptManager::initialize(configuration);   // Depends on ResourceManager
 
     // load game settings files

@@ -21,7 +21,6 @@
 
 #include "utils/xml.h"
 
-#include "common/resourcemanager.h"
 #include "utils/string.h"
 
 #include <iostream>
@@ -31,27 +30,14 @@
 
 namespace XML
 {
-Document::Document(const QString &fileName, bool useResman) : mDoc(nullptr)
+    Document::Document(const QString &fileName) : mDoc(nullptr)
     {
-        QString resolvedFileName = fileName;
-        if (useResman)
-        {
-            resolvedFileName = ResourceManager::resolve(fileName);
-
-            if (resolvedFileName.isEmpty())
-            {
-                qWarning() << "(XML::Document) File not found in search path: "
-                           << fileName;
-                return;
-            }
-        }
-
-        mDoc = xmlParseFile(resolvedFileName.toStdString().c_str());
+        mDoc = xmlParseFile(fileName.toStdString().c_str());
 
         if (!mDoc)
         {
             qWarning() << "(XML::Document) Error parsing XML file: "
-                       << resolvedFileName;
+                       << fileName;
         }
     }
 

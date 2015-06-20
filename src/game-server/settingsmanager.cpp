@@ -22,8 +22,6 @@
 #include "common/defines.h"
 #include "utils/xml.h"
 
-#include "common/resourcemanager.h"
-
 #include "game-server/abilitymanager.h"
 #include "game-server/attributemanager.h"
 #include "game-server/itemmanager.h"
@@ -33,6 +31,7 @@
 #include "game-server/statusmanager.h"
 
 #include <QDebug>
+#include <QFileInfo>
 
 /**
  * Initialize all managers and load configuration into them.
@@ -111,19 +110,18 @@ void SettingsManager::loadFile(const QString &filename)
             if (!includeFile.isEmpty())
             {
                 // build absolute path path
-                const ResourceManager::splittedPath splittedPath = ResourceManager::splitFileNameAndPath(filename);
-                const QString realIncludeFile = ResourceManager::cleanPath(
-                        ResourceManager::joinPaths(splittedPath.path, includeFile));
+                QFileInfo file(filename);
+                QString absolutePath = file.absoluteFilePath();
 
                 // check if we're not entering a loop
-                if (mIncludedFiles.find(realIncludeFile) != mIncludedFiles.end())
+                if (mIncludedFiles.find(absolutePath) != mIncludedFiles.end())
                 {
                     qCritical() << "Circular include loop detecting while including " << includeFile << " from " << filename;
                 }
                 else
                 {
                     // include that file
-                    loadFile(realIncludeFile);
+                    loadFile(absolutePath);
                 }
             }
         }

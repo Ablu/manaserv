@@ -41,7 +41,6 @@
 #include "chat-server/postmanager.h"
 #include "common/defines.h"
 #include "common/manaserv_protocol.h"
-#include "common/resourcemanager.h"
 #include "net/bandwidth.h"
 #include "net/connectionhandler.h"
 #include "net/messageout.h"
@@ -113,8 +112,6 @@ static void initialize()
                                              DEFAULT_STATS_FILE);
 
     qDebug() << "Using statistics file: " << statisticsFile;
-
-    ResourceManager::initialize(configuration);
 
     // Open database
     try
