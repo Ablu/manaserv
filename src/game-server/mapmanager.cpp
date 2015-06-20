@@ -96,13 +96,6 @@ void MapManager::readMapNode(xmlNodePtr node)
         QString file = QString("maps/") + name + ".tmx";
         bool mapFileExists = ResourceManager::exists(file);
 
-        // Try to fall back on fully compressed map
-        if (!mapFileExists)
-        {
-            file += ".gz";
-            mapFileExists = ResourceManager::exists(file);
-        }
-
         if (mapFileExists)
         {
             maps[id] = new MapComposite(id, name, mConfiguration);
