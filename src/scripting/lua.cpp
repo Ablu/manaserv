@@ -3607,5 +3607,7 @@ LuaScript::LuaScript():
     lua_getfield(mRootState, -1, "traceback");
     lua_remove(mRootState, 1);                  // remove the 'debug' table
 
-    loadFile("scripts/lua/libmana.lua");
+    if (!loadFile("scripts/lua/libmana.lua")) {
+        qFatal("failed to load scripting library");
+    }
 }
