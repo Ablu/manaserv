@@ -349,13 +349,13 @@ int main(int argc, char *argv[])
     bool debugNetwork = configuration->getBoolValue("net_debugMode", false);
     MessageOut::setDebugModeEnabled(debugNetwork);
 
-    if (!AccountClientHandler::initialize(DEFAULT_ATTRIBUTEDB_FILE,
-                                          options.port, accountHost,
-                                          configuration, storage) ||
+    const QString worldPath = configuration->getValue("worldDataPath", "example");
+    if (!AccountClientHandler::initialize(
+            worldPath + "/" + DEFAULT_ATTRIBUTEDB_FILE, options.port,
+            accountHost, configuration, storage) ||
         !GameServerHandler::initialize(accountGamePort, accountHost,
                                        configuration, storage) ||
-        !chatHandler->startListen(chatClientPort, chatHost))
-    {
+        !chatHandler->startListen(chatClientPort, chatHost)) {
         qCritical() << "Unable to create an ENet server host.";
         return EXIT_NET_EXCEPTION;
     }

@@ -121,7 +121,9 @@ bool GameServerHandler::initialize(int port,
 {
     mStorage = storage;
 
-    MapManager::initialize(DEFAULT_MAPSDB_FILE);
+
+    const QString worldPath = configuration->getValue("worldDataPath", "example");
+    MapManager::initialize(worldPath + "/" + DEFAULT_MAPSDB_FILE);
     serverHandler = new ServerHandler(configuration, storage);
     qDebug() << "Game server handler started:";
     return serverHandler->startListen(port, host);
