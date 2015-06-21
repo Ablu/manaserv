@@ -144,11 +144,11 @@ static void initializeServer()
     settingsManager= new SettingsManager(worldPath + "/" + DEFAULT_SETTINGS_FILE);
     settingsManager->initialize(configuration, mapReader);
 
-    PermissionManager::initialize(DEFAULT_PERMISSION_FILE);
+    PermissionManager::initialize(worldPath + "/" + DEFAULT_PERMISSION_FILE);
 
 
-    QString mainScript = configuration->getValue("script_mainFile",
-                                                     DEFAULT_MAIN_SCRIPT_FILE);
+    QString mainScript = configuration->getValue(
+        "script_mainFile", worldPath + "/" + DEFAULT_MAIN_SCRIPT_FILE);
     ScriptManager::loadMainScript(mainScript);
 
     // --- Initialize the global handlers
