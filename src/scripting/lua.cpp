@@ -53,6 +53,7 @@
 #include <string.h>
 #include <math.h>
 
+#include <QCoreApplication>
 #include <QFileInfo>
 
 /*
@@ -3371,28 +3372,6 @@ static int test_tableget(lua_State *s)
 }
 
 
-
-static int require_loader(lua_State *s)
-{
-    Script *script = getScript(s);
-
-    // Add .lua extension (maybe only do this when it doesn't have it already)
-    const char *file = luaL_checkstring(s, 1);
-    QString filename = script->getWorldDataPath();
-    filename.append("/");
-    filename.append(file);
-    filename.append(".lua");
-
-    QFileInfo pathInfo(filename);
-    if (pathInfo.exists())
-        luaL_loadfile(s, filename.toStdString().c_str());
-    else
-        lua_pushliteral(s, "File not found");
-
-    return 1;
-}
-
-
 LuaScript::LuaScript(const QString &worldDataPath)
     : Script(worldDataPath)
     , nbArgs(-1)
@@ -3400,18 +3379,6 @@ LuaScript::LuaScript(const QString &worldDataPath)
     mRootState = luaL_newstate();
     mCurrentState = mRootState;
     luaL_openlibs(mRootState);
-
-    // Register package loader that goes through the resource manager
-    // package.loaders[2] = require_loader
-    lua_getglobal(mRootState, "package");
-#if LUA_VERSION_NUM < 502
-    lua_getfield(mRootState, -1, "loaders");
-#else
-    lua_getfield(mRootState, -1, "searchers");
-#endif
-    lua_pushcfunction(mRootState, require_loader);
-    lua_rawseti(mRootState, -2, 2);
-    lua_pop(mRootState, 2);
 
     // Put the callback functions in the scripting environment.
     static luaL_Reg const callbacks[] = {
@@ -3613,7 +3580,13 @@ LuaScript::LuaScript(const QString &worldDataPath)
     lua_getfield(mRootState, -1, "traceback");
     lua_remove(mRootState, 1);                  // remove the 'debug' table
 
-    if (!loadFile("scripts/lua/libmana.lua")) {
-        qFatal("failed to load scripting library");
+    QString scriptingLibraryRoot = QCoreApplication::applicationDirPath() +
+                                   "/../share/manaserv/lua/";
+    appendPath(mRootState, scriptingLibraryRoot + "?.lua");
+
+    const QString libraryPath = scriptingLibraryRoot + "scripts/lua/libmana.lua";
+    if (!loadFile(libraryPath)) {
+        qFatal("Failed to load scripting library from: %s",
+               libraryPath.toStdString().c_str());
     }
 }

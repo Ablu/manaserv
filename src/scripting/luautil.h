@@ -326,4 +326,17 @@ void pushSTLContainer(lua_State *s, const std::set<T> &container)
     }
 }
 
+inline void appendPath(lua_State *s, const QString &path)
+{
+    lua_getglobal(s, "package");            // package
+    lua_getfield(s, -1, "path");            // package, package.path
+    std::string currentPath = lua_tostring(s, -1);
+    currentPath.append(";");
+    currentPath.append(path.toStdString());
+    lua_pop(s, 1);                          // package
+    lua_pushstring(s, currentPath.c_str()); // package, newPath
+    lua_setfield(s, -2, "path");            // package
+    lua_pop(s, 1);
+}
+
 #endif

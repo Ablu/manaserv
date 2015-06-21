@@ -189,7 +189,7 @@ CppApplication {
             "lua/libmana-constants.lua",
         ]
         qbs.install: true
-        qbs.installDir: "share/manaserv/lua/"
+        qbs.installDir: "share/manaserv/lua/scripts/lua/"
     }
 
     Group {
