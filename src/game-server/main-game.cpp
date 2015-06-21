@@ -90,7 +90,7 @@ ItemManager *itemManager = new ItemManager();
 MonsterManager *monsterManager = new MonsterManager();
 EmoteManager *emoteManager = new EmoteManager();
 
-SettingsManager *settingsManager = new SettingsManager(DEFAULT_SETTINGS_FILE);
+SettingsManager *settingsManager;
 
 /** Core game message handler */
 GameHandler *gameHandler;
@@ -140,6 +140,8 @@ static void initializeServer()
     ScriptManager::initialize(configuration);   // Depends on ResourceManager
 
     // load game settings files
+    const QString worldPath = configuration->getValue("worldDataPath", "example");
+    settingsManager= new SettingsManager(worldPath + "/" + DEFAULT_SETTINGS_FILE);
     settingsManager->initialize(configuration, mapReader);
 
     PermissionManager::initialize(DEFAULT_PERMISSION_FILE);
