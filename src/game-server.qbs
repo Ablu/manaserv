@@ -9,6 +9,7 @@ CppApplication {
         name: "Qt"
         submodules: [
             "core",
+            "gui",
         ]
     }
 

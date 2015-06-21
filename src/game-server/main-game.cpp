@@ -60,7 +60,7 @@
 #include <enet/enet.h>
 #include <unistd.h>
 
-#include <QCoreApplication>
+#include <QGuiApplication>
 
 #ifdef __MINGW32__
 #include <windows.h>
@@ -302,7 +302,7 @@ static void parseOptions(int argc, char *argv[], CommandLineOptions &options)
  */
 int main(int argc, char *argv[])
 {
-    QCoreApplication application(argc, argv);
+    QGuiApplication application(argc, argv);
 
     // Parse command line options
     CommandLineOptions options;
