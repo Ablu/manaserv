@@ -85,7 +85,8 @@ void SettingsManager::loadFile(const QString &filename)
     xmlNodePtr node = doc.rootNode();
 
     // add file to include set
-    mIncludedFiles.insert(filename);
+    QFileInfo fileInfo(filename);
+    mIncludedFiles.insert(fileInfo.absoluteFilePath());
 
     // FIXME: check root node's name when bjorn decides it's time
     if (!node /*|| !xmlStrEqual(node->name, BAD_CAST "settings") */)
@@ -110,7 +111,7 @@ void SettingsManager::loadFile(const QString &filename)
             if (!includeFile.isEmpty())
             {
                 // build absolute path path
-                QFileInfo file(filename);
+                QFileInfo file(fileInfo.absolutePath() + "/" + includeFile);
                 QString absolutePath = file.absoluteFilePath();
 
                 // check if we're not entering a loop
