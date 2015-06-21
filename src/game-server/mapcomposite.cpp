@@ -969,11 +969,11 @@ void MapComposite::initializeContent()
                         }
                         else
                         {
-                            qCritical() << "Warp target \"" << destMapObjectName << "\" on map "
+                            qCritical() << "Warp target " << destMapObjectName << " on map "
                                         << destMap->getName()
-                                        << " has an invalid exit direction \""
+                                        << " has an invalid exit direction "
                                         << exit
-                                        << "\"!";
+                                        << "!";
                         }
                         continue;
                     }
