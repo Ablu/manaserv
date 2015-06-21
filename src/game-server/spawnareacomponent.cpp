@@ -104,10 +104,6 @@ void SpawnAreaComponent::update(Entity &entity)
             }
             else
             {
-                qWarning() << "Unable to find a free spawn location for monster "
-                           << mSpecy->getId() << " on map " << map->getName()
-                           << " (" << x << ',' << y << ','
-                           << width << ',' << height << ')';
                 delete being;
             }
         }
