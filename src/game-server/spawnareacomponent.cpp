@@ -84,14 +84,14 @@ void SpawnAreaComponent::update(Entity &entity)
             do
             {
                 position = Point(x + rand() % width, y + rand() % height);
-                triesLeft--;
             }
             while (!realMap.getWalk(position.x / realMap.getTileWidth(),
                                     position.y / realMap.getTileHeight(),
                                     actorComponent->getWalkMask())
-                   && triesLeft);
+                   && --triesLeft);
 
-            if (triesLeft)
+            bool wasAbleToFindFreeSpawnPosition = triesLeft != 0;
+            if (wasAbleToFindFreeSpawnPosition)
             {
                 connect(being, SIGNAL(removed(Entity*)), this, SLOT(beingRemoved(Entity*)));
 
