@@ -152,7 +152,7 @@ void MessageOut::writeString(const QString &string, int length)
     expand(mPos + length);
 
     // Write the actual string
-    memcpy(mData + mPos, string.data(), stringLength);
+    memcpy(mData + mPos, string.toUtf8().constData(), stringLength);
 
     if (length > stringLength)
     {
