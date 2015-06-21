@@ -100,9 +100,10 @@ QTextStream &operator <<(QTextStream &os, const NetComputer &comp)
 
 QDebug &operator <<(QDebug &debug, const NetComputer &comp)
 {
-    QTextStream ss;
+    QString output;
+    QTextStream ss(&output);
     ss << comp;
-    return debug << ss.string();
+    return debug << output;
 }
 
 int NetComputer::getIP() const

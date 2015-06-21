@@ -274,7 +274,8 @@ QTextStream &operator<<(QTextStream &os, const MessageIn &msg)
 
 QDebug &operator <<(QDebug &debug, const MessageIn &msg)
 {
-    QTextStream ss;
+    QString output;
+    QTextStream ss(&output);
     ss << msg;
-    return debug << ss.string();
+    return debug << output;
 }

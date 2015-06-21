@@ -190,7 +190,8 @@ void MessageOut::setDebugModeEnabled(bool enabled)
 
 QDebug &operator <<(QDebug &debug, const MessageOut &msg)
 {
-    QTextStream ss;
+    QString output;
+    QTextStream ss(&output);
     ss << msg;
-    return debug << ss.string();
+    return debug << output;
 }
